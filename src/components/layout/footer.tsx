@@ -3,7 +3,6 @@
 import Container from '@/components/layout/container';
 import { Logo } from '@/components/layout/logo';
 import { ModeSwitcherHorizontal } from '@/components/layout/mode-switcher-horizontal';
-import BuiltWithButton from '@/components/shared/built-with-button';
 import { useFooterLinks } from '@/config/footer-config';
 import { useSocialLinks } from '@/config/social-config';
 import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
@@ -57,9 +56,6 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                   ))}
                 </div>
               </nav>
-
-              {/* built with button */}
-              <BuiltWithButton />
             </div>
           </div>
 

@@ -1,52 +1,48 @@
-# MkSaaS
+# WhatAisle
 
-Make AI SaaS in a weekend.
+An online "find the shelf" service for multilingual grocery stores.
 
-The complete Next.js boilerplate for building profitable SaaS, with auth, payments, i18n, newsletter, dashboard, blog, docs, blocks, themes, SEO and more.
+Staff snap casual photos of shelves; the system grows a product-location memory
+searchable in English and Chinese. Shoppers scan an in-store QR code, ask by
+typing, speaking, or taking a photo — and get a shelf-level answer with a
+highlighted floor map.
 
-## Branches
+- Main site: `www.whataisle.com`
+- Per-store page: `<store-handle>.whataisle.com`
+- Deployment target: Google Cloud (not yet deployed; local-first build)
 
-- [main](https://github.com/MkSaaSHQ/mksaas-template): The `main` branch can be deployed on Vercel or with Docker, and uses Postgres as database by default, you can check out this [deployment guide](https://mksaas.com/zh/docs/deployment/vercel) for more details.
-- [cloudflare](https://github.com/MkSaaSHQ/mksaas-template/tree/cloudflare): The `cloudflare` branch can be deployed on Cloudflare Worker, and uses Postgres as database by default, you can check out this [deployment guide](https://mksaas.com/zh/docs/deployment/cloudflare) for more details.
-- [cloudflare-d1](https://github.com/MkSaaSHQ/mksaas-template/tree/cloudflare-d1): The `cloudflare-d1` branch can be deployed on Cloudflare Worker, and uses Cloudflare D1 as database by default, you can check out this [deployment guide](https://mksaas.com/zh/docs/deployment/cloudflare-d1) for more details.
+Built on [mksaas-template](https://mksaas.com) (imported at `7b295cd9`) —
+Next.js 16, React 19, Better Auth, Drizzle + Postgres (pgvector), next-intl
+(EN/中文), Tailwind 4, Playwright.
 
-## Author
+## Local development
 
-This project is created by [Fox](https://x.com/indie_maker_fox), the founder of [MkSaaS](https://mksaas.com), [TanStarter](https://tanstarter.dev) and [Mkdirs](https://mkdirs.com). The official X account for [MkSaaS](https://mksaas.com) is [@mksaascom](https://x.com/mksaascom), you can follow this account for the updates about MkSaaS.
+```bash
+docker compose up -d      # Postgres (pgvector) on :5432 + Mailpit on :1025/:8025
+cp env.example .env       # then fill in secrets (see comments)
+pnpm install
+pnpm db:migrate
+pnpm seed                 # demo stores
+pnpm dev                  # http://localhost:3000
+```
 
-## Documentation
+- Owner portal: `http://localhost:3000`
+- Demo store (after Phase 1): `http://demo.localhost:3000`
+- Emails land in Mailpit: `http://localhost:8025`
+- AI (Gemini): set `GEMINI_API_KEY` (AI Studio) or authenticate ADC with
+  `gcloud auth application-default login` for Vertex.
 
-The documentation is available on the [website](https://mksaas.com/docs). It includes guides, tutorials, and detailed explanations of the code. I designed it to be as beginner-friendly as possible, so you can start making money from day one.
+## Structure
 
-If you found anything that could be improved, please let me know.
+- `src/app/[locale]/` — main site: marketing, auth, owner portal, `/admin` back office
+- `src/app/store/[handle]/` — per-store subdomain: shopper search + staff area
+- `src/ai/` — Gemini pipeline (vision shelf-scan, aliases, embeddings, search)
+- `src/data/` — tenant-scoped data access (all store data goes through here)
+- `src/db/` — Drizzle schemas and migrations
 
-## Links
+## Deferred backlog
 
-- 🔥 website: [mksaas.com](https://mksaas.com)
-- 🌐 demo: [demo.mksaas.com](https://demo.mksaas.com)
-- 📚 documentation: [mksaas.com/docs](https://mksaas.com/docs)
-- 🗓️ roadmap: [mksaas roadmap](https://mksaas.link/roadmap)
-- 👨‍💻 discord: [mksaas.link/discord](https://mksaas.link/discord)
-- 📹 video: [mksaas.link/youtube](https://mksaas.link/youtube)
-
-## Repositories
-
-By default, you should have access to all 5 repositories. If you find that you’re unable to access any of them, please don’t hesitate to reach out to me, and I’ll assist you in resolving the issue.
-
-- [mksaas-template](https://github.com/MkSaaSHQ/mksaas-template): https://demo.mksaas.com
-- [mksaas-blog](https://github.com/MkSaaSHQ/mksaas-blog): https://mksaas.me
-- [mksaas-haitang](https://github.com/MkSaaSHQ/mksaas-haitang): https://haitang.app
-- [mksaas-app](https://github.com/MkSaaSHQ/mksaas-app): https://mkdollar.com
-- [mksaas-outfit](https://github.com/MkSaaSHQ/mksaas-outfit): built by [@yihui_indie](https://x.com/yihui_indie)
-
-## Notice
-
-> If you have any questions, please [submit an issue](https://github.com/MkSaaSHQ/mksaas-template/issues/new), or contact me at [support@mksaas.com](mailto:support@mksaas.com), or join our [discord community](https://mksaas.link/discord) and ask for help there.
-
-> If you want to receive notifications whenever code changes, please click `Watch` button in the top right.
-
-> When submitting any content to the  issues of the repository, please use **English** as the main Language, so that everyone can read it and help you, thank you for your supports.
-
-## License
-
-For any details on the license, please refer to the [License](LICENSE) file.
+- POS CSV bulk import (products land "unlocated", auto-match on scan)
+- Staffed full-store onboarding productization (booking, coverage board, acceptance report)
+- GCP deployment (wildcard TLS for `*.whataisle.com`, GCS storage driver, Cloud Scheduler cron, budget alerts)
+- Stripe billing activation (pricing defined separately)

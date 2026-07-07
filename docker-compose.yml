@@ -1,0 +1,30 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    container_name: whataisle-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: whataisle
+      POSTGRES_PASSWORD: whataisle
+      POSTGRES_DB: whataisle
+    ports:
+      # Host port 5433: local machines often already run a Postgres on 5432.
+      - '5433:5432'
+    volumes:
+      - whataisle-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U whataisle']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: whataisle-mailpit
+    restart: unless-stopped
+    ports:
+      - '1025:1025' # SMTP
+      - '8025:8025' # Web UI
+
+volumes:
+  whataisle-pgdata:

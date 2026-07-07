@@ -64,6 +64,13 @@
       "when": 1770309934776,
       "tag": "0008_curious_patch",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1783391620619,
+      "tag": "0009_pg_extensions",
+      "breakpoints": true
     }
   ]
 }

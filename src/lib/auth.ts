@@ -7,7 +7,6 @@ import { getDb } from '@/db/index';
 import { defaultMessages } from '@/i18n/messages';
 import { LOCALE_COOKIE_NAME, routing } from '@/i18n/routing';
 import { sendEmail } from '@/mail';
-import { subscribe } from '@/newsletter';
 import { type User, betterAuth } from 'better-auth';
 import { emailHarmony } from 'better-auth-harmony';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
@@ -87,12 +86,8 @@ export const auth = betterAuth({
     sendOnSignIn: true,
   },
   socialProviders: {
-    // https://www.better-auth.com/docs/authentication/github
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    },
     // https://www.better-auth.com/docs/authentication/google
+    // GitHub OAuth is intentionally absent: store owners don't have GitHub accounts.
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
@@ -102,7 +97,7 @@ export const auth = betterAuth({
     // https://www.better-auth.com/docs/concepts/users-accounts#account-linking
     accountLinking: {
       enabled: true,
-      trustedProviders: ['google', 'github'],
+      trustedProviders: ['google'],
     },
   },
   user: {
@@ -179,30 +174,6 @@ export function getLocaleFromRequest(request?: Request): Locale {
 async function onCreateUser(user: User) {
   if (isE2ETestMode()) {
     return;
-  }
-
-  // Auto subscribe user to newsletter after sign up if enabled in website config
-  // Add a delay to avoid hitting Resend's 1 email per second limit
-  if (
-    user.email &&
-    websiteConfig.newsletter.enable &&
-    websiteConfig.newsletter.autoSubscribeAfterSignUp
-  ) {
-    // Delay newsletter subscription by 2 seconds to avoid rate limiting
-    // This ensures the email verification email is sent first
-    // Using 2 seconds instead of 1 to provide extra buffer for network delays
-    setTimeout(async () => {
-      try {
-        const subscribed = await subscribe(user.email);
-        if (!subscribed) {
-          console.error(`Failed to subscribe user ${user.email} to newsletter`);
-        } else {
-          console.log(`User ${user.email} subscribed to newsletter`);
-        }
-      } catch (error) {
-        console.error('Newsletter subscription error:', error);
-      }
-    }, 2000);
   }
 
   // Add register gift credits to the user if enabled in website config

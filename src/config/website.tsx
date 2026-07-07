@@ -42,7 +42,8 @@ const priceIds = {
 export const websiteConfig: WebsiteConfig = {
   ui: {
     mode: {
-      defaultMode: 'dark',
+      // Store owners and staff are not tech-savvy; light mode is the familiar default.
+      defaultMode: 'light',
       enableSwitch: true,
     },
   },
@@ -52,18 +53,9 @@ export const websiteConfig: WebsiteConfig = {
       logoLight: '/logo.png',
       logoDark: '/logo-dark.png',
     },
-    social: {
-      github: 'https://github.com/MkSaaSHQ',
-      twitter: 'https://mksaas.link/twitter',
-      blueSky: 'https://mksaas.link/bsky',
-      discord: 'https://mksaas.link/discord',
-      mastodon: 'https://mksaas.link/mastodon',
-      linkedin: 'https://mksaas.link/linkedin',
-      youtube: 'https://mksaas.link/youtube',
-    },
   },
   features: {
-    enableUpgradeCard: true,
+    enableUpgradeCard: false,
     enableUpdateAvatar: true,
     enableDatafastRevenueTrack: false,
     enableCrispChat: process.env.NEXT_PUBLIC_DEMO_WEBSITE === 'true',
@@ -83,7 +75,7 @@ export const websiteConfig: WebsiteConfig = {
   },
   auth: {
     enableGoogleLogin: true,
-    enableGithubLogin: true,
+    enableGithubLogin: false,
     enableCredentialLogin: true,
     enableDeleteUser: true,
   },
@@ -103,27 +95,24 @@ export const websiteConfig: WebsiteConfig = {
     },
   },
   blog: {
-    enable: true,
+    enable: false,
     paginationSize: 6,
     relatedPostsSize: 3,
   },
   docs: {
+    // Repurposed as the bilingual help center.
     enable: true,
   },
   mail: {
     enable: true,
-    provider: 'resend',
-    fromEmail: 'MkSaaS <support@example.com>',
-    supportEmail: 'MkSaaS <support@example.com>',
+    provider: process.env.MAIL_PROVIDER === 'smtp' ? 'smtp' : 'resend',
+    fromEmail: 'WhatAisle <noreply@whataisle.com>',
+    supportEmail: 'WhatAisle <support@whataisle.com>',
   },
   newsletter: {
-    enable: true,
+    enable: false,
     provider: 'resend',
-    autoSubscribeAfterSignUp: true,
-  },
-  notification: {
-    enable: true,
-    provider: 'discord',
+    autoSubscribeAfterSignUp: false,
   },
   storage: {
     enable: true,

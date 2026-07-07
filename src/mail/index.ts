@@ -1,6 +1,7 @@
 import { websiteConfig } from '@/config/website';
 import { isE2ETestMode } from '@/lib/e2e';
 import { ResendProvider } from './provider/resend';
+import { SmtpProvider } from './provider/smtp';
 import type {
   MailProvider,
   MailProviderName,
@@ -15,6 +16,7 @@ type MailProviderFactory = () => MailProvider;
 const providerRegistry: Partial<Record<MailProviderName, MailProviderFactory>> =
   {
     resend: () => new ResendProvider(),
+    smtp: () => new SmtpProvider(),
   };
 
 /**

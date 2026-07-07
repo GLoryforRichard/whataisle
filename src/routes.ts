@@ -5,17 +5,11 @@ export enum Routes {
   Root = '/',
 
   // marketing pages
-  FAQ = '/#faqs',
-  Features = '/#features',
+  HowItWorks = '/#how-it-works',
   Pricing = '/pricing',
-  Blog = '/blog',
   Docs = '/docs',
-  Ai = '/ai',
   About = '/about',
   Contact = '/contact',
-  Waitlist = '/waitlist',
-  Changelog = '/changelog',
-  Roadmap = '/roadmap',
   CookiePolicy = '/cookie',
   PrivacyPolicy = '/privacy',
   TermsOfService = '/terms',
@@ -38,7 +32,6 @@ export enum Routes {
   SettingsBilling = '/settings/billing',
   SettingsCredits = '/settings/credits',
   SettingsSecurity = '/settings/security',
-  SettingsNotifications = '/settings/notifications',
   SettingsApiKeys = '/settings/apikeys',
 
   // payment processing
@@ -60,7 +53,6 @@ export const protectedRoutes = [
   Routes.SettingsBilling,
   Routes.SettingsCredits,
   Routes.SettingsSecurity,
-  Routes.SettingsNotifications,
   Routes.SettingsApiKeys,
   Routes.Payment,
 ];

@@ -147,7 +147,7 @@ export interface DocsConfig {
  */
 export interface MailConfig {
   enable: boolean;                   // Whether to enable the mail
-  provider: 'resend';                // The email provider, only resend is supported for now
+  provider: 'resend' | 'smtp';       // The email provider; smtp is for local dev (Mailpit)
   fromEmail?: string;                // The email address to send from
   supportEmail?: string;             // The email address to send support emails to
 }
@@ -174,7 +174,7 @@ export interface NotificationConfig {
  */
 export interface StorageConfig {
   enable: boolean;                   // Whether to enable the storage
-  provider: 's3';                    // The storage provider, only s3 is supported for now
+  provider: 's3' | 'local';          // The storage provider; local disk is for local dev
 }
 
 /**

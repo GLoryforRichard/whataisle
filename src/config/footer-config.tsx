@@ -10,9 +10,6 @@ import { websiteConfig } from './website';
  *
  * NOTICE: used in client components only
  *
- * docs:
- * https://mksaas.com/docs/config/footer
- *
  * @returns The footer config with translated titles
  */
 export function useFooterLinks(): NestedMenuItem[] {
@@ -24,33 +21,9 @@ export function useFooterLinks(): NestedMenuItem[] {
       items: [
         {
           title: t('product.items.features'),
-          href: Routes.Features,
+          href: Routes.HowItWorks,
           external: false,
         },
-        {
-          title: t('product.items.pricing'),
-          href: Routes.Pricing,
-          external: false,
-        },
-        {
-          title: t('product.items.faq'),
-          href: Routes.FAQ,
-          external: false,
-        },
-      ],
-    },
-    {
-      title: t('resources.title'),
-      items: [
-        ...(websiteConfig.blog.enable
-          ? [
-              {
-                title: t('resources.items.blog'),
-                href: Routes.Blog,
-                external: false,
-              },
-            ]
-          : []),
         ...(websiteConfig.docs.enable
           ? [
               {
@@ -60,16 +33,6 @@ export function useFooterLinks(): NestedMenuItem[] {
               },
             ]
           : []),
-        {
-          title: t('resources.items.changelog'),
-          href: Routes.Changelog,
-          external: false,
-        },
-        {
-          title: t('resources.items.roadmap'),
-          href: Routes.Roadmap,
-          external: false,
-        },
       ],
     },
     {
@@ -83,11 +46,6 @@ export function useFooterLinks(): NestedMenuItem[] {
         {
           title: t('company.items.contact'),
           href: Routes.Contact,
-          external: false,
-        },
-        {
-          title: t('company.items.waitlist'),
-          href: Routes.Waitlist,
           external: false,
         },
       ],

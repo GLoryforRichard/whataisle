@@ -4,10 +4,8 @@ import { isDemoWebsite } from '@/lib/demo';
 import { Routes } from '@/routes';
 import type { NestedMenuItem } from '@/types';
 import {
-  BellIcon,
   CircleUserRoundIcon,
   CoinsIcon,
-  CreditCardIcon,
   KeyIcon,
   LayoutDashboardIcon,
   LockKeyholeIcon,
@@ -64,12 +62,6 @@ export function useSidebarLinks(): NestedMenuItem[] {
           href: Routes.SettingsProfile,
           external: false,
         },
-        {
-          title: t('settings.billing.title'),
-          icon: <CreditCardIcon className="size-4 shrink-0" />,
-          href: Routes.SettingsBilling,
-          external: false,
-        },
         ...(websiteConfig.credits.enableCredits
           ? [
               {
@@ -94,12 +86,6 @@ export function useSidebarLinks(): NestedMenuItem[] {
           title: t('settings.security.title'),
           icon: <LockKeyholeIcon className="size-4 shrink-0" />,
           href: Routes.SettingsSecurity,
-          external: false,
-        },
-        {
-          title: t('settings.notification.title'),
-          icon: <BellIcon className="size-4 shrink-0" />,
-          href: Routes.SettingsNotifications,
           external: false,
         },
       ],
