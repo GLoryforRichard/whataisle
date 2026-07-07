@@ -6,11 +6,15 @@ import type { NestedMenuItem } from '@/types';
 import {
   CircleUserRoundIcon,
   CoinsIcon,
+  FilmIcon,
   KeyIcon,
   LayoutDashboardIcon,
   LockKeyholeIcon,
+  MapIcon,
+  MapPinnedIcon,
   Settings2Icon,
   SettingsIcon,
+  StoreIcon,
   UsersRoundIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -28,6 +32,7 @@ import { websiteConfig } from './website';
  */
 export function useSidebarLinks(): NestedMenuItem[] {
   const t = useTranslations('Dashboard');
+  const mt = useTranslations('Manage');
 
   // if is demo website, allow user to access admin and user pages, but data is fake
   const isDemo = isDemoWebsite();
@@ -40,6 +45,24 @@ export function useSidebarLinks(): NestedMenuItem[] {
       external: false,
     },
     {
+      title: mt('storeSection'),
+      icon: <StoreIcon className="size-4 shrink-0" />,
+      items: [
+        {
+          title: mt('video.nav'),
+          icon: <FilmIcon className="size-4 shrink-0" />,
+          href: Routes.ManageVideo,
+          external: false,
+        },
+        {
+          title: mt('map.nav'),
+          icon: <MapIcon className="size-4 shrink-0" />,
+          href: Routes.ManageMap,
+          external: false,
+        },
+      ],
+    },
+    {
       title: t('admin.title'),
       icon: <SettingsIcon className="size-4 shrink-0" />,
       authorizeOnly: isDemo ? ['admin', 'user'] : ['admin'],
@@ -48,6 +71,12 @@ export function useSidebarLinks(): NestedMenuItem[] {
           title: t('admin.users.title'),
           icon: <UsersRoundIcon className="size-4 shrink-0" />,
           href: Routes.AdminUsers,
+          external: false,
+        },
+        {
+          title: mt('adminMapping.nav'),
+          icon: <MapPinnedIcon className="size-4 shrink-0" />,
+          href: Routes.AdminMapping,
           external: false,
         },
       ],

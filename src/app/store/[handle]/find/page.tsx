@@ -1,4 +1,6 @@
 import { ShopperResults } from '@/components/store/shopper-results';
+import { tenantRepo } from '@/data/tenant-repo';
+import type { FloorMapJson } from '@/db/store.schema';
 import { getStoreByHandle } from '@/lib/store-context';
 
 interface FindPageProps {
@@ -8,7 +10,8 @@ interface FindPageProps {
 
 /**
  * Shopper results page (§4.1). The query comes from the URL; results stream
- * over SSE in the client component.
+ * over SSE in the client component. The published floor map (if any) is loaded
+ * here so results can highlight the target shelf in red.
  */
 export default async function FindPage({
   params,
@@ -19,5 +22,9 @@ export default async function FindPage({
   const store = await getStoreByHandle(handle);
   if (!store) return null;
 
-  return <ShopperResults query={(q ?? '').slice(0, 120)} />;
+  const map = await tenantRepo(store.id).getFloorMap();
+  const mapJson: FloorMapJson | null =
+    map && map.status === 'published' ? (map.mapJson ?? null) : null;
+
+  return <ShopperResults query={(q ?? '').slice(0, 120)} mapJson={mapJson} />;
 }

@@ -456,6 +456,65 @@ export const feedbackReport = pgTable(
   })
 );
 
+// ---------------------------------------------------------------------------
+// Store onboarding: walk-through videos + the platform mapping queue (§6)
+// ---------------------------------------------------------------------------
+
+export type StoreVideoStatus = 'uploading' | 'received';
+export type MappingTicketType = 'initial' | 'layout_update';
+export type MappingTicketStatus =
+  | 'todo'
+  | 'drawing'
+  | 'awaiting_confirm'
+  | 'published'
+  | 'returned';
+
+export const storeVideo = pgTable(
+  'store_video',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    storageKey: text('storage_key').notNull(),
+    filename: text('filename'),
+    sizeBytes: integer('size_bytes').notNull().default(0),
+    status: text('status').notNull().default('uploading').$type<StoreVideoStatus>(),
+    // Which chunk indices have been received (resumable upload state).
+    chunksReceived: jsonb('chunks_received').$type<number[]>(),
+    totalChunks: integer('total_chunks').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    completedAt: timestamp('completed_at'),
+  },
+  (table) => ({
+    storeVideoStoreIdIdx: index('store_video_store_id_idx').on(table.storeId),
+  })
+);
+
+export const mappingTicket = pgTable(
+  'mapping_ticket',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    type: text('type').notNull().default('initial').$type<MappingTicketType>(),
+    videoId: text('video_id'),
+    status: text('status').notNull().default('todo').$type<MappingTicketStatus>(),
+    // Owner's note when returning a draft, or the layout-change description.
+    note: text('note'),
+    dueAt: timestamp('due_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    mappingTicketStatusIdx: index('mapping_ticket_status_idx').on(table.status),
+    mappingTicketStoreIdIdx: index('mapping_ticket_store_id_idx').on(
+      table.storeId
+    ),
+  })
+);
+
 export const reviewTask = pgTable(
   'review_task',
   {

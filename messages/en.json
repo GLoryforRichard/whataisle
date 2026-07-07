@@ -907,5 +907,74 @@
       "degraded": "Search is running in a simpler mode right now — results may be less precise.",
       "doubtedNote": "Worth double-checking — a few shoppers reported this was moved."
     }
+  },
+  "Manage": {
+    "video": {
+      "title": "Send us a store walk-through",
+      "guideTitle": "How to film it",
+      "guide1": "Walk one full lap of your store.",
+      "guide2": "Point the camera at each aisle and its sign.",
+      "guide3": "Go slow enough to read the shelf numbers.",
+      "pick": "Choose video",
+      "uploading": "Uploading… {percent}%",
+      "received": "Got it! We've received your video.",
+      "receivedNote": "We'll draw your store map and let you know when it's ready. You can start scanning shelves right now — nothing waits on the map.",
+      "startScanning": "Meanwhile, add shelves and scan",
+      "error": "Upload failed. Please try again — it will resume where it stopped.",
+      "tooBig": "That video is very large. It will upload in the background; keep this page open.",
+      "nav": "Store video"
+    },
+    "map": {
+      "title": "Your store map",
+      "statusNone": "No map yet. Send us a walk-through video to get started.",
+      "statusBuilding": "We're drawing your map. You'll see it here when it's ready.",
+      "awaitingConfirm": "Here's your map. Please check that the shelf numbers match the signs in your store.",
+      "published": "Your map is live. Shoppers see it in search results.",
+      "confirm": "Looks right — publish it",
+      "return": "Something's off",
+      "returnPrompt": "Tell us what to fix:",
+      "returnPlaceholder": "e.g. Aisle B4 and B5 are swapped",
+      "returnSend": "Send back",
+      "confirmed": "Confirmed — your map is live!",
+      "returned": "Thanks — we'll revise and send it back.",
+      "layoutUpdate": "Shelves moved? Request a layout update",
+      "layoutPrompt": "Describe the change (or send a new video):",
+      "layoutSend": "Request update",
+      "layoutSent": "Request sent.",
+      "nav": "Store map"
+    },
+    "adminMapping": {
+      "title": "Mapping queue",
+      "empty": "No stores waiting for a map.",
+      "store": "Store",
+      "status": "Status",
+      "video": "Video",
+      "created": "Created",
+      "overdue": "OVERDUE",
+      "download": "Download video",
+      "open": "Open mapping tool",
+      "statuses": {
+        "todo": "To draw",
+        "drawing": "Drawing",
+        "awaiting_confirm": "Awaiting owner",
+        "published": "Published",
+        "returned": "Returned"
+      },
+      "nav": "Mapping queue"
+    },
+    "mapTool": {
+      "title": "Mapping tool — {store}",
+      "hint": "Click-drag to draw a shelf rectangle, then assign its code. Codes should match the store's aisle signs.",
+      "shelfCode": "Shelf code",
+      "sides": "Has left/right sides",
+      "addRect": "Add shelf",
+      "clear": "Clear all",
+      "publish": "Publish to store",
+      "published": "Published — owner notified.",
+      "viewBoxNote": "Canvas is 100×100 units.",
+      "existingShelves": "Existing shelves: {codes}",
+      "remove": "Remove"
+    },
+    "storeSection": "My store"
   }
 }

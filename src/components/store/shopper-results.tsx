@@ -1,6 +1,8 @@
 'use client';
 
+import { StoreMapSvg } from '@/components/store/store-map-svg';
 import { Button } from '@/components/ui/button';
+import type { FloorMapJson } from '@/db/store.schema';
 import {
   CheckCircle2Icon,
   ChevronDownIcon,
@@ -52,7 +54,13 @@ interface Step {
  * ranked candidate list (thumbnail, shelf badge, seen N×) → where-to-find →
  * "not there" feedback → no-results rephrase.
  */
-export function ShopperResults({ query }: { query: string }) {
+export function ShopperResults({
+  query,
+  mapJson,
+}: {
+  query: string;
+  mapJson: FloorMapJson | null;
+}) {
   const t = useTranslations('Shopper.results');
   const locale = useLocale();
   const [steps, setSteps] = useState<Step[]>([]);
@@ -63,6 +71,7 @@ export function ShopperResults({ query }: { query: string }) {
   const [loading, setLoading] = useState(true);
   const [thinkingOpen, setThinkingOpen] = useState(false);
   const [reported, setReported] = useState<Set<string>>(new Set());
+  const [activeShelf, setActiveShelf] = useState<string | null>(null);
   const started = useRef(false);
 
   useEffect(() => {
@@ -76,7 +85,10 @@ export function ShopperResults({ query }: { query: string }) {
       setSteps((prev) => [...prev, step]);
     });
     es.addEventListener('result', (e) => {
-      setResult(JSON.parse((e as MessageEvent).data));
+      const r: FinalResult = JSON.parse((e as MessageEvent).data);
+      setResult(r);
+      const shown = r.candidates.length > 0 ? r.candidates : r.guesses;
+      setActiveShelf(shown[0]?.locations[0]?.shelfCode ?? null);
       setLoading(false);
       es.close();
     });
@@ -197,8 +209,16 @@ export function ShopperResults({ query }: { query: string }) {
           </p>
           {shown.map((c) => {
             const loc = c.locations[0];
+            const isActive = loc && activeShelf === loc.shelfCode;
             return (
-              <div key={c.productId} className="rounded-lg border p-3">
+              <div
+                key={c.productId}
+                className={`rounded-lg border p-3 ${isActive && mapJson ? 'border-primary' : ''}`}
+                onClick={() =>
+                  loc && mapJson ? setActiveShelf(loc.shelfCode) : undefined
+                }
+                style={{ cursor: loc && mapJson ? 'pointer' : 'default' }}
+              >
                 <div className="flex items-center gap-3">
                   {c.thumbnailUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -239,8 +259,8 @@ export function ShopperResults({ query }: { query: string }) {
                   </div>
                 </div>
 
-                {/* Where to find it — text directions until the map ships (Phase 4) */}
-                {loc ? (
+                {/* Where to find it — text directions (also shown with the map) */}
+                {loc && !mapJson ? (
                   <p className="mt-2 text-muted-foreground text-sm">
                     {t('whereToFind')}:{' '}
                     {t('mapComingSoon', { code: loc.shelfCode })}
@@ -256,7 +276,10 @@ export function ShopperResults({ query }: { query: string }) {
                   ) : (
                     <button
                       type="button"
-                      onClick={() => reportNotThere(c.productId)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        reportNotThere(c.productId);
+                      }}
                       className="text-muted-foreground text-sm underline underline-offset-2"
                     >
                       {t('notThere')}
@@ -266,6 +289,24 @@ export function ShopperResults({ query }: { query: string }) {
               </div>
             );
           })}
+        </div>
+      ) : null}
+
+      {/* WHERE TO FIND IT — floor map with the target shelf highlighted (§4.1) */}
+      {mapJson && shown.length > 0 && activeShelf ? (
+        <div className="flex flex-col gap-2">
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">
+            {t('whereToFind')}
+          </p>
+          <StoreMapSvg
+            mapJson={mapJson}
+            highlight={activeShelf}
+            highlightSide={
+              shown.find((c) => c.locations[0]?.shelfCode === activeShelf)
+                ?.locations[0]?.side ?? null
+            }
+            onSelectShelf={setActiveShelf}
+          />
         </div>
       ) : null}
 

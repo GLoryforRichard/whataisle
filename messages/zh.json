@@ -907,5 +907,74 @@
       "degraded": "搜索正在以简化模式运行，结果可能不够精确。",
       "doubtedNote": "建议再核实一下——有几位顾客反映这个商品被挪走了。"
     }
+  },
+  "Manage": {
+    "video": {
+      "title": "给我们发一段绕店视频",
+      "guideTitle": "怎么拍",
+      "guide1": "绕着店里走完整的一圈。",
+      "guide2": "把镜头对准每条通道和它的标牌。",
+      "guide3": "走得慢一点，让货架编号能看清。",
+      "pick": "选择视频",
+      "uploading": "上传中…… {percent}%",
+      "received": "收到啦！视频已上传成功。",
+      "receivedNote": "我们会为您绘制门店地图，做好后通知您。您现在就可以开始拍货架——不用等地图。",
+      "startScanning": "同时，先添加货架并拍照",
+      "error": "上传失败，请重试——会从中断处继续。",
+      "tooBig": "视频很大，将在后台上传，请保持本页面打开。",
+      "nav": "门店视频"
+    },
+    "map": {
+      "title": "您的门店地图",
+      "statusNone": "还没有地图。发一段绕店视频即可开始。",
+      "statusBuilding": "我们正在绘制您的地图，做好后会在这里显示。",
+      "awaitingConfirm": "这是您的地图，请核对货架编号是否和店里的标牌一致。",
+      "published": "地图已上线，顾客在搜索结果里能看到它。",
+      "confirm": "没问题——发布",
+      "return": "有点不对",
+      "returnPrompt": "告诉我们要改什么：",
+      "returnPlaceholder": "例如：B4 和 B5 货架标反了",
+      "returnSend": "退回修改",
+      "confirmed": "已确认——地图已上线！",
+      "returned": "谢谢——我们会修改后再发给您。",
+      "layoutUpdate": "货架挪动了？申请更新地图",
+      "layoutPrompt": "描述一下变化（或发一段新视频）：",
+      "layoutSend": "提交申请",
+      "layoutSent": "申请已提交。",
+      "nav": "门店地图"
+    },
+    "adminMapping": {
+      "title": "地图绘制队列",
+      "empty": "没有等待绘制地图的门店。",
+      "store": "门店",
+      "status": "状态",
+      "video": "视频",
+      "created": "创建时间",
+      "overdue": "已超时",
+      "download": "下载视频",
+      "open": "打开绘制工具",
+      "statuses": {
+        "todo": "待绘制",
+        "drawing": "绘制中",
+        "awaiting_confirm": "等待店主确认",
+        "published": "已发布",
+        "returned": "已退回"
+      },
+      "nav": "地图队列"
+    },
+    "mapTool": {
+      "title": "绘制工具 — {store}",
+      "hint": "按住拖动画出货架矩形，然后填写编号。编号要和门店的通道标牌一致。",
+      "shelfCode": "货架编号",
+      "sides": "有左右两侧",
+      "addRect": "添加货架",
+      "clear": "全部清除",
+      "publish": "发布到门店",
+      "published": "已发布——已通知店主。",
+      "viewBoxNote": "画布为 100×100 单位。",
+      "existingShelves": "已有货架：{codes}",
+      "remove": "删除"
+    },
+    "storeSection": "我的门店"
   }
 }
