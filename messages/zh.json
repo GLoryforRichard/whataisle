@@ -870,5 +870,42 @@
       "confirm": "确定，就用它"
     },
     "creating": "正在创建店铺…"
+  },
+  "Shopper": {
+    "greeting": "您想找什么？",
+    "placeholder": "输入商品名称…",
+    "searchButton": "搜索",
+    "voiceHold": "按住说话",
+    "voiceListening": "正在听……松开即搜索",
+    "photoButton": "拍照识别",
+    "photoNotKept": "照片仅用于识别商品，不会被保存。",
+    "confirmHeard": "我听到的是：",
+    "confirmSaw": "我识别到的是：",
+    "confirmYes": "对，搜索",
+    "confirmRetry": "重试",
+    "didYouMean": "您是想找……？",
+    "couldntCatch": "抱歉，没听清，请改用打字。",
+    "permissionDenied": {
+      "mic": "麦克风权限已关闭。您可以改用打字搜索，或在浏览器设置里打开麦克风。",
+      "camera": "相机权限已关闭。您可以改用打字搜索，或在浏览器设置里打开相机。"
+    },
+    "results": {
+      "back": "返回",
+      "youAsked": "您搜索的是",
+      "thinking": "搜索过程 · {count} 步",
+      "thinkingLive": "正在搜索……",
+      "possibleItems": "{count} 个可能的商品",
+      "shelfBadge": "{code} 货架",
+      "seen": "见过 {count} 次",
+      "seenOne": "见过 1 次",
+      "whereToFind": "在哪里找",
+      "mapComingSoon": "请前往 {code} 货架。",
+      "notThere": "我找过了——那里没有",
+      "notThereThanks": "谢谢——我们会再核实。",
+      "noResults": "暂时没有找到。",
+      "rephrase": "换个名字、品牌，或者描述一下它的样子。",
+      "degraded": "搜索正在以简化模式运行，结果可能不够精确。",
+      "doubtedNote": "建议再核实一下——有几位顾客反映这个商品被挪走了。"
+    }
   }
 }

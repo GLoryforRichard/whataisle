@@ -870,5 +870,42 @@
       "confirm": "Yes, use this address"
     },
     "creating": "Creating your store…"
+  },
+  "Shopper": {
+    "greeting": "What are you looking for?",
+    "placeholder": "Type a product name…",
+    "searchButton": "Search",
+    "voiceHold": "Hold to talk",
+    "voiceListening": "Listening… release to search",
+    "photoButton": "Take a photo",
+    "photoNotKept": "Photos are used only to identify the product and are not kept.",
+    "confirmHeard": "I heard:",
+    "confirmSaw": "I recognized:",
+    "confirmYes": "Yes, search",
+    "confirmRetry": "Try again",
+    "didYouMean": "Did you mean…?",
+    "couldntCatch": "Sorry, I couldn't catch that. Please type instead.",
+    "permissionDenied": {
+      "mic": "Microphone access is off. You can type your search instead, or turn on the microphone in your browser settings.",
+      "camera": "Camera access is off. You can type your search instead, or turn on the camera in your browser settings."
+    },
+    "results": {
+      "back": "Back",
+      "youAsked": "You asked",
+      "thinking": "HOW IT SEARCHED · {count} STEPS",
+      "thinkingLive": "Searching…",
+      "possibleItems": "{count} POSSIBLE ITEMS",
+      "shelfBadge": "Shelf {code}",
+      "seen": "seen {count}×",
+      "seenOne": "seen 1×",
+      "whereToFind": "WHERE TO FIND IT",
+      "mapComingSoon": "Go to shelf {code}.",
+      "notThere": "I looked — it's not there",
+      "notThereThanks": "Thanks — we'll double-check.",
+      "noResults": "We couldn't find that yet.",
+      "rephrase": "Try another name, a brand, or describe what it looks like.",
+      "degraded": "Search is running in a simpler mode right now — results may be less precise.",
+      "doubtedNote": "Worth double-checking — a few shoppers reported this was moved."
+    }
   }
 }
