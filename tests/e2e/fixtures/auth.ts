@@ -125,12 +125,15 @@ export async function loginByForm(page: Page, user: E2EUser) {
   await expect(signInButton).toBeEnabled();
   await signInButton.click();
   // A fresh owner with no store lands on onboarding; complete it to reach the
-  // dashboard. Admin/returning users go straight through.
-  await page.waitForURL(/\/dashboard\/?$|\/onboarding\/handle/, {
-    timeout: 10_000,
+  // dashboard. Waiting on ELEMENTS (not the URL) avoids the race where the
+  // client briefly shows /dashboard before the server redirects to onboarding.
+  const onboardingField = page.locator('#store-handle');
+  const dashboardCard = page.getByText(/Your store|您的门店/).first();
+  await expect(onboardingField.or(dashboardCard).first()).toBeVisible({
+    timeout: 15_000,
   });
-  if (/\/onboarding\/handle/.test(page.url())) {
+  if (await onboardingField.isVisible()) {
     await completeOnboarding(page, handleForUser(user));
   }
-  await expect(page).toHaveURL(/\/dashboard\/?$/);
+  await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15_000 });
 }

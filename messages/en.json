@@ -1069,6 +1069,30 @@
       "cancel": "Cancel",
       "delete": "Delete",
       "deleted": "Removed"
+    },
+    "home": {
+      "welcome": "Welcome back",
+      "storeCard": "Your store",
+      "visit": "Open shopper page",
+      "products": "Products in memory",
+      "shelves": "Shelves covered",
+      "searches7d": "Searches (7 days)",
+      "hitRate": "Found what they wanted",
+      "lastScan": "Last shelf scan",
+      "never": "No scans yet",
+      "mapStatus": "Floor map",
+      "mapStates": {
+        "none": "Not started",
+        "draft": "Being drawn",
+        "awaiting_confirm": "Waiting for your confirmation",
+        "published": "Live"
+      },
+      "quickActions": "Quick actions",
+      "actionScan": "How staff scan shelves",
+      "actionPosters": "Print posters & QR",
+      "actionInsights": "See what shoppers searched",
+      "actionVideo": "Send your store video",
+      "noStore": "No store yet."
     }
   },
   "TermsReconfirm": {

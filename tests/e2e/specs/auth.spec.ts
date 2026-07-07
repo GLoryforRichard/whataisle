@@ -30,7 +30,9 @@ test.describe('authentication and protected routes', () => {
     const user = await registerE2EUser(request);
 
     await loginByForm(page, user);
-    await expect(page.getByText('Total Revenue')).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'E2E Store' })
+    ).toBeVisible();
   });
 
   test('allows a user to register from the register page', async ({
@@ -60,7 +62,9 @@ test.describe('authentication and protected routes', () => {
       role: 'user',
     });
     await loginByForm(page, user);
-    await expect(page.getByText('Total Revenue')).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'E2E Store' })
+    ).toBeVisible();
   });
 
   test('allows signed-in users to view the demo users dashboard', async ({
