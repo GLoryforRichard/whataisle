@@ -164,6 +164,39 @@ export const auditLog = pgTable(
   })
 );
 
+// ---------------------------------------------------------------------------
+// Platform back office: support tickets + announcements (§7)
+// ---------------------------------------------------------------------------
+
+export const supportTicket = pgTable(
+  'support_ticket',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    openedVia: text('opened_via').notNull().default('owner'),
+    subject: text('subject').notNull(),
+    body: text('body'),
+    // Store identity + context auto-attached at report time.
+    contextJson: jsonb('context_json'),
+    status: text('status').notNull().default('open'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    supportTicketStatusIdx: index('support_ticket_status_idx').on(table.status),
+  })
+);
+
+export const announcement = pgTable('announcement', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull(),
+  titleZh: text('title_zh'),
+  body: text('body').notNull(),
+  bodyZh: text('body_zh'),
+  publishedAt: timestamp('published_at').notNull().defaultNow(),
+});
+
 /**
  * Weekly report send log — one row per (store, week) for idempotency so the
  * cron can't double-send (requirements §4.3).

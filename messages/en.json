@@ -1077,5 +1077,70 @@
     "review": "Read the terms",
     "accept": "I accept",
     "accepting": "…"
+  },
+  "Admin": {
+    "tenants": {
+      "nav": "Tenants",
+      "title": "Tenant console",
+      "store": "Store",
+      "health": "Health",
+      "products": "Products",
+      "searches": "7-day searches",
+      "lastScan": "Last scan",
+      "aiCalls": "AI calls (month)",
+      "status": "Status",
+      "never": "never",
+      "churnTitle": "Churn risk",
+      "noChurn": "No stores at risk right now.",
+      "impersonate": "Enter store",
+      "viewStore": "View",
+      "empty": "No stores yet."
+    },
+    "costs": {
+      "nav": "AI costs",
+      "title": "AI usage this month",
+      "store": "Store",
+      "calls": "Calls",
+      "inputTokens": "Input tokens",
+      "outputTokens": "Output tokens",
+      "images": "Images",
+      "anomaly": "ANOMALY",
+      "anomalyNote": "Abnormal usage triggers an alert — never an automatic cutoff.",
+      "empty": "No AI usage yet."
+    },
+    "audit": {
+      "nav": "Audit log",
+      "title": "Audit log",
+      "when": "When",
+      "who": "Actor",
+      "action": "Action",
+      "store": "Store",
+      "impersonation": "IMPERSONATION",
+      "empty": "No audit entries."
+    },
+    "tickets": {
+      "nav": "Tickets",
+      "title": "Support tickets",
+      "store": "Store",
+      "subject": "Subject",
+      "opened": "Opened",
+      "via": "Via",
+      "empty": "No open tickets.",
+      "close": "Close",
+      "closed": "Closed"
+    },
+    "announcements": {
+      "nav": "Announcements",
+      "title": "Announcements",
+      "newTitle": "Title",
+      "newBody": "Message",
+      "publish": "Publish",
+      "published": "Published",
+      "empty": "No announcements yet."
+    },
+    "impersonating": {
+      "banner": "You are viewing {store} as support. Actions are logged.",
+      "exit": "Exit"
+    }
   }
 }

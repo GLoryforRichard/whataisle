@@ -36,6 +36,11 @@ export enum Routes {
   // admin routes
   AdminUsers = '/admin/users',
   AdminMapping = '/admin/mapping',
+  AdminTenants = '/admin/tenants',
+  AdminCosts = '/admin/costs',
+  AdminTickets = '/admin/tickets',
+  AdminAnnouncements = '/admin/announcements',
+  AdminAudit = '/admin/audit',
 
   // settings routes
   SettingsProfile = '/settings/profile',
@@ -67,6 +72,11 @@ export const protectedRoutes = [
   Routes.ManageData,
   Routes.AdminUsers,
   Routes.AdminMapping,
+  Routes.AdminTenants,
+  Routes.AdminCosts,
+  Routes.AdminTickets,
+  Routes.AdminAnnouncements,
+  Routes.AdminAudit,
   Routes.SettingsProfile,
   Routes.SettingsBilling,
   Routes.SettingsCredits,

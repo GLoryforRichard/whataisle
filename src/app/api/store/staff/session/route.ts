@@ -63,3 +63,13 @@ export async function DELETE() {
   res.cookies.set(STAFF_COOKIE_NAME, '', { ...staffCookieOptions, maxAge: 0 });
   return res;
 }
+
+/** GET ?exit=1 — clear the staff cookie and return to the shopper page
+ *  (used by the impersonation banner's Exit link). Builds the redirect from the
+ *  Host header because req.url reflects the internal apex rewrite. */
+export async function GET(req: NextRequest) {
+  const host = req.headers.get('host') ?? '';
+  const res = NextResponse.redirect(`${req.nextUrl.protocol}//${host}/`);
+  res.cookies.set(STAFF_COOKIE_NAME, '', { ...staffCookieOptions, maxAge: 0 });
+  return res;
+}

@@ -11,11 +11,14 @@ import {
   FilmIcon,
   KeyIcon,
   LayoutDashboardIcon,
+  LifeBuoyIcon,
   LockKeyholeIcon,
   MapIcon,
   MapPinnedIcon,
+  MegaphoneIcon,
   PackageIcon,
   QrCodeIcon,
+  ScrollTextIcon,
   Settings2Icon,
   SettingsIcon,
   StoreIcon,
@@ -37,6 +40,7 @@ import { websiteConfig } from './website';
 export function useSidebarLinks(): NestedMenuItem[] {
   const t = useTranslations('Dashboard');
   const mt = useTranslations('Manage');
+  const at = useTranslations('Admin');
 
   // if is demo website, allow user to access admin and user pages, but data is fake
   const isDemo = isDemoWebsite();
@@ -102,15 +106,45 @@ export function useSidebarLinks(): NestedMenuItem[] {
       authorizeOnly: isDemo ? ['admin', 'user'] : ['admin'],
       items: [
         {
-          title: t('admin.users.title'),
-          icon: <UsersRoundIcon className="size-4 shrink-0" />,
-          href: Routes.AdminUsers,
+          title: at('tenants.nav'),
+          icon: <StoreIcon className="size-4 shrink-0" />,
+          href: Routes.AdminTenants,
           external: false,
         },
         {
           title: mt('adminMapping.nav'),
           icon: <MapPinnedIcon className="size-4 shrink-0" />,
           href: Routes.AdminMapping,
+          external: false,
+        },
+        {
+          title: at('costs.nav'),
+          icon: <CoinsIcon className="size-4 shrink-0" />,
+          href: Routes.AdminCosts,
+          external: false,
+        },
+        {
+          title: at('tickets.nav'),
+          icon: <LifeBuoyIcon className="size-4 shrink-0" />,
+          href: Routes.AdminTickets,
+          external: false,
+        },
+        {
+          title: at('announcements.nav'),
+          icon: <MegaphoneIcon className="size-4 shrink-0" />,
+          href: Routes.AdminAnnouncements,
+          external: false,
+        },
+        {
+          title: at('audit.nav'),
+          icon: <ScrollTextIcon className="size-4 shrink-0" />,
+          href: Routes.AdminAudit,
+          external: false,
+        },
+        {
+          title: t('admin.users.title'),
+          icon: <UsersRoundIcon className="size-4 shrink-0" />,
+          href: Routes.AdminUsers,
           external: false,
         },
       ],

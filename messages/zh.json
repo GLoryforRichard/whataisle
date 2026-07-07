@@ -1077,5 +1077,70 @@
     "review": "查看条款",
     "accept": "我接受",
     "accepting": "…"
+  },
+  "Admin": {
+    "tenants": {
+      "nav": "门店",
+      "title": "门店控制台",
+      "store": "门店",
+      "health": "健康度",
+      "products": "商品数",
+      "searches": "近7天搜索",
+      "lastScan": "最近拍照",
+      "aiCalls": "本月AI调用",
+      "status": "状态",
+      "never": "从未",
+      "churnTitle": "流失风险",
+      "noChurn": "目前没有风险门店。",
+      "impersonate": "进入门店",
+      "viewStore": "查看",
+      "empty": "还没有门店。"
+    },
+    "costs": {
+      "nav": "AI成本",
+      "title": "本月AI用量",
+      "store": "门店",
+      "calls": "调用次数",
+      "inputTokens": "输入token",
+      "outputTokens": "输出token",
+      "images": "图片数",
+      "anomaly": "异常",
+      "anomalyNote": "异常用量会触发告警——绝不会自动切断。",
+      "empty": "还没有AI用量。"
+    },
+    "audit": {
+      "nav": "审计日志",
+      "title": "审计日志",
+      "when": "时间",
+      "who": "操作人",
+      "action": "操作",
+      "store": "门店",
+      "impersonation": "代操作",
+      "empty": "没有审计记录。"
+    },
+    "tickets": {
+      "nav": "工单",
+      "title": "支持工单",
+      "store": "门店",
+      "subject": "主题",
+      "opened": "创建时间",
+      "via": "来源",
+      "empty": "没有待处理工单。",
+      "close": "关闭",
+      "closed": "已关闭"
+    },
+    "announcements": {
+      "nav": "公告",
+      "title": "公告",
+      "newTitle": "标题",
+      "newBody": "内容",
+      "publish": "发布",
+      "published": "已发布",
+      "empty": "还没有公告。"
+    },
+    "impersonating": {
+      "banner": "您正以支持身份查看 {store}，操作会被记录。",
+      "exit": "退出"
+    }
   }
 }

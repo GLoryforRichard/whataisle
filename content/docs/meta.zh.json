@@ -1,25 +1,7 @@
 {
-  "title": "Framework",
-  "description": "The docs framework",
-  "icon": "Building2",
+  "title": "帮助中心",
+  "description": "如何使用 WhatAisle",
+  "icon": "Album",
   "root": true,
-  "pages": [
-    "---介绍---",
-    "index",
-    "what-is-fumadocs",
-    "comparisons",
-    "---设置---",
-    "manual-installation",
-    "static-export",
-    "---写作---",
-    "markdown",
-    "internationalization",
-    "---UI---",
-    "customisation",
-    "theme",
-    "search",
-    "components",
-    "mdx",
-    "layouts"
-  ]
+  "pages": ["index"]
 }

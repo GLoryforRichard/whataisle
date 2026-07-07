@@ -89,3 +89,39 @@ export const staffCookieOptions = {
   path: '/',
   maxAge: STAFF_COOKIE_MAX_AGE_SECONDS,
 } as const;
+
+// -----------------------------------------------------------------------------
+// Impersonation hand-off token
+//
+// The staff cookie is host-only, so an admin on the apex can't set it on a
+// store subdomain directly. Instead the admin route mints a short-lived signed
+// token and redirects to the subdomain, which verifies it and sets a flagged
+// (isImpersonation) staff cookie. Every acted-on change is audit-logged.
+// -----------------------------------------------------------------------------
+
+const IMPERSONATION_TTL_MS = 60_000; // 60s — one-time hand-off
+
+export function signImpersonationToken(storeId: string): string {
+  const expiresAt = Date.now() + IMPERSONATION_TTL_MS;
+  const payload = `${storeId}.${expiresAt}`;
+  return `${payload}.${sign(payload)}`;
+}
+
+export function verifyImpersonationToken(
+  token: string | undefined,
+  storeId: string
+): boolean {
+  if (!token) return false;
+  const parts = token.split('.');
+  if (parts.length !== 3) return false;
+  const [tokenStoreId, expiresAt, signature] = parts;
+  const payload = `${tokenStoreId}.${expiresAt}`;
+  const expected = sign(payload);
+  const sigBuf = Buffer.from(signature);
+  const expBuf = Buffer.from(expected);
+  if (sigBuf.length !== expBuf.length || !timingSafeEqual(sigBuf, expBuf)) {
+    return false;
+  }
+  if (Number(expiresAt) < Date.now()) return false;
+  return tokenStoreId === storeId;
+}
