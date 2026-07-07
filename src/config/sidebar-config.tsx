@@ -4,14 +4,18 @@ import { isDemoWebsite } from '@/lib/demo';
 import { Routes } from '@/routes';
 import type { NestedMenuItem } from '@/types';
 import {
+  ChartNoAxesCombinedIcon,
   CircleUserRoundIcon,
   CoinsIcon,
+  DatabaseIcon,
   FilmIcon,
   KeyIcon,
   LayoutDashboardIcon,
   LockKeyholeIcon,
   MapIcon,
   MapPinnedIcon,
+  PackageIcon,
+  QrCodeIcon,
   Settings2Icon,
   SettingsIcon,
   StoreIcon,
@@ -49,6 +53,18 @@ export function useSidebarLinks(): NestedMenuItem[] {
       icon: <StoreIcon className="size-4 shrink-0" />,
       items: [
         {
+          title: mt('shelves.nav'),
+          icon: <PackageIcon className="size-4 shrink-0" />,
+          href: Routes.ManageShelves,
+          external: false,
+        },
+        {
+          title: mt('insights.nav'),
+          icon: <ChartNoAxesCombinedIcon className="size-4 shrink-0" />,
+          href: Routes.ManageInsights,
+          external: false,
+        },
+        {
           title: mt('video.nav'),
           icon: <FilmIcon className="size-4 shrink-0" />,
           href: Routes.ManageVideo,
@@ -58,6 +74,24 @@ export function useSidebarLinks(): NestedMenuItem[] {
           title: mt('map.nav'),
           icon: <MapIcon className="size-4 shrink-0" />,
           href: Routes.ManageMap,
+          external: false,
+        },
+        {
+          title: mt('posters.nav'),
+          icon: <QrCodeIcon className="size-4 shrink-0" />,
+          href: Routes.ManagePosters,
+          external: false,
+        },
+        {
+          title: mt('profile.nav'),
+          icon: <StoreIcon className="size-4 shrink-0" />,
+          href: Routes.ManageProfile,
+          external: false,
+        },
+        {
+          title: mt('export.nav'),
+          icon: <DatabaseIcon className="size-4 shrink-0" />,
+          href: Routes.ManageData,
           external: false,
         },
       ],

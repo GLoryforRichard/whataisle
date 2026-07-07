@@ -56,7 +56,10 @@ const STORES = [
 
 async function main() {
   const { getDb } = await import('../src/db');
-  const { account, store, shelf, user } = await import('../src/db/schema');
+  const { account, store, shelf, storeTermsAcceptance, user } = await import(
+    '../src/db/schema'
+  );
+  const { TERMS_VERSION } = await import('../src/config/terms');
   const { hashPin } = await import('../src/lib/pin');
   const { hashPassword } = await import('better-auth/crypto');
   const { eq } = await import('drizzle-orm');
@@ -124,6 +127,11 @@ async function main() {
         announcement: def.announcement,
         announcementZh: def.announcementZh,
         staffPinHash: await hashPin(def.pin),
+      });
+      await db.insert(storeTermsAcceptance).values({
+        id: nanoid(),
+        userId: ownerId,
+        termsVersion: TERMS_VERSION,
       });
       console.log(`seed: created store ${def.handle} (PIN ${def.pin})`);
     }

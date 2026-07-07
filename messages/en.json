@@ -975,6 +975,107 @@
       "existingShelves": "Existing shelves: {codes}",
       "remove": "Remove"
     },
-    "storeSection": "My store"
+    "storeSection": "My store",
+    "profile": {
+      "nav": "Store profile",
+      "title": "Store profile",
+      "name": "Store name",
+      "nameZh": "Store name (Chinese)",
+      "announcement": "Announcement",
+      "announcementZh": "Announcement (Chinese)",
+      "announcementHint": "Shown to shoppers at the top of your store page.",
+      "handle": "Web address",
+      "handleFixed": "Permanent — cannot be changed.",
+      "save": "Save",
+      "saved": "Saved!",
+      "saveError": "Could not save. Please try again."
+    },
+    "pin": {
+      "nav": "Staff PIN",
+      "title": "Staff PIN",
+      "hint": "Staff enter this 4–6 digit PIN to scan shelves. Changing it signs out all staff devices.",
+      "newPin": "New PIN",
+      "save": "Change PIN",
+      "saved": "PIN changed.",
+      "formatError": "PIN must be 4 to 6 digits."
+    },
+    "insights": {
+      "nav": "Insights",
+      "title": "Insights",
+      "hitRate": "Search success",
+      "searches": "{count} searches this week",
+      "topSearches": "Top searches",
+      "noSearches": "No shopper searches yet.",
+      "hits": "{count} found",
+      "missesTitle": "Products shoppers couldn't find",
+      "needsScan": "Probably in stock — not photographed yet",
+      "notCarried": "You likely don't carry these",
+      "rescan": "Remind staff to scan",
+      "reminded": "Reminder sent",
+      "noMisses": "No misses — nice!",
+      "timesAsked": "asked {count}×"
+    },
+    "posters": {
+      "nav": "Posters & QR",
+      "title": "Print materials",
+      "intro": "Print these and put them up so shoppers know they can scan to search.",
+      "poster": "Store poster",
+      "counter": "Checkout stand",
+      "stickers": "Shelf stickers",
+      "scanToFind": "Scan to find any product",
+      "scanToFindZh": "扫码找商品",
+      "orVisit": "or visit",
+      "print": "Print",
+      "printType": "Print {type}"
+    },
+    "export": {
+      "nav": "Export data",
+      "title": "Export your data",
+      "intro": "Your store memory belongs to you. Download everything anytime, free.",
+      "includes": "Includes: products, aliases, and shelf locations (CSV), plus your floor map.",
+      "download": "Download export (.zip)",
+      "preparing": "Preparing…"
+    },
+    "close": {
+      "nav": "Close store",
+      "title": "Close your store",
+      "warning": "Closing your store deletes everything — products, photos, map, and this web address — permanently. This cannot be undone.",
+      "exportFirst": "Export your data first",
+      "exportCta": "Download a backup",
+      "confirmType": "Type your store name to confirm:",
+      "namePlaceholder": "Store name",
+      "closeButton": "Permanently close this store",
+      "confirmTitle": "Are you absolutely sure?",
+      "confirmBody": "This deletes all of {name} and cannot be undone.",
+      "confirmCancel": "Keep my store",
+      "confirmDelete": "Yes, delete everything",
+      "closing": "Closing…",
+      "closed": "Your store has been closed and deleted."
+    },
+    "shelves": {
+      "nav": "Shelves",
+      "title": "Shelves & products",
+      "addShelf": "Add shelf",
+      "shelfCode": "Shelf code",
+      "shelfLabel": "Label (optional)",
+      "add": "Add",
+      "noShelves": "No shelves yet. Add one, or send a store video and we’ll map it.",
+      "products": "{count} products",
+      "empty": "No products on this shelf yet.",
+      "clearShelf": "Clear this shelf",
+      "clearConfirm": "Remove all {count} products from shelf {code}?",
+      "clearOwnerOnly": "Only the owner can clear a shelf.",
+      "clear": "Clear",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleted": "Removed"
+    }
+  },
+  "TermsReconfirm": {
+    "title": "Updated Terms of Service",
+    "body": "We've updated our Terms of Service. Please review and accept to continue.",
+    "review": "Read the terms",
+    "accept": "I accept",
+    "accepting": "…"
   }
 }

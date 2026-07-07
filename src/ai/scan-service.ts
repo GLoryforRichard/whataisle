@@ -185,5 +185,13 @@ export async function saveScannedProducts(input: {
     else updated++;
   }
 
+  // Clear any open misses that these newly-saved products now answer (§4.3).
+  try {
+    const { insightsRepo } = await import('@/data/insights-repo');
+    await insightsRepo(input.storeId).clearMissesMatching(names);
+  } catch (err) {
+    console.warn('[scan] clearing misses failed:', err);
+  }
+
   return { saved: prepared.length, created, updated };
 }

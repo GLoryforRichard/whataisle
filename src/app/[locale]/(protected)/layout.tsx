@@ -3,6 +3,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { localeRedirect } from '@/i18n/navigation';
 import { getSession } from '@/lib/server';
 import { getStoreByOwner } from '@/lib/store-context';
+import { hasAcceptedCurrentTerms } from '@/lib/terms';
 import { Routes } from '@/routes';
 import { getLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
@@ -37,6 +38,11 @@ export default async function DashboardLayout({ children }: PropsWithChildren) {
     if (!ownedStore) {
       const locale = await getLocale();
       localeRedirect({ href: '/onboarding/handle', locale });
+    }
+    // Updated terms require re-confirmation before continuing (§10).
+    if (!(await hasAcceptedCurrentTerms(session.user.id))) {
+      const locale = await getLocale();
+      localeRedirect({ href: '/terms-update', locale });
     }
   }
 

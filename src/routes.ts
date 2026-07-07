@@ -27,6 +27,11 @@ export enum Routes {
   // store management (owner)
   ManageVideo = '/manage/video',
   ManageMap = '/manage/map',
+  ManageProfile = '/manage/profile',
+  ManageShelves = '/manage/shelves',
+  ManageInsights = '/manage/insights',
+  ManagePosters = '/manage/posters',
+  ManageData = '/manage/data',
 
   // admin routes
   AdminUsers = '/admin/users',
@@ -55,6 +60,11 @@ export const protectedRoutes = [
   Routes.Dashboard,
   Routes.ManageVideo,
   Routes.ManageMap,
+  Routes.ManageProfile,
+  Routes.ManageShelves,
+  Routes.ManageInsights,
+  Routes.ManagePosters,
+  Routes.ManageData,
   Routes.AdminUsers,
   Routes.AdminMapping,
   Routes.SettingsProfile,

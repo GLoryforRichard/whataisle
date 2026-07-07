@@ -88,6 +88,7 @@
     "fumadocs-mdx": "^13.0.2",
     "fumadocs-ui": "^16.2.4",
     "input-otp": "^1.4.2",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.563.0",
     "motion": "^12.4.3",
     "nanoid": "^5.1.6",

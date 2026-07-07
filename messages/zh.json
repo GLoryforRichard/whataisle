@@ -975,6 +975,107 @@
       "existingShelves": "已有货架：{codes}",
       "remove": "删除"
     },
-    "storeSection": "我的门店"
+    "storeSection": "我的门店",
+    "profile": {
+      "nav": "门店资料",
+      "title": "门店资料",
+      "name": "门店名称",
+      "nameZh": "门店名称（中文）",
+      "announcement": "门店公告",
+      "announcementZh": "门店公告（中文）",
+      "announcementHint": "会显示在顾客页面顶部。",
+      "handle": "网址",
+      "handleFixed": "永久固定，不能更改。",
+      "save": "保存",
+      "saved": "已保存！",
+      "saveError": "保存失败，请重试。"
+    },
+    "pin": {
+      "nav": "店员密码",
+      "title": "店员密码",
+      "hint": "店员用这个 4–6 位密码来拍货架。修改后所有店员设备都会退出登录。",
+      "newPin": "新密码",
+      "save": "修改密码",
+      "saved": "密码已修改。",
+      "formatError": "密码必须是 4 到 6 位数字。"
+    },
+    "insights": {
+      "nav": "经营洞察",
+      "title": "经营洞察",
+      "hitRate": "搜索命中率",
+      "searches": "本周 {count} 次搜索",
+      "topSearches": "热门搜索",
+      "noSearches": "还没有顾客搜索。",
+      "hits": "找到 {count} 次",
+      "missesTitle": "顾客没找到的商品",
+      "needsScan": "可能有货——还没拍照",
+      "notCarried": "你可能没有卖这些",
+      "rescan": "提醒店员去拍",
+      "reminded": "已提醒",
+      "noMisses": "没有遗漏，很棒！",
+      "timesAsked": "被问 {count} 次"
+    },
+    "posters": {
+      "nav": "海报与二维码",
+      "title": "打印物料",
+      "intro": "打印贴出来，让顾客知道可以扫码找商品。",
+      "poster": "门店海报",
+      "counter": "收银台立牌",
+      "stickers": "货架贴纸",
+      "scanToFind": "Scan to find any product",
+      "scanToFindZh": "扫码找商品",
+      "orVisit": "或访问",
+      "print": "打印",
+      "printType": "打印{type}"
+    },
+    "export": {
+      "nav": "导出数据",
+      "title": "导出您的数据",
+      "intro": "门店记忆属于您。随时免费下载全部数据。",
+      "includes": "包含：商品、别名、货架位置（CSV），以及您的平面图。",
+      "download": "下载导出文件（.zip）",
+      "preparing": "准备中……"
+    },
+    "close": {
+      "nav": "关闭门店",
+      "title": "关闭您的门店",
+      "warning": "关闭门店会永久删除所有内容——商品、照片、地图，以及这个网址。此操作无法撤销。",
+      "exportFirst": "请先导出您的数据",
+      "exportCta": "下载备份",
+      "confirmType": "输入门店名称以确认：",
+      "namePlaceholder": "门店名称",
+      "closeButton": "永久关闭这家门店",
+      "confirmTitle": "您确定吗？",
+      "confirmBody": "这将删除 {name} 的全部数据，且无法撤销。",
+      "confirmCancel": "保留我的门店",
+      "confirmDelete": "是的，全部删除",
+      "closing": "关闭中……",
+      "closed": "您的门店已关闭并删除。"
+    },
+    "shelves": {
+      "nav": "货架",
+      "title": "货架与商品",
+      "addShelf": "添加货架",
+      "shelfCode": "货架编号",
+      "shelfLabel": "标签（可选）",
+      "add": "添加",
+      "noShelves": "还没有货架。添加一个，或发一段门店视频让我们绘制。",
+      "products": "{count} 件商品",
+      "empty": "这个货架还没有商品。",
+      "clearShelf": "清空这个货架",
+      "clearConfirm": "要从 {code} 货架移除全部 {count} 件商品吗？",
+      "clearOwnerOnly": "只有店主可以清空货架。",
+      "clear": "清空",
+      "cancel": "取消",
+      "delete": "删除",
+      "deleted": "已移除"
+    }
+  },
+  "TermsReconfirm": {
+    "title": "服务条款已更新",
+    "body": "我们更新了服务条款。请阅读并接受后继续使用。",
+    "review": "查看条款",
+    "accept": "我接受",
+    "accepting": "…"
   }
 }
