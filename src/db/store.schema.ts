@@ -198,29 +198,6 @@ export const announcement = pgTable('announcement', {
 });
 
 /**
- * Weekly report send log — one row per (store, week) for idempotency so the
- * cron can't double-send (requirements §4.3).
- */
-export const weeklyReport = pgTable(
-  'weekly_report',
-  {
-    id: text('id').primaryKey(),
-    storeId: text('store_id')
-      .notNull()
-      .references(() => store.id, { onDelete: 'cascade' }),
-    weekStart: text('week_start').notNull(), // YYYY-MM-DD (Monday)
-    statsJson: jsonb('stats_json'),
-    emailedAt: timestamp('emailed_at').notNull().defaultNow(),
-  },
-  (table) => ({
-    weeklyReportUniqueIdx: uniqueIndex('weekly_report_unique_idx').on(
-      table.storeId,
-      table.weekStart
-    ),
-  })
-);
-
-/**
  * Fixed-window rate limiting (PIN attempts, shopper search).
  * Key encodes the scope, e.g. `pin:<storeId>:<ipHash>`.
  */

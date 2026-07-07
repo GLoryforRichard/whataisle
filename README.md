@@ -31,7 +31,7 @@ pnpm dev                  # http://localhost:3000
 - **Owner portal:** `http://localhost:3000` (register, or use a seeded owner)
 - **Demo store (shopper):** `http://demo.localhost:3000`
 - **Staff area:** `http://demo.localhost:3000/staff` — PIN `1234`
-- **Emails** (verification, weekly report, closure notice): `http://localhost:8025`
+- **Emails** (verification, closure notice): `http://localhost:8025`
 
 ### Seeded demo data (`pnpm seed`)
 
@@ -95,9 +95,8 @@ cookies are host-only and bound to `(storeId, pinVersion)`.
 ## Deferred backlog
 
 - **GCP deployment** — wildcard TLS for `*.whataisle.com`, GCS storage driver
-  (behind the existing storage abstraction), Cloud Scheduler for the weekly
-  report cron, budget caps + cost alerts. Nothing in the code is Vercel/AWS
-  specific; drivers are already abstracted.
+  (behind the existing storage abstraction), budget caps + cost alerts. Nothing
+  in the code is Vercel/AWS specific; drivers are already abstracted.
 - **Staffed full-store onboarding** — booking, multi-scanner coverage board,
   acceptance report (§6).
 - **Stripe billing activation** — the template's payment plumbing is retained

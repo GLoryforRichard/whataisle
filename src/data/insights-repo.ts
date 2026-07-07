@@ -1,8 +1,8 @@
 import 'server-only';
 
 import { getDb } from '@/db';
-import { missInsight, product, searchLog } from '@/db/store.schema';
-import { and, desc, eq, gte, sql } from 'drizzle-orm';
+import { missInsight } from '@/db/store.schema';
+import { and, desc, eq, sql } from 'drizzle-orm';
 
 /**
  * Owner insights (requirements §4.3). Statistics EXCLUDE staff test searches
@@ -109,24 +109,6 @@ export function insightsRepo(storeId: string) {
           AND status = 'open'
           AND ${haystack} % query_text
       `);
-    },
-
-    /** Count of errors corrected (products that left the doubted state) — for
-     *  the weekly report's "N errors corrected this week" line. */
-    async correctionsThisWeek() {
-      const db = await getDb();
-      const since = new Date(Date.now() - 7 * 86400_000);
-      const rows = await db
-        .select({ id: product.id })
-        .from(product)
-        .where(
-          and(
-            eq(product.storeId, storeId),
-            eq(product.confidenceState, 'normal'),
-            gte(product.updatedAt, since)
-          )
-        );
-      return rows.length;
     },
   };
 }
