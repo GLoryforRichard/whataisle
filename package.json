@@ -22,7 +22,7 @@
     "content": "fumadocs-mdx",
     "email": "email dev --dir src/mail/templates --port 3333",
     "knip": "knip",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.mts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

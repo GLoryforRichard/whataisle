@@ -3,7 +3,7 @@ import {
   addMonthlyFreeCredits,
   addRegisterGiftCredits,
 } from '@/credits/credits';
-import { getDb } from '@/db/index';
+import { getDbSync } from '@/db/index';
 import { defaultMessages } from '@/i18n/messages';
 import { LOCALE_COOKIE_NAME, routing } from '@/i18n/routing';
 import { sendEmail } from '@/mail';
@@ -27,7 +27,7 @@ import { isE2ETestMode } from './e2e';
 export const auth = betterAuth({
   baseURL: getBaseUrl(),
   appName: defaultMessages.Metadata.name,
-  database: drizzleAdapter(await getDb(), {
+  database: drizzleAdapter(getDbSync(), {
     provider: 'pg', // or "mysql", "sqlite"
   }),
   session: {

@@ -35,6 +35,26 @@ export const userActionClient = actionClient.use(async ({ next }) => {
 });
 
 // -----------------------------------------------------------------------------
+// 2b. Store-owner client (extends auth client)
+//
+// Resolves the store owned by the signed-in user (one account = one store)
+// and exposes it as ctx.store. Actions built on this client are inherently
+// tenant-scoped: the store always comes from the session, never from input.
+// -----------------------------------------------------------------------------
+export const storeActionClient = userActionClient.use(async ({ next, ctx }) => {
+  const { getStoreByOwner } = await import('./store-context');
+  const store = await getStoreByOwner(ctx.user.id);
+  if (!store) {
+    throw new Error('No store is linked to this account');
+  }
+  if (store.status !== 'active') {
+    throw new Error('This store is closed');
+  }
+
+  return next({ ctx: { ...ctx, store } });
+});
+
+// -----------------------------------------------------------------------------
 // 3. Admin-only client (extends auth client)
 //
 // SECURITY: Always requires admin role, regardless of demo mode.

@@ -781,5 +781,69 @@
       "findTitle": "顾客自己找到",
       "findDescription": "顾客扫店内二维码，随便怎么问都行，立刻得到货架号和高亮地图。"
     }
+  },
+  "Store": {
+    "notFound": {
+      "title": "没有找到这家店",
+      "description": "网址可能输错了，或者这家店已经停用。",
+      "cta": "WhatAisle — 每件商品，都能找到货架"
+    },
+    "header": {
+      "languageToggle": "EN"
+    },
+    "footer": {
+      "poweredBy": "由 WhatAisle 提供支持"
+    },
+    "shopper": {
+      "greeting": "您想找什么？",
+      "comingSoon": "这家店的搜索功能正在准备中，请稍后再来！",
+      "announcementLabel": "门店公告"
+    },
+    "staff": {
+      "title": "店员入口",
+      "pinPrompt": "请输入店员密码",
+      "pinHint": "密码请向店主索取。",
+      "submit": "进入",
+      "checking": "正在验证…",
+      "errors": {
+        "wrong_pin": "密码不对，请再试一次。",
+        "too_many_attempts": "尝试次数太多了，请等 15 分钟后再试。",
+        "generic": "出了点问题，请再试一次。"
+      },
+      "exit": "退出店员模式",
+      "scan": {
+        "title": "拍货架",
+        "comingSoon": "拍货架功能即将上线。"
+      }
+    }
+  },
+  "Onboarding": {
+    "title": "开通您的店铺",
+    "subtitle": "只需两步，马上就好。",
+    "nameLabel": "店铺名称",
+    "namePlaceholder": "例如：日升超市",
+    "nameHint": "会显示在顾客页面顶部，以后随时可以改。",
+    "handleLabel": "店铺网址",
+    "handleHint": "只能用字母、数字和连字符（3–30 个字符）。",
+    "permanenceWarning": "这将是顾客访问您店铺的永久网址，会印在店内海报上——请慎重选择。",
+    "checking": "正在检查…",
+    "available": "可以使用",
+    "errors": {
+      "format": "只能包含字母、数字和连字符，且必须以字母或数字开头和结尾。",
+      "reserved": "这个网址是保留的，请换一个。",
+      "taken": "这个网址已被占用，请换一个。",
+      "already_has_store": "这个账号已经开通过店铺了。",
+      "generic": "出了点问题，请再试一次。"
+    },
+    "termsLabel": "我同意服务条款",
+    "termsLink": "查看条款",
+    "submit": "继续",
+    "confirm": {
+      "title": "确认店铺网址",
+      "description": "您店铺的网址将是 {url}。一旦确定，永远不能更改。确定使用这个网址吗？",
+      "cancel": "再想想",
+      "confirm": "确定，就用它"
+    },
+    "creating": "正在创建店铺…"
   }
 }

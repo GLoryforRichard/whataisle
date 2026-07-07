@@ -4,12 +4,21 @@ import * as schema from './schema';
 
 let db: ReturnType<typeof drizzle> | null = null;
 
-export async function getDb() {
+/**
+ * Synchronous accessor — client creation is lazy and synchronous.
+ * Exists so modules that need the db at import time (src/lib/auth.ts)
+ * avoid top-level await, which breaks CJS transforms in scripts.
+ */
+export function getDbSync() {
   if (db) return db;
   const connectionString = process.env.DATABASE_URL!;
   const client = postgres(connectionString, { prepare: false });
   db = drizzle(client, { schema });
   return db;
+}
+
+export async function getDb() {
+  return getDbSync();
 }
 
 /**

@@ -781,5 +781,69 @@
       "findTitle": "Shoppers find it",
       "findDescription": "Shoppers scan an in-store QR code and ask any way they like. They get the shelf number and a highlighted floor map."
     }
+  },
+  "Store": {
+    "notFound": {
+      "title": "We couldn't find this store",
+      "description": "The link may be mistyped, or the store may have closed.",
+      "cta": "WhatAisle — every product, the right shelf"
+    },
+    "header": {
+      "languageToggle": "中文"
+    },
+    "footer": {
+      "poweredBy": "Powered by WhatAisle"
+    },
+    "shopper": {
+      "greeting": "What are you looking for?",
+      "comingSoon": "Search is being set up for this store — check back soon!",
+      "announcementLabel": "Store notice"
+    },
+    "staff": {
+      "title": "Staff area",
+      "pinPrompt": "Enter the staff PIN",
+      "pinHint": "Ask the owner for this store's PIN.",
+      "submit": "Enter",
+      "checking": "Checking…",
+      "errors": {
+        "wrong_pin": "That PIN doesn't match. Please try again.",
+        "too_many_attempts": "Too many tries. Please wait 15 minutes and try again.",
+        "generic": "Something went wrong. Please try again."
+      },
+      "exit": "Exit staff mode",
+      "scan": {
+        "title": "Scan shelves",
+        "comingSoon": "Shelf scanning is coming in the next update."
+      }
+    }
+  },
+  "Onboarding": {
+    "title": "Set up your store",
+    "subtitle": "Two quick things, then you're in.",
+    "nameLabel": "Store name",
+    "namePlaceholder": "e.g. Sunrise Market",
+    "nameHint": "Shown to shoppers at the top of your store page. You can change it anytime.",
+    "handleLabel": "Store web address",
+    "handleHint": "Letters, numbers, and hyphens only (3–30 characters).",
+    "permanenceWarning": "This will be the permanent web address shoppers use for your store. It will be printed on your posters — choose carefully.",
+    "checking": "Checking…",
+    "available": "Available",
+    "errors": {
+      "format": "Only letters, numbers, and hyphens — starting and ending with a letter or number.",
+      "reserved": "This address is reserved. Please pick another one.",
+      "taken": "This address is already taken. Please pick another one.",
+      "already_has_store": "This account already has a store.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "termsLabel": "I agree to the Terms of Service",
+    "termsLink": "Read the terms",
+    "submit": "Continue",
+    "confirm": {
+      "title": "Confirm your web address",
+      "description": "Your store's address will be {url}. Once chosen, it can never be changed. Use this address?",
+      "cancel": "Go back",
+      "confirm": "Yes, use this address"
+    },
+    "creating": "Creating your store…"
   }
 }

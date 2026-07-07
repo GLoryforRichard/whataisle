@@ -71,6 +71,13 @@
       "when": 1783391620619,
       "tag": "0009_pg_extensions",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1783392018795,
+      "tag": "0010_jazzy_silver_fox",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,10 @@
 import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { localeRedirect } from '@/i18n/navigation';
 import { getSession } from '@/lib/server';
+import { getStoreByOwner } from '@/lib/store-context';
 import { Routes } from '@/routes';
+import { getLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 
@@ -25,6 +28,16 @@ export default async function DashboardLayout({ children }: PropsWithChildren) {
 
   if (!session.user.emailVerified) {
     redirect(`${Routes.Login}?error=email_not_verified`);
+  }
+
+  // Every owner account maps to exactly one store; send storeless accounts to
+  // the handle picker first. Platform admins are exempt.
+  if (session.user.role !== 'admin') {
+    const ownedStore = await getStoreByOwner(session.user.id);
+    if (!ownedStore) {
+      const locale = await getLocale();
+      localeRedirect({ href: '/onboarding/handle', locale });
+    }
   }
 
   return (

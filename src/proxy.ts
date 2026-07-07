@@ -38,6 +38,32 @@ export default async function proxy(req: NextRequest) {
   const { nextUrl } = req;
   console.log('>> proxy start, pathname', nextUrl.pathname);
 
+  // ---------------------------------------------------------------------------
+  // Host routing: <handle>.<root-domain> serves the store's shopper/staff pages.
+  // Store subdomains are rewritten to /store/<handle>/* and bypass the locale
+  // middleware entirely — store pages read the locale from a cookie instead of
+  // the URL, so shoppers see clean URLs like demo.whataisle.com/find?q=milk.
+  // ---------------------------------------------------------------------------
+  const storeHandle = getStoreHandleFromHost(req.headers.get('host'));
+  if (storeHandle) {
+    // Reserved subdomains can never be registered, so they fall through to
+    // the store lookup and render the "store not found" page (which links to
+    // the main site). A cross-host redirect is avoided on purpose: Next
+    // normalizes same-origin Locations to relative paths in dev, which loops.
+    const url = nextUrl.clone();
+    url.pathname = `/store/${storeHandle}${nextUrl.pathname === '/' ? '' : nextUrl.pathname}`;
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set('x-store-handle', storeHandle);
+    console.log('<< proxy end, store rewrite:', url.pathname);
+    return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
+  }
+
+  // Direct path access to /store/* on the main host is not a real surface —
+  // store pages exist only behind their subdomain rewrite.
+  if (nextUrl.pathname.startsWith('/store/')) {
+    return NextResponse.redirect(new URL('/', nextUrl));
+  }
+
   // When AI agents request docs with markdown preference, serve markdown content
   // https://www.fumadocs.dev/docs/integrations/llms#accept
   if (isMarkdownPreferred(req)) {
@@ -137,6 +163,26 @@ export default async function proxy(req: NextRequest) {
 function getPathnameWithoutLocale(pathname: string, locales: string[]): string {
   const localePattern = new RegExp(`^/(${locales.join('|')})/`);
   return pathname.replace(localePattern, '/');
+}
+
+/**
+ * Extract the store handle from the request host, or null when the request
+ * targets the main site (apex, www, unknown/foreign hosts, nested subdomains).
+ *
+ * Local dev uses <handle>.localhost:3000 — browsers resolve *.localhost to
+ * loopback and treat it as a secure context.
+ */
+function getStoreHandleFromHost(host: string | null): string | null {
+  if (!host) return null;
+  const rootDomain = (
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'localhost'
+  ).toLowerCase();
+  const hostname = host.split(':')[0].toLowerCase();
+  if (hostname === rootDomain || hostname === `www.${rootDomain}`) return null;
+  if (!hostname.endsWith(`.${rootDomain}`)) return null;
+  const sub = hostname.slice(0, -(rootDomain.length + 1));
+  if (!sub || sub === 'www' || sub.includes('.')) return null;
+  return sub;
 }
 
 /**
