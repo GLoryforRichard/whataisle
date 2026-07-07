@@ -116,7 +116,8 @@ export const websiteConfig: WebsiteConfig = {
   },
   storage: {
     enable: true,
-    provider: 's3',
+    // Local disk for dev; a GCS-compatible s3 driver takes over in production.
+    provider: (process.env.STORAGE_PROVIDER as 's3' | 'local') ?? 'local',
   },
   payment: {
     provider: paymentProvider,

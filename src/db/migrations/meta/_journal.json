@@ -78,6 +78,27 @@
       "when": 1783392018795,
       "tag": "0010_jazzy_silver_fox",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1783393587534,
+      "tag": "0011_modern_mindworm",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1783393593026,
+      "tag": "0012_vector_trgm_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1783394450477,
+      "tag": "0013_location_nulls_not_distinct",
+      "breakpoints": true
     }
   ]
 }

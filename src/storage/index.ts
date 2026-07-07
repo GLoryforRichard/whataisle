@@ -1,5 +1,6 @@
 import { websiteConfig } from '@/config/website';
 import { storageConfig } from './config/storage-config';
+import { LocalProvider } from './provider/local';
 import { S3Provider } from './provider/s3';
 import type {
   StorageConfig,
@@ -19,6 +20,7 @@ const providerRegistry: Partial<
   Record<StorageProviderName, StorageProviderFactory>
 > = {
   s3: () => new S3Provider(),
+  local: () => new LocalProvider(),
 };
 
 let storageProvider: StorageProvider | null = null;

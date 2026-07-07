@@ -1,7 +1,8 @@
+import { ScanFlow } from '@/components/store/scan-flow';
+import { tenantRepo } from '@/data/tenant-repo';
 import { getStaffSession } from '@/lib/staff-auth';
 import { getStoreByHandle } from '@/lib/store-context';
 import { getTranslations } from 'next-intl/server';
-import { CameraIcon } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 interface StaffScanPageProps {
@@ -9,8 +10,7 @@ interface StaffScanPageProps {
 }
 
 /**
- * Shelf scanning — Phase 2 builds the real flow; this page proves the
- * PIN gate end-to-end.
+ * Shelf scanning — the core staff flow (requirements §4.2). Behind the PIN gate.
  */
 export default async function StaffScanPage({ params }: StaffScanPageProps) {
   const { handle } = await params;
@@ -22,13 +22,21 @@ export default async function StaffScanPage({ params }: StaffScanPageProps) {
     redirect('/staff');
   }
 
-  const t = await getTranslations('Store');
+  const [t, shelves] = await Promise.all([
+    getTranslations('Store.staff.scan'),
+    tenantRepo(store.id).listShelves(),
+  ]);
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col items-center gap-4 px-4 py-16 text-center">
-      <CameraIcon className="size-10 text-primary" aria-hidden />
-      <h1 className="font-bold text-2xl">{t('staff.scan.title')}</h1>
-      <p className="text-muted-foreground">{t('staff.scan.comingSoon')}</p>
+    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8">
+      <h1 className="font-bold text-2xl">{t('title')}</h1>
+      <ScanFlow
+        shelves={shelves.map((s) => ({
+          id: s.id,
+          code: s.code,
+          label: s.label,
+        }))}
+      />
     </div>
   );
 }

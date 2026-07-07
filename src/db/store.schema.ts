@@ -7,8 +7,12 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  vector,
 } from 'drizzle-orm/pg-core';
 import { user } from './auth.schema';
+
+/** Embedding dimensionality — gemini-embedding-001 output truncated to 768. */
+export const EMBEDDING_DIM = 768;
 
 /**
  * Tenant tables for WhatAisle stores.
@@ -169,3 +173,308 @@ export const rateLimit = pgTable('rate_limit', {
   windowStart: timestamp('window_start').notNull(),
   count: integer('count').notNull().default(0),
 });
+
+// ---------------------------------------------------------------------------
+// Store memory: products, aliases, locations, scan evidence
+// ---------------------------------------------------------------------------
+
+export type ProductStatus = 'active' | 'unlocated' | 'deleted';
+export type ConfidenceState = 'normal' | 'doubted';
+export type AliasLang = 'en' | 'zh' | 'pinyin' | 'misspelling';
+export type AliasSource = 'ai' | 'manual';
+export type ScanPhotoStatus = 'pending' | 'recognizing' | 'done' | 'failed';
+
+export const product = pgTable(
+  'product',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    canonicalName: text('canonical_name').notNull(),
+    nameZh: text('name_zh'),
+    category: text('category'),
+    // Canonical name + all aliases joined with " · "; the embedding input and
+    // the trigram-search haystack.
+    searchText: text('search_text').notNull().default(''),
+    embedding: vector('embedding', { dimensions: EMBEDDING_DIM }),
+    // How many times this product has been photographed — the "seen N×" trust
+    // signal (requirements §2). Boosts ranking; never hides.
+    evidenceCount: integer('evidence_count').notNull().default(1),
+    confidenceState: text('confidence_state')
+      .notNull()
+      .default('normal')
+      .$type<ConfidenceState>(),
+    status: text('status').notNull().default('active').$type<ProductStatus>(),
+    thumbnailKey: text('thumbnail_key'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    productStoreIdCanonicalIdx: uniqueIndex('product_store_id_canonical_idx').on(
+      table.storeId,
+      table.canonicalName
+    ),
+    productStoreIdStatusIdx: index('product_store_id_status_idx').on(
+      table.storeId,
+      table.status
+    ),
+    // HNSW cosine index for vector search (custom SQL adds this — drizzle-kit's
+    // .using('hnsw', ...) support is version-sensitive, so it's in the raw SQL
+    // migration alongside the trigram GIN index).
+  })
+);
+
+export const productAlias = pgTable(
+  'product_alias',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    productId: text('product_id')
+      .notNull()
+      .references(() => product.id, { onDelete: 'cascade' }),
+    alias: text('alias').notNull(),
+    lang: text('lang').notNull().$type<AliasLang>(),
+    source: text('source').notNull().default('ai').$type<AliasSource>(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    productAliasStoreIdAliasIdx: index('product_alias_store_id_alias_idx').on(
+      table.storeId,
+      table.alias
+    ),
+    productAliasProductIdIdx: index('product_alias_product_id_idx').on(
+      table.productId
+    ),
+  })
+);
+
+export const productLocation = pgTable(
+  'product_location',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    productId: text('product_id')
+      .notNull()
+      .references(() => product.id, { onDelete: 'cascade' }),
+    shelfId: text('shelf_id')
+      .notNull()
+      .references(() => shelf.id, { onDelete: 'cascade' }),
+    // Left/right side of the shelf, when the map distinguishes sides.
+    side: text('side').$type<'L' | 'R'>(),
+    seenCount: integer('seen_count').notNull().default(1),
+    lastSeenAt: timestamp('last_seen_at').notNull().defaultNow(),
+    status: text('status').notNull().default('active').$type<ShelfStatus>(),
+  },
+  (table) => ({
+    // A product can have multiple active locations (regular shelf + promo
+    // end-cap), so uniqueness is per (product, shelf, side) — requirements §8.
+    // The index is created NULLS NOT DISTINCT in migration 0013 (drizzle 0.39
+    // can't express that inline) so side = NULL ("no L/R") still dedupes per
+    // (product, shelf) and re-scans bump seen_count instead of duplicating.
+    productLocationUniqueIdx: uniqueIndex('product_location_unique_idx').on(
+      table.productId,
+      table.shelfId,
+      table.side
+    ),
+    productLocationStoreIdIdx: index('product_location_store_id_idx').on(
+      table.storeId
+    ),
+    productLocationShelfIdIdx: index('product_location_shelf_id_idx').on(
+      table.shelfId
+    ),
+  })
+);
+
+export const scanBatch = pgTable(
+  'scan_batch',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    shelfId: text('shelf_id')
+      .notNull()
+      .references(() => shelf.id, { onDelete: 'cascade' }),
+    source: text('source').notNull().default('staff'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    scanBatchStoreIdIdx: index('scan_batch_store_id_idx').on(table.storeId),
+  })
+);
+
+export const scanPhoto = pgTable(
+  'scan_photo',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    batchId: text('batch_id')
+      .notNull()
+      .references(() => scanBatch.id, { onDelete: 'cascade' }),
+    shelfId: text('shelf_id')
+      .notNull()
+      .references(() => shelf.id, { onDelete: 'cascade' }),
+    storageKey: text('storage_key'),
+    status: text('status').notNull().default('pending').$type<ScanPhotoStatus>(),
+    errorMessage: text('error_message'),
+    // Faces detected in the shelf photo are blurred before persistence (§10).
+    facesBlurred: boolean('faces_blurred').notNull().default(false),
+    detectedCount: integer('detected_count').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    processedAt: timestamp('processed_at'),
+  },
+  (table) => ({
+    scanPhotoBatchIdIdx: index('scan_photo_batch_id_idx').on(table.batchId),
+    scanPhotoStoreIdIdx: index('scan_photo_store_id_idx').on(table.storeId),
+  })
+);
+
+// ---------------------------------------------------------------------------
+// AI usage metering — per-store cost accounting (back-office only, §7)
+// ---------------------------------------------------------------------------
+
+export type AiUsageKind =
+  | 'vision_stage1'
+  | 'vision_stage2'
+  | 'alias'
+  | 'embed'
+  | 'transcribe'
+  | 'identify'
+  | 'answer';
+
+export const aiUsageLog = pgTable(
+  'ai_usage_log',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id'),
+    kind: text('kind').notNull().$type<AiUsageKind>(),
+    model: text('model').notNull(),
+    inputTokens: integer('input_tokens').notNull().default(0),
+    outputTokens: integer('output_tokens').notNull().default(0),
+    images: integer('images').notNull().default(0),
+    latencyMs: integer('latency_ms').notNull().default(0),
+    refId: text('ref_id'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    aiUsageLogStoreIdIdx: index('ai_usage_log_store_id_idx').on(
+      table.storeId,
+      table.createdAt
+    ),
+  })
+);
+
+// ---------------------------------------------------------------------------
+// Shopper-facing signals: search logs, misses, feedback, review tasks
+// ---------------------------------------------------------------------------
+
+export type InputMethod = 'text' | 'voice' | 'photo';
+export type AnswerTone = 'confident' | 'multi' | 'category' | 'none';
+export type MissClassification = 'unclassified' | 'not_carried' | 'needs_scan';
+
+export const searchLog = pgTable(
+  'search_log',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    queryText: text('query_text').notNull(),
+    queryLang: text('query_lang'),
+    inputMethod: text('input_method').notNull().$type<InputMethod>(),
+    answerTone: text('answer_tone').$type<AnswerTone>(),
+    resultCount: integer('result_count').notNull().default(0),
+    // Staff test searches are excluded from statistics (requirements §4.2).
+    isTest: boolean('is_test').notNull().default(false),
+    // Content-safety deflections are excluded from top-search stats (§10).
+    isDeflected: boolean('is_deflected').notNull().default(false),
+    latencyMs: integer('latency_ms').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    searchLogStoreIdCreatedIdx: index('search_log_store_id_created_idx').on(
+      table.storeId,
+      table.createdAt
+    ),
+  })
+);
+
+export const missInsight = pgTable(
+  'miss_insight',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    queryText: text('query_text').notNull(),
+    hitlessCount: integer('hitless_count').notNull().default(1),
+    classification: text('classification')
+      .notNull()
+      .default('unclassified')
+      .$type<MissClassification>(),
+    status: text('status').notNull().default('open'),
+    lastSearchedAt: timestamp('last_searched_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    missInsightStoreQueryIdx: uniqueIndex('miss_insight_store_query_idx').on(
+      table.storeId,
+      table.queryText
+    ),
+  })
+);
+
+export const feedbackReport = pgTable(
+  'feedback_report',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    productId: text('product_id')
+      .notNull()
+      .references(() => product.id, { onDelete: 'cascade' }),
+    locationId: text('location_id'),
+    // sha256(ip + ua + day) — dedupes "not there" reports without storing PII.
+    reporterHash: text('reporter_hash').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    feedbackReportUniqueIdx: uniqueIndex('feedback_report_unique_idx').on(
+      table.productId,
+      table.reporterHash
+    ),
+    feedbackReportStoreIdIdx: index('feedback_report_store_id_idx').on(
+      table.storeId
+    ),
+  })
+);
+
+export const reviewTask = pgTable(
+  'review_task',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    productId: text('product_id').references(() => product.id, {
+      onDelete: 'cascade',
+    }),
+    reason: text('reason').notNull(),
+    status: text('status').notNull().default('open'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    resolvedAt: timestamp('resolved_at'),
+  },
+  (table) => ({
+    reviewTaskStoreIdStatusIdx: index('review_task_store_id_status_idx').on(
+      table.storeId,
+      table.status
+    ),
+  })
+);

@@ -82,3 +82,6 @@ next-env.d.ts
 .worktrees/
 .security-key
 logs/security/
+
+# Local file storage (dev)
+.storage/

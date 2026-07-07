@@ -813,7 +813,32 @@
       "exit": "Exit staff mode",
       "scan": {
         "title": "Scan shelves",
-        "comingSoon": "Shelf scanning is coming in the next update."
+        "pickShelf": "Which shelf are you at?",
+        "shelfPickerHint": "Tap the shelf you're standing in front of.",
+        "changeShelf": "Change shelf",
+        "atShelf": "At shelf {code}",
+        "addPhotos": "Add photos",
+        "takePhoto": "Take photo",
+        "fromLibrary": "Choose from library",
+        "photoStates": {
+          "pending": "Waiting…",
+          "recognizing": "Recognizing…",
+          "done": "Done",
+          "failed": "Failed — tap to retry"
+        },
+        "foundProducts": "{count} products found",
+        "noProductsYet": "Add a photo to start.",
+        "removeProduct": "Remove",
+        "removed": "Removed",
+        "offlineNote": "You're offline. Photos are saved and will upload when you're back online.",
+        "queued": "{count} waiting to upload",
+        "save": "Save to store",
+        "saving": "Saving…",
+        "saved": "Saved! {created} new, {updated} updated.",
+        "saveError": "Couldn't save. Please try again.",
+        "seenOnce": "seen 1×",
+        "testSearchCta": "Try a search",
+        "empty": "No shelves yet. Ask the owner to add shelves first."
       }
     }
   },
