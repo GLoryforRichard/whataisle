@@ -78,6 +78,39 @@ export async function updateE2EUser(
   expect(false, lastResponseText).toBeTruthy();
 }
 
+/**
+ * Derive a valid, unique store handle from an e2e user email
+ * (e2e-<random>@example.test → "e2e<random>").
+ */
+export function handleForUser(user: E2EUser): string {
+  const base = user.email
+    .split('@')[0]
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+  return `s${base}`.slice(0, 28);
+}
+
+/**
+ * Complete the store-handle onboarding for a fresh owner. WhatAisle sends every
+ * storeless owner here after login (one account = one store).
+ */
+export async function completeOnboarding(page: Page, handle: string) {
+  // Wait for the onboarding page to fully settle (the first hit compiles the
+  // route in dev, which can briefly double-render client components).
+  await page.waitForLoadState('networkidle');
+  const nameInput = page.locator('#store-name').first();
+  await expect(nameInput).toBeVisible({ timeout: 10_000 });
+  await nameInput.fill('E2E Store');
+  await page.locator('#store-handle').first().fill(handle);
+  await expect(page.getByText(/Available|可以使用/).first()).toBeVisible({
+    timeout: 10_000,
+  });
+  await page.locator('#terms').first().click();
+  await page.getByRole('button', { name: /^Continue$|^继续$/ }).click();
+  await page.getByRole('button', { name: /use this address|就用它/i }).click();
+  await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15_000 });
+}
+
 export async function loginByForm(page: Page, user: E2EUser) {
   await page.goto('/auth/login');
   const emailInput = page.locator('input[name="email"]');
@@ -91,5 +124,13 @@ export async function loginByForm(page: Page, user: E2EUser) {
   });
   await expect(signInButton).toBeEnabled();
   await signInButton.click();
+  // A fresh owner with no store lands on onboarding; complete it to reach the
+  // dashboard. Admin/returning users go straight through.
+  await page.waitForURL(/\/dashboard\/?$|\/onboarding\/handle/, {
+    timeout: 10_000,
+  });
+  if (/\/onboarding\/handle/.test(page.url())) {
+    await completeOnboarding(page, handleForUser(user));
+  }
   await expect(page).toHaveURL(/\/dashboard\/?$/);
 }

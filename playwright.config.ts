@@ -7,10 +7,16 @@ export default defineConfig({
   testDir: './tests/e2e/specs',
   fullyParallel: false,
   workers: 1,
-  retries: process.env.CI ? 2 : 0,
+  // The e2e server is a single `next dev` instance; on-demand route compilation
+  // during a long suite can make individual actions slow, so allow headroom and
+  // a retry locally to absorb dev-server saturation flakes.
+  retries: process.env.CI ? 2 : 1,
+  timeout: 60_000,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL,
+    actionTimeout: 45_000,
+    navigationTimeout: 45_000,
     trace: 'on-first-retry',
   },
   webServer: {

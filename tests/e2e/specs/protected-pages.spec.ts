@@ -15,14 +15,16 @@ import {
 
 const protectedPages = [
   { path: '/dashboard', name: 'dashboard' },
+  { path: '/manage/shelves', name: 'shelves' },
+  { path: '/manage/insights', name: 'insights' },
+  { path: '/manage/profile', name: 'store profile' },
+  { path: '/manage/posters', name: 'posters' },
+  { path: '/manage/data', name: 'data & export' },
+  { path: '/admin/tenants', name: 'admin tenants' },
+  { path: '/admin/costs', name: 'admin costs' },
   { path: '/admin/users', name: 'admin users' },
   { path: '/settings/profile', name: 'profile settings' },
   { path: '/settings/security', name: 'security settings' },
-  { path: '/settings/apikeys', name: 'api keys settings' },
-  { path: '/settings/billing', name: 'billing settings' },
-  { path: '/settings/credits', name: 'credits settings' },
-  { path: '/settings/notifications', name: 'notification settings' },
-  { path: '/payment', name: 'payment result' },
 ] as const;
 
 const smokeMatrix: Array<{ locale: LocaleMode; theme: ThemeMode }> = [
@@ -46,7 +48,9 @@ test.describe('protected page smoke coverage', () => {
       page,
       request,
     }) => {
-      const user = await registerE2EUser(request, { role: 'admin' });
+      // A regular owner: loginByForm completes onboarding so they get a store
+      // and /manage/* pages render. Demo mode (e2e) lets them view /admin/*.
+      const user = await registerE2EUser(request);
       await setTheme(page, theme);
       const monitor = installPageHealthMonitor(page);
 
