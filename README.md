@@ -98,7 +98,6 @@ cookies are host-only and bound to `(storeId, pinVersion)`.
   (behind the existing storage abstraction), Cloud Scheduler for the weekly
   report cron, budget caps + cost alerts. Nothing in the code is Vercel/AWS
   specific; drivers are already abstracted.
-- **POS CSV bulk import** — products land "unlocated", auto-match on scan (§8).
 - **Staffed full-store onboarding** — booking, multi-scanner coverage board,
   acceptance report (§6).
 - **Stripe billing activation** — the template's payment plumbing is retained
