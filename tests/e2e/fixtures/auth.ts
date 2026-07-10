@@ -52,6 +52,7 @@ export async function updateE2EUser(
     email: string;
     emailVerified?: boolean;
     role?: 'admin' | 'user' | null;
+    hasPaid?: boolean;
   }
 ) {
   let lastResponseText = '';
@@ -108,7 +109,10 @@ export async function completeOnboarding(page: Page, handle: string) {
   await page.locator('#terms').first().click();
   await page.getByRole('button', { name: /^Continue$|^继续$/ }).click();
   await page.getByRole('button', { name: /use this address|就用它/i }).click();
-  await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15_000 });
+  // Store creation lands on the paywall (unpaid) or /manage/video (paid).
+  await expect(page).toHaveURL(/\/(onboarding\/payment|manage\/video)\/?$/, {
+    timeout: 15_000,
+  });
 }
 
 export async function loginByForm(page: Page, user: E2EUser) {
@@ -134,6 +138,9 @@ export async function loginByForm(page: Page, user: E2EUser) {
   });
   if (await onboardingField.isVisible()) {
     await completeOnboarding(page, handleForUser(user));
+    // The funnel parks new owners on the paywall; specs start from dashboard.
+    await page.goto('/dashboard');
   }
   await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15_000 });
+  await expect(dashboardCard).toBeVisible({ timeout: 15_000 });
 }

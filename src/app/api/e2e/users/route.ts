@@ -9,6 +9,7 @@ import {
 } from '@/db/schema';
 import { getDb } from '@/db';
 import { isValidE2ETestRequest } from '@/lib/e2e';
+import { PaymentScenes, PaymentTypes } from '@/payment/types';
 import { inArray, like, eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
@@ -31,6 +32,7 @@ export async function PATCH(request: Request) {
     email?: unknown;
     emailVerified?: unknown;
     role?: unknown;
+    hasPaid?: unknown;
   };
   const email = typeof body.email === 'string' ? body.email : '';
 
@@ -65,6 +67,30 @@ export async function PATCH(request: Request) {
 
   if (!updatedUser) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  // Seed a completed lifetime payment so specs can cross the paywall
+  // without a Stripe round-trip.
+  if (body.hasPaid === true) {
+    const priceId =
+      process.env.NEXT_PUBLIC_STRIPE_PRICE_LIFETIME ?? 'price_e2e_lifetime';
+    const existing = await db
+      .select({ id: payment.id })
+      .from(payment)
+      .where(eq(payment.userId, updatedUser.id))
+      .limit(1);
+    if (existing.length === 0) {
+      await db.insert(payment).values({
+        id: `e2e-payment-${updatedUser.id}`,
+        priceId,
+        type: PaymentTypes.ONE_TIME,
+        scene: PaymentScenes.LIFETIME,
+        userId: updatedUser.id,
+        customerId: 'e2e-customer',
+        status: 'completed',
+        paid: true,
+      });
+    }
   }
 
   return NextResponse.json({ user: updatedUser });

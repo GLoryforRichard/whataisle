@@ -116,7 +116,22 @@ Verifies the signed-in profile update flow.
 | 3 | Staff PIN accepts and rejects correctly | Accept the demo store PIN and reject an incorrect PIN. |
 | 4 | Staff sessions are host-isolated | Authenticate on the demo store and verify the cookie cannot unlock the second store. |
 
-The current six specs expand to 22 Playwright tests across the locale matrices.
+## 7. Purchase Funnel And Paywall
+
+**File:** `specs/paywall.spec.ts` | **Priority:** P0
+
+The paywall sits between store creation and video upload: one $999 one-time
+plan (`lifetime`). Specs seed entitlement through the e2e users API
+(`hasPaid: true` inserts a completed lifetime payment row) — the hosted Stripe
+Checkout itself stays out of E2E.
+
+| # | Test name | Flow |
+|---|---|---|
+| 1 | Pricing shows the single one-time plan | Open `/pricing`, verify the $999 card renders and no subscription pricing appears. |
+| 2 | Unpaid owner is walled off | Register + create store, open `/manage/video`, expect redirect to `/onboarding/payment` with the $999 offer; POST `/api/owner/video/init` and require 402 `payment_required`. |
+| 3 | Paid owner reaches guided upload | Seed `hasPaid`, open `/onboarding/payment`, expect redirect to `/manage/video` with the filming checklist; `/api/owner/video/init` succeeds. |
+
+The current seven specs expand to 25 Playwright tests across the locale matrices.
 
 ## Deferred Coverage
 
@@ -124,7 +139,8 @@ These flows should be added after their dependencies are made deterministic:
 
 | Area | Reason |
 |---|---|
-| Payment checkout and portal | Requires Stripe or Creem test fixtures, webhook simulation, and provider-specific env. |
+| Hosted Stripe Checkout, webhook, and portal | Requires Stripe test fixtures and webhook simulation (`stripe listen`); covered manually with test cards. Entitlement gating is covered by `paywall.spec.ts`. |
+| Video upload completion email | Requires a fake mail provider or Mailpit assertions; verified manually (notification to the ops inbox with signed link). |
 | GCS uploads and cross-store ACLs | Requires deterministic private-bucket fixtures or a storage emulator. |
 | Transactional email | Requires a fake mail provider or captured verification links. |
 | Real Vertex AI golden set | Runs in staging on a schedule; pull-request and release E2E stay on the deterministic AI stub. |
