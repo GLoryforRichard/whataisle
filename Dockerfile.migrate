@@ -1,0 +1,25 @@
+# syntax=docker/dockerfile:1
+# Migration runner image — the standalone runtime image does not include
+# drizzle-kit, so migrations run as a separate Cloud Run Job using this image.
+FROM node:24.18.0-alpine3.24
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable \
+  && corepack prepare pnpm@10.33.2 --activate
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml* ./
+# --ignore-scripts: skip fumadocs-mdx postinstall, which needs content sources
+RUN pnpm install --frozen-lockfile --ignore-scripts
+
+COPY drizzle.config.ts ./
+COPY src/db ./src/db
+
+RUN addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 migrator
+USER migrator
+
+CMD ["pnpm", "db:migrate"]

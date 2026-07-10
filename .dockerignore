@@ -6,11 +6,17 @@
 .next
 .open-next
 .source
+.env
+.env.*
+!env.example
 .vscode
 .git
 .wrangler
 .dockerignore
 node_modules
 **/node_modules
+coverage
+playwright-report
+test-results
 Dockerfile
 LICENSE

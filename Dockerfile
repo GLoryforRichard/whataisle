@@ -1,5 +1,12 @@
 # syntax=docker/dockerfile:1
-FROM node:20-alpine AS base
+FROM node:24.18.0-alpine3.24 AS base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN corepack enable \
+  && corepack prepare pnpm@10.33.2 --activate
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -12,7 +19,7 @@ COPY package.json pnpm-lock.yaml* ./
 # Copy config files needed for fumadocs-mdx postinstall
 COPY source.config.ts ./
 COPY content ./content
-RUN npm install -g pnpm && pnpm i --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -25,8 +32,13 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN npm install -g pnpm \
-  && DOCKER_BUILD=true pnpm build
+# NEXT_PUBLIC_* values are inlined at build time and must be passed as build args
+ARG NEXT_PUBLIC_BASE_URL
+ARG NEXT_PUBLIC_ROOT_DOMAIN
+ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
+ENV NEXT_PUBLIC_ROOT_DOMAIN=$NEXT_PUBLIC_ROOT_DOMAIN
+
+RUN DOCKER_BUILD=true pnpm build
 
 # Production image, copy all the files and run next
 FROM base AS runner

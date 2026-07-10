@@ -1,9 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.3.12/schema.json",
   "vcs": {
-    "enabled": false,
+    "enabled": true,
     "clientKind": "git",
-    "useIgnoreFile": false
+    "useIgnoreFile": true
   },
   "files": {
     "ignoreUnknown": true,
@@ -20,6 +20,9 @@
       "!.conductor",
       "!.vscode",
       "!.source",
+      "!coverage",
+      "!playwright-report",
+      "!test-results",
       "!node_modules",
       "!next-env.d.ts",
       "!dist",
@@ -28,7 +31,6 @@
       "!tailwind.config.ts",
       "!src/lib/utils.ts",
       "!src/hooks/use-mobile.ts",
-      "!tailwind.config.ts",
       "!src/components/ui",
       "!src/components/magicui",
       "!src/components/diceui",
@@ -96,6 +98,21 @@
       }
     }
   },
+  "overrides": [
+    {
+      "includes": [
+        "src/ai/scan-service.ts",
+        "src/components/store/shopper-search.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "useOptionalChain": "off"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "single",

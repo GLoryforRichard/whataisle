@@ -56,13 +56,19 @@ const STORES = [
 
 async function main() {
   const { getDb } = await import('../src/db');
-  const { account, store, shelf, storeTermsAcceptance, user } = await import(
-    '../src/db/schema'
-  );
+  const {
+    account,
+    product,
+    productLocation,
+    shelf,
+    store,
+    storeTermsAcceptance,
+    user,
+  } = await import('../src/db/schema');
   const { TERMS_VERSION } = await import('../src/config/terms');
   const { hashPin } = await import('../src/lib/pin');
   const { hashPassword } = await import('better-auth/crypto');
-  const { eq } = await import('drizzle-orm');
+  const { and, eq } = await import('drizzle-orm');
   const { nanoid } = await import('nanoid');
 
   const db = await getDb();
@@ -124,6 +130,7 @@ async function main() {
         ownerUserId: ownerId,
         displayName: def.displayName,
         displayNameZh: def.displayNameZh,
+        status: 'live',
         announcement: def.announcement,
         announcementZh: def.announcementZh,
         staffPinHash: await hashPin(def.pin),
@@ -157,6 +164,55 @@ async function main() {
       );
     } else {
       console.log(`seed: shelves for ${def.handle} already exist`);
+    }
+
+    // The release E2E suite starts from a fresh database. Keep one known
+    // product in the demo tenant so search confidence and cross-store
+    // isolation are deterministic without relying on a developer's old data.
+    if (def.handle === 'demo') {
+      const [fixtureShelf] = await db
+        .select({ id: shelf.id })
+        .from(shelf)
+        .where(and(eq(shelf.storeId, storeId), eq(shelf.code, 'B4')))
+        .limit(1);
+      if (!fixtureShelf) {
+        throw new Error('seed: expected demo shelf B4');
+      }
+
+      const [existingProduct] = await db
+        .select({ id: product.id })
+        .from(product)
+        .where(
+          and(
+            eq(product.storeId, storeId),
+            eq(product.canonicalName, 'Wang Korea Gochujang')
+          )
+        )
+        .limit(1);
+      const productId = existingProduct?.id ?? nanoid();
+      if (!existingProduct) {
+        await db.insert(product).values({
+          id: productId,
+          storeId,
+          canonicalName: 'Wang Korea Gochujang',
+          nameZh: '王致和韩式辣椒酱',
+          category: 'Condiments',
+          searchText:
+            'Wang Korea Gochujang · Gochujang · Korean chili paste · 韩式辣椒酱',
+          status: 'active',
+        });
+      }
+      await db
+        .insert(productLocation)
+        .values({
+          id: nanoid(),
+          storeId,
+          productId,
+          shelfId: fixtureShelf.id,
+          status: 'active',
+        })
+        .onConflictDoNothing();
+      console.log('seed: demo search fixture ready');
     }
   }
 
