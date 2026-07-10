@@ -20,7 +20,12 @@ export function getDbSync() {
         connectionString.replace(/^postgres(ql)?:/, 'http:')
       ).searchParams.get('host')
     : null;
-  const client = postgres(connectionString, {
+  // Strip the param — postgres.js forwards unknown query params to the
+  // server as startup parameters, which Postgres rejects.
+  const sanitized = socketHost
+    ? connectionString.replace(/[?&]host=[^&]*/, '')
+    : connectionString;
+  const client = postgres(sanitized, {
     prepare: false,
     ...(socketHost ? { host: socketHost } : {}),
   });
