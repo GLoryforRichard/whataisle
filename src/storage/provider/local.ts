@@ -1,36 +1,71 @@
-import { nanoid } from 'nanoid';
-import { putBuffer } from '../local-store';
+import {
+  deleteLocalObject,
+  deleteLocalPrefix,
+  getLocalObject,
+  putLocalObject,
+  streamLocalObject,
+} from '../local-store';
+import { normalizeStorageKey, storageUrlForKey } from '../keys';
 import type {
+  CreateResumableUploadParams,
+  PutObjectParams,
+  PutObjectResult,
+  ResumableUploadResult,
+  StorageObject,
+  StorageObjectStream,
   StorageProvider,
-  UploadFileParams,
-  UploadFileResult,
 } from '../types';
 
-/**
- * Local-disk storage provider (dev / GCP-agnostic). Delegates to local-store
- * and returns a key + a URL that points at the ACL'd file-serving route rather
- * than a public bucket URL.
- */
+/** Local filesystem provider for development and E2E. */
 export class LocalProvider implements StorageProvider {
-  getProviderName(): string {
+  getProviderName(): 'local' {
     return 'local';
   }
 
-  async uploadFile(params: UploadFileParams): Promise<UploadFileResult> {
-    const { file, filename, folder } = params;
-    const buffer = Buffer.isBuffer(file)
-      ? file
-      : Buffer.from(await (file as Blob).arrayBuffer());
-    const ext = filename.includes('.')
-      ? filename.slice(filename.lastIndexOf('.'))
-      : '';
-    const key = `${folder ? `${folder.replace(/^\/|\/$/g, '')}/` : ''}${nanoid()}${ext}`;
-    const { key: storedKey } = await putBuffer(key, buffer);
-    return { key: storedKey, url: `/api/store/files/${storedKey}` };
+  async put(params: PutObjectParams): Promise<PutObjectResult> {
+    const metadata = await putLocalObject(params.key, params.data);
+    return {
+      ...metadata,
+      contentType: params.contentType ?? metadata.contentType,
+      url: storageUrlForKey(metadata.key),
+    };
   }
 
-  async deleteFile(key: string): Promise<void> {
-    const { deleteObject } = await import('../local-store');
-    await deleteObject(key);
+  async get(key: string): Promise<StorageObject | null> {
+    const object = await getLocalObject(key);
+    if (!object) return null;
+    return { ...object.metadata, data: object.data };
+  }
+
+  async stream(key: string): Promise<StorageObjectStream | null> {
+    const object = await streamLocalObject(key);
+    if (!object) return null;
+    return { ...object.metadata, body: object.body };
+  }
+
+  async delete(key: string): Promise<void> {
+    await deleteLocalObject(normalizeStorageKey(key));
+  }
+
+  async deletePrefix(prefix: string): Promise<void> {
+    await deleteLocalPrefix(prefix);
+  }
+
+  async createResumableUpload(
+    params: CreateResumableUploadParams
+  ): Promise<ResumableUploadResult> {
+    // The owner video chunk API is persistent and idempotent in local mode.
+    return {
+      strategy: 'chunked',
+      key: normalizeStorageKey(params.key),
+      uploadUrl: null,
+      method: 'POST',
+      headers: {},
+    };
+  }
+
+  async getSignedDownloadUrl(key: string, _ttlSeconds: number) {
+    // No signing locally — the ACL-enforcing app route is the download URL.
+    return storageUrlForKey(normalizeStorageKey(key));
   }
 }

@@ -27,10 +27,9 @@ const protectedPages = [
   { path: '/settings/security', name: 'security settings' },
 ] as const;
 
+// Dark mode was removed — the product is light-only, so only light is exercised.
 const smokeMatrix: Array<{ locale: LocaleMode; theme: ThemeMode }> = [
-  { locale: 'en', theme: 'dark' },
   { locale: 'en', theme: 'light' },
-  { locale: 'zh', theme: 'dark' },
   { locale: 'zh', theme: 'light' },
 ];
 

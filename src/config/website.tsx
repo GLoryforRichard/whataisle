@@ -42,9 +42,9 @@ const priceIds = {
 export const websiteConfig: WebsiteConfig = {
   ui: {
     mode: {
-      // Store owners and staff are not tech-savvy; light mode is the familiar default.
+      // Light-only product: dark mode was removed. Force light, hide the toggle.
       defaultMode: 'light',
-      enableSwitch: true,
+      enableSwitch: false,
     },
   },
   metadata: {
@@ -71,10 +71,12 @@ export const websiteConfig: WebsiteConfig = {
     enableSpeedInsights: false,
   },
   apikeys: {
-    enable: process.env.NEXT_PUBLIC_DEMO_WEBSITE === 'true',
+    enable: false,
   },
   auth: {
-    enableGoogleLogin: true,
+    enableGoogleLogin:
+      process.env.PUBLIC_GOOGLE_LOGIN_ENABLED === 'true' ||
+      process.env.NODE_ENV !== 'production',
     enableGithubLogin: false,
     enableCredentialLogin: true,
     enableDeleteUser: true,
@@ -100,8 +102,8 @@ export const websiteConfig: WebsiteConfig = {
     relatedPostsSize: 3,
   },
   docs: {
-    // Repurposed as the bilingual help center.
-    enable: true,
+    // Docs/help-center section removed from the product.
+    enable: false,
   },
   mail: {
     enable: true,
@@ -129,6 +131,8 @@ export const websiteConfig: WebsiteConfig = {
         prices: [],
         isFree: true,
         isLifetime: false,
+        // Single $999 tier for launch — free/pro hidden from pricing UI.
+        disabled: true,
         credits: {
           enable: true,
           amount: 50,
@@ -137,6 +141,7 @@ export const websiteConfig: WebsiteConfig = {
       },
       pro: {
         id: 'pro',
+        disabled: true,
         prices: [
           {
             type: PaymentTypes.SUBSCRIPTION,
@@ -168,7 +173,7 @@ export const websiteConfig: WebsiteConfig = {
           {
             type: PaymentTypes.ONE_TIME,
             priceId: priceIds.lifetime,
-            amount: 19900,
+            amount: 99900,
             currency: 'USD',
             allowPromotionCode: true,
           },

@@ -3,7 +3,9 @@ import {
   fontBricolageGrotesque,
   fontNotoSans,
   fontNotoSansMono,
+  fontNotoSansSC,
   fontNotoSerif,
+  fontQuicksand,
 } from '@/assets/fonts';
 import { TailwindIndicator } from '@/components/layout/tailwind-indicator';
 import { routing } from '@/i18n/routing';
@@ -49,8 +51,10 @@ export default async function LocaleLayout({
     <html suppressHydrationWarning lang={locale}>
       <body
         className={cn(
-          'size-full antialiased',
-          fontNotoSans.className,
+          'size-full font-sans antialiased',
+          fontQuicksand.variable,
+          fontNotoSansSC.variable,
+          fontNotoSans.variable,
           fontNotoSerif.variable,
           fontNotoSansMono.variable,
           fontBricolageGrotesque.variable

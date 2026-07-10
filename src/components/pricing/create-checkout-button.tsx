@@ -9,6 +9,8 @@ interface CheckoutButtonProps {
   planId: string;
   priceId: string;
   metadata?: Record<string, string>;
+  /** Allowlisted route the payment page redirects to once paid. */
+  callbackUrl?: string;
   variant?:
     | 'default'
     | 'outline'
@@ -35,6 +37,7 @@ export function CheckoutButton({
   planId,
   priceId,
   metadata,
+  callbackUrl,
   variant,
   size,
   className,
@@ -49,6 +52,7 @@ export function CheckoutButton({
       priceId,
       metadata:
         Object.keys(mergedMetadata).length > 0 ? mergedMetadata : undefined,
+      callbackUrl,
     });
 
     if (result?.data?.success && result?.data?.data?.url) {

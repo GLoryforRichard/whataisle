@@ -30,10 +30,14 @@ import { SocialLoginButton } from './social-login-button';
 
 interface RegisterFormProps {
   callbackUrl?: string;
+  inviteToken?: string;
+  invitedEmail?: string;
 }
 
 export const RegisterForm = ({
   callbackUrl: propCallbackUrl,
+  inviteToken,
+  invitedEmail,
 }: RegisterFormProps) => {
   const t = useTranslations('AuthPage.register');
   const searchParams = useSearchParams();
@@ -79,7 +83,7 @@ export const RegisterForm = ({
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
-      email: '',
+      email: invitedEmail ?? '',
       password: '',
       name: '',
       captchaToken: '',
@@ -112,7 +116,7 @@ export const RegisterForm = ({
       });
 
       if (!captchaResult?.data?.success || !captchaResult?.data?.valid) {
-        console.error('register, captcha invalid:', values.captchaToken);
+        console.error('register captcha validation failed');
         const errorMessage = captchaResult?.data?.error || t('captchaInvalid');
         setError(errorMessage);
         setIsPending(false);
@@ -125,49 +129,51 @@ export const RegisterForm = ({
     // the user will be redirected to the callbackURL after the email is verified.
     // 2. if requireEmailVerification is false, the user will not be redirected to the callbackURL,
     // we should redirect to the callbackURL manually in the onSuccess callback.
-    await authClient.signUp.email(
-      {
-        email: values.email,
-        password: values.password,
-        name: values.name,
-        callbackURL: callbackUrl,
-      },
-      {
-        onRequest: (ctx) => {
-          // console.log('register, request:', ctx.url);
-          setIsPending(true);
-          setError('');
-          setSuccess('');
-        },
-        onResponse: (ctx) => {
-          // console.log('register, response:', ctx.response);
-          setIsPending(false);
-        },
-        onSuccess: (ctx) => {
-          // sign up success, user information stored in ctx.data
-          // console.log("register, success:", ctx.data);
-          setSuccess(t('checkEmail'));
+    const signUpPayload = {
+      email: values.email,
+      password: values.password,
+      name: values.name,
+      callbackURL: callbackUrl,
+      inviteToken,
+    } as Parameters<typeof authClient.signUp.email>[0] & {
+      inviteToken?: string;
+    };
 
-          // add affonso affiliate when provider is affonso
-          // https://affonso.io/app/affiliate-program/connect
-          if (
-            websiteConfig.affiliates?.enable &&
-            websiteConfig.affiliates.provider === 'affonso'
-          ) {
-            window.Affonso.signup(values.email);
-          }
-        },
-        onError: (ctx) => {
-          // sign up fail, display the error message
-          // console.error('register, error:', ctx.error);
-          setError(`${ctx.error.status}: ${ctx.error.message}`);
-          // Reset captcha on registration error
-          if (captchaConfigured) {
-            resetCaptcha();
-          }
-        },
-      }
-    );
+    await authClient.signUp.email(signUpPayload, {
+      onRequest: (ctx) => {
+        // console.log('register, request:', ctx.url);
+        setIsPending(true);
+        setError('');
+        setSuccess('');
+      },
+      onResponse: (ctx) => {
+        // console.log('register, response:', ctx.response);
+        setIsPending(false);
+      },
+      onSuccess: (ctx) => {
+        // sign up success, user information stored in ctx.data
+        // console.log("register, success:", ctx.data);
+        setSuccess(t('checkEmail'));
+
+        // add affonso affiliate when provider is affonso
+        // https://affonso.io/app/affiliate-program/connect
+        if (
+          websiteConfig.affiliates?.enable &&
+          websiteConfig.affiliates.provider === 'affonso'
+        ) {
+          window.Affonso.signup(values.email);
+        }
+      },
+      onError: (ctx) => {
+        // sign up fail, display the error message
+        // console.error('register, error:', ctx.error);
+        setError(`${ctx.error.status}: ${ctx.error.message}`);
+        // Reset captcha on registration error
+        if (captchaConfigured) {
+          resetCaptcha();
+        }
+      },
+    });
   };
 
   const togglePasswordVisibility = () => {
@@ -210,7 +216,7 @@ export const RegisterForm = ({
                     <FormControl>
                       <Input
                         {...field}
-                        disabled={isPending}
+                        disabled={isPending || !!invitedEmail}
                         placeholder="name@example.com"
                         type="email"
                       />

@@ -1,0 +1,95 @@
+name: Release E2E
+
+on:
+  workflow_dispatch:
+  release:
+    types:
+      - published
+
+concurrency:
+  group: e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  CI: 'true'
+  NEXT_TELEMETRY_DISABLED: '1'
+  NEXT_PUBLIC_BASE_URL: http://localhost:3100
+  NEXT_PUBLIC_ROOT_DOMAIN: localhost
+  NEXT_PUBLIC_DEMO_WEBSITE: 'true'
+  NEXT_PUBLIC_E2E_TEST_MODE: 'true'
+  NEXT_PUBLIC_PAYMENT_PROVIDER: stripe
+  DATABASE_URL: postgresql://whataisle:whataisle@localhost:5432/whataisle
+  BETTER_AUTH_SECRET: e2e-better-auth-secret-at-least-32-characters
+  E2E_TEST_SECRET: mksaas-e2e-secret
+  GOOGLE_CLIENT_ID: e2e-google-client-id
+  GOOGLE_CLIENT_SECRET: e2e-google-client-secret
+  STAFF_COOKIE_SECRET: e2e-staff-cookie-secret-at-least-32-characters
+  MAIL_PROVIDER: smtp
+  AI_STUB: 'true'
+  STORAGE_PROVIDER: local
+
+jobs:
+  e2e:
+    name: PostgreSQL + pgvector + Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.1-pg17
+        env:
+          POSTGRES_USER: whataisle
+          POSTGRES_PASSWORD: whataisle
+          POSTGRES_DB: whataisle
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U whataisle -d whataisle"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Apply database migrations
+        run: pnpm db:migrate
+
+      - name: Seed deterministic tenants
+        run: pnpm seed
+
+      - name: Run E2E suite with AI stub
+        run: pnpm e2e
+
+      - name: Upload Playwright artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7

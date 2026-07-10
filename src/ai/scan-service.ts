@@ -2,7 +2,7 @@ import 'server-only';
 
 import { productRepo } from '@/data/product-repo';
 import { nanoid } from 'nanoid';
-import { putBuffer } from '@/storage/local-store';
+import { getStorageProvider } from '@/storage';
 import { type ProductAliases, generateAliasesBatch } from './aliases';
 import { blurFaces } from './face-blur';
 import { embedDocuments } from './embeddings';
@@ -48,7 +48,12 @@ export async function processShelfPhoto(input: {
     vision.faces
   );
   const storageKey = `stores/${input.storeId}/shelf-photos/${input.photoId}.jpg`;
-  await putBuffer(storageKey, safeBuffer);
+  await getStorageProvider().put({
+    key: storageKey,
+    data: safeBuffer,
+    contentType: 'image/jpeg',
+    cacheControl: 'private, no-store',
+  });
 
   return { storageKey, facesBlurred: blurredCount, products: vision.products };
 }
@@ -167,7 +172,12 @@ export async function saveScannedProducts(input: {
       const b64 = p.thumbnailDataUrl.split(',')[1] ?? '';
       if (b64) {
         thumbnailKey = `stores/${input.storeId}/thumbnails/${nanoid()}.jpg`;
-        await putBuffer(thumbnailKey, Buffer.from(b64, 'base64'));
+        await getStorageProvider().put({
+          key: thumbnailKey,
+          data: Buffer.from(b64, 'base64'),
+          contentType: 'image/jpeg',
+          cacheControl: 'private, max-age=31536000, immutable',
+        });
       }
     }
 

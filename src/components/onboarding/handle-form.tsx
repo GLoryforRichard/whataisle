@@ -92,7 +92,7 @@ export function HandleForm() {
       if (data?.success) {
         // Hard navigation: this is a one-time completion, and it guarantees
         // the protected layout re-runs server-side and sees the new store.
-        window.location.assign(Routes.Dashboard);
+        window.location.assign(Routes.OnboardingPayment);
         return;
       }
       const code = data && 'error' in data ? data.error : undefined;
@@ -122,7 +122,7 @@ export function HandleForm() {
       }}
     >
       <div className="flex flex-col gap-2">
-        <Label htmlFor="store-name" className="text-base">
+        <Label htmlFor="store-name" className="font-semibold text-base">
           {t('nameLabel')}
         </Label>
         <Input
@@ -131,14 +131,14 @@ export function HandleForm() {
           onChange={(e) => setDisplayName(e.target.value)}
           placeholder={t('namePlaceholder')}
           maxLength={100}
-          className="h-12 text-lg"
+          className="h-13 rounded-xl text-lg text-[var(--brand-ink)] placeholder:text-[#7B8479]"
           autoFocus
         />
-        <p className="text-muted-foreground text-sm">{t('nameHint')}</p>
+        <p className="text-[#566058] text-sm">{t('nameHint')}</p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="store-handle" className="text-base">
+        <Label htmlFor="store-handle" className="font-semibold text-base">
           {t('handleLabel')}
         </Label>
         <div className="flex items-center gap-2">
@@ -150,39 +150,45 @@ export function HandleForm() {
             }
             placeholder="yourstore"
             maxLength={30}
-            className="h-12 text-lg"
+            className="h-13 rounded-xl text-lg text-[var(--brand-ink)] placeholder:text-[#7B8479]"
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck={false}
           />
-          <span className="whitespace-nowrap text-muted-foreground">
+          <span className="whitespace-nowrap text-[#566058]">
             .{ROOT_DOMAIN}
           </span>
         </div>
-        <p className="text-muted-foreground text-sm">{t('handleHint')}</p>
 
-        <div className="min-h-6 text-sm" aria-live="polite">
-          {check.status === 'checking' && (
-            <span className="inline-flex items-center gap-1 text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin" aria-hidden />
-              {t('checking')}
-            </span>
-          )}
-          {check.status === 'available' && (
-            <span className="inline-flex items-center gap-1 text-green-600">
-              <CheckCircle2Icon className="size-4" aria-hidden />
-              {t('available')} · {previewUrl}
-            </span>
-          )}
-          {check.status === 'unavailable' && (
-            <span className="inline-flex items-center gap-1 text-destructive">
-              <XCircleIcon className="size-4" aria-hidden />
-              {t(`errors.${check.reason}`)}
-            </span>
-          )}
+        {/* live preview URL + availability pill */}
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-[#D8EBB4] bg-[#F1F7E8] px-3.5 py-3">
+          <span className="break-all font-mono font-bold text-[15px] text-[var(--brand-green)]">
+            {previewUrl}
+          </span>
+          <div className="shrink-0 text-sm" aria-live="polite">
+            {check.status === 'checking' && (
+              <span className="inline-flex items-center gap-1 text-[#566058]">
+                <Loader2Icon className="size-4 animate-spin" aria-hidden />
+                {t('checking')}
+              </span>
+            )}
+            {check.status === 'available' && (
+              <span className="wa-pop inline-flex items-center gap-1 font-bold text-[var(--brand-green)]">
+                <CheckCircle2Icon className="size-4" aria-hidden />
+                {t('available')}
+              </span>
+            )}
+            {check.status === 'unavailable' && (
+              <span className="inline-flex items-center gap-1 font-medium text-[#c1272d]">
+                <XCircleIcon className="size-4" aria-hidden />
+                {t(`errors.${check.reason}`)}
+              </span>
+            )}
+          </div>
         </div>
+        <p className="text-[#566058] text-sm">{t('handleHint')}</p>
 
-        <p className="rounded-md border border-amber-300 bg-amber-50 p-3 text-amber-900 text-sm dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+        <p className="rounded-xl border border-[#E7C86F] bg-[#FDF6E3] p-3 text-[#7A5B18] text-sm leading-relaxed">
           {t('permanenceWarning')}
         </p>
       </div>
@@ -192,7 +198,7 @@ export function HandleForm() {
           id="terms"
           checked={termsAccepted}
           onCheckedChange={(v) => setTermsAccepted(v === true)}
-          className="mt-0.5"
+          className="mt-0.5 size-5"
         />
         <div className="flex flex-col gap-1">
           <Label htmlFor="terms" className="font-normal text-base">
@@ -201,7 +207,7 @@ export function HandleForm() {
           <LocaleLink
             href={Routes.TermsOfService}
             target="_blank"
-            className="text-primary text-sm underline underline-offset-4"
+            className="text-[var(--brand-green)] text-sm underline underline-offset-4"
           >
             {t('termsLink')}
           </LocaleLink>
@@ -209,7 +215,7 @@ export function HandleForm() {
       </div>
 
       {submitError ? (
-        <p role="alert" className="text-destructive">
+        <p role="alert" className="text-[#c1272d]">
           {submitError}
         </p>
       ) : null}
@@ -217,22 +223,27 @@ export function HandleForm() {
       <Button
         type="submit"
         size="lg"
-        className="h-12 text-lg"
+        className="h-13 rounded-xl font-bold text-lg"
         disabled={!canSubmit}
       >
         {creating ? t('creating') : t('submit')}
       </Button>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-[20px]">
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('confirm.title')}</AlertDialogTitle>
-            <AlertDialogDescription className="text-base">
-              {t('confirm.description', { url: previewUrl })}
-            </AlertDialogDescription>
+            <AlertDialogTitle className="text-center text-xl">
+              {t('confirm.title')}
+            </AlertDialogTitle>
           </AlertDialogHeader>
+          <div className="rounded-xl border border-[#D8EBB4] bg-[#F1F7E8] p-3.5 text-center font-mono font-bold text-lg text-[var(--brand-green)] break-all">
+            {previewUrl}
+          </div>
+          <AlertDialogDescription className="text-center text-muted-foreground text-base">
+            {t('confirm.description', { url: previewUrl })}
+          </AlertDialogDescription>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={creating}>
+            <AlertDialogCancel disabled={creating} className="rounded-xl">
               {t('confirm.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
@@ -241,6 +252,7 @@ export function HandleForm() {
                 create();
               }}
               disabled={creating}
+              className="rounded-xl font-bold"
             >
               {creating ? t('creating') : t('confirm.confirm')}
             </AlertDialogAction>

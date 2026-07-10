@@ -59,6 +59,7 @@ export const createStoreAction = userActionClient
           handle,
           ownerUserId: ctx.user.id,
           displayName: parsedInput.displayName,
+          status: 'onboarding',
         });
         await tx.insert(storeTermsAcceptance).values({
           id: nanoid(),

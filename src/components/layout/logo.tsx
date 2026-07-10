@@ -1,34 +1,35 @@
-'use client';
-
-import { websiteConfig } from '@/config/website';
 import { cn } from '@/lib/utils';
-import { useTheme } from 'next-themes';
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
 
+/**
+ * WhatAisle brand mark — Fresh Green (5a): a lime rounded-square chip holding a
+ * dark-green shopping-cart glyph. Self-contained (works on light/dark, no theme
+ * hook), so it renders in both server and client trees.
+ */
 export function Logo({ className }: { className?: string }) {
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const logoLight = websiteConfig.metadata.images?.logoLight ?? '/logo.png';
-  const logoDark = websiteConfig.metadata.images?.logoDark ?? logoLight;
-
-  // During server-side rendering and initial client render, always use logoLight
-  // This prevents hydration mismatch
-  const logo = mounted && theme === 'dark' ? logoDark : logoLight;
-
-  // Only show theme-dependent UI after hydration to prevent mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   return (
-    <Image
-      src={logo}
-      alt="Logo"
-      title="Logo"
-      width={96}
-      height={96}
-      className={cn('size-8 rounded-md', className)}
-    />
+    <span
+      role="img"
+      aria-label="WhatAisle logo"
+      className={cn(
+        'inline-flex size-8 shrink-0 items-center justify-center rounded-[0.55rem]',
+        'bg-[var(--brand-lime)]',
+        className
+      )}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#0F4C3F"
+        strokeWidth={2.2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="size-[60%]"
+        aria-hidden="true"
+      >
+        <circle cx="8" cy="21" r="1" />
+        <circle cx="19" cy="21" r="1" />
+        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+      </svg>
+    </span>
   );
 }

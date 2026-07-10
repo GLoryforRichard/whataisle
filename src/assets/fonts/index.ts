@@ -2,7 +2,9 @@ import {
   Bricolage_Grotesque,
   Noto_Sans,
   Noto_Sans_Mono,
+  Noto_Sans_SC,
   Noto_Serif,
+  Quicksand,
 } from 'next/font/google';
 
 /**
@@ -62,4 +64,24 @@ export const fontBricolageGrotesque = Bricolage_Grotesque({
   display: 'swap',
   variable: '--font-bricolage-grotesque',
   weight: ['400', '500', '600', '700'],
+});
+
+// Fresh Green (5a) rebrand — rounded geometric display/UI font.
+// https://fonts.google.com/specimen/Quicksand
+export const fontQuicksand = Quicksand({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-quicksand',
+  weight: ['500', '600', '700'],
+});
+
+// CJK fallback for Quicksand (which has no Chinese glyphs). Not preloaded — the
+// SC font files are large and only needed for Chinese runs.
+// https://fonts.google.com/noto/specimen/Noto+Sans+SC
+export const fontNotoSansSC = Noto_Sans_SC({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-noto-sans-sc',
+  weight: ['400', '500', '700'],
+  preload: false,
 });

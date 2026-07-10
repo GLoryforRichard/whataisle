@@ -2,7 +2,9 @@ import {
   fontBricolageGrotesque,
   fontNotoSans,
   fontNotoSansMono,
+  fontNotoSansSC,
   fontNotoSerif,
+  fontQuicksand,
 } from '@/assets/fonts';
 import { StoreHeader } from '@/components/store/store-header';
 import { StoreNotFound } from '@/components/store/store-not-found';
@@ -48,14 +50,16 @@ export default async function StoreLayout({
   const { handle } = await params;
   const locale = await getLocale();
   const store = await getStoreByHandle(handle);
-  const active = store && store.status === 'active';
+  const active = store && store.status === 'live';
 
   return (
     <html suppressHydrationWarning lang={locale}>
       <body
         className={cn(
-          'size-full antialiased',
-          fontNotoSans.className,
+          'size-full font-sans antialiased',
+          fontQuicksand.variable,
+          fontNotoSansSC.variable,
+          fontNotoSans.variable,
           fontNotoSerif.variable,
           fontNotoSansMono.variable,
           fontBricolageGrotesque.variable
@@ -72,7 +76,7 @@ export default async function StoreLayout({
                 }
                 logoKey={store.logoKey}
               />
-              <main className="flex-1">{children}</main>
+              <main className="wa-dotted flex-1">{children}</main>
               <StoreFooter />
             </div>
           ) : (

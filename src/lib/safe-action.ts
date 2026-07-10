@@ -47,8 +47,8 @@ export const storeActionClient = userActionClient.use(async ({ next, ctx }) => {
   if (!store) {
     throw new Error('No store is linked to this account');
   }
-  if (store.status !== 'active') {
-    throw new Error('This store is closed');
+  if (!['onboarding', 'live'].includes(store.status)) {
+    throw new Error('This store is not available for changes');
   }
 
   return next({ ctx: { ...ctx, store } });

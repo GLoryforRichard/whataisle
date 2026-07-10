@@ -31,7 +31,7 @@ export function UserAvatar({
       {...props}
     >
       {/* Always render fallback to maintain layout */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
         <span className="sr-only">{name}</span>
         <User2Icon className="size-4" />
       </div>

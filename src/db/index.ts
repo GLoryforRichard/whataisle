@@ -12,7 +12,23 @@ let db: ReturnType<typeof drizzle> | null = null;
 export function getDbSync() {
   if (db) return db;
   const connectionString = process.env.DATABASE_URL!;
-  const client = postgres(connectionString, { prepare: false });
+  // Cloud SQL unix sockets arrive as `?host=/cloudsql/...`; postgres.js
+  // ignores the query param, so pass the socket dir as an explicit option.
+  // DATABASE_URL is absent during `next build` page-data collection.
+  const socketHost = connectionString
+    ? new URL(
+        connectionString.replace(/^postgres(ql)?:/, 'http:')
+      ).searchParams.get('host')
+    : null;
+  // Strip the param — postgres.js forwards unknown query params to the
+  // server as startup parameters, which Postgres rejects.
+  const sanitized = socketHost
+    ? connectionString.replace(/[?&]host=[^&]*/, '')
+    : connectionString;
+  const client = postgres(sanitized, {
+    prepare: false,
+    ...(socketHost ? { host: socketHost } : {}),
+  });
   db = drizzle(client, { schema });
   return db;
 }

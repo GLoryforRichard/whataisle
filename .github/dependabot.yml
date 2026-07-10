@@ -1,0 +1,49 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: America/Toronto
+    open-pull-requests-limit: 10
+    groups:
+      next:
+        patterns:
+          - next
+          - '@next/*'
+      better-auth:
+        patterns:
+          - better-auth
+          - better-auth-harmony
+          - '@better-auth/*'
+      drizzle:
+        patterns:
+          - drizzle-orm
+          - drizzle-kit
+      internationalization:
+        patterns:
+          - next-intl
+          - use-intl
+      google-cloud:
+        patterns:
+          - '@google/*'
+          - '@google-cloud/*'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: America/Toronto
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: America/Toronto

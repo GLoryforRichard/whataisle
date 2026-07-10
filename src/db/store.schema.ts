@@ -23,7 +23,12 @@ export const EMBEDDING_DIM = 768;
  * is enforced in one place.
  */
 
-export type StoreStatus = 'active' | 'closed';
+export type StoreStatus =
+  | 'onboarding'
+  | 'live'
+  | 'suspended'
+  | 'closing'
+  | 'closed';
 export type FloorMapStatus = 'none' | 'draft' | 'awaiting_confirm' | 'published';
 export type ShelfStatus = 'active' | 'deleted';
 
@@ -61,7 +66,7 @@ export const store = pgTable(
     openingHours: jsonb('opening_hours'),
     announcement: text('announcement'),
     announcementZh: text('announcement_zh'),
-    status: text('status').notNull().default('active').$type<StoreStatus>(),
+    status: text('status').notNull().default('onboarding').$type<StoreStatus>(),
     // Staff enter with a store-level PIN — no accounts (requirements §4.2).
     staffPinHash: text('staff_pin_hash'),
     // Bumping the version invalidates all outstanding staff cookies.
@@ -196,6 +201,152 @@ export const announcement = pgTable('announcement', {
   bodyZh: text('body_zh'),
   publishedAt: timestamp('published_at').notNull().defaultNow(),
 });
+
+// ---------------------------------------------------------------------------
+// Sales-assisted onboarding and durable platform work
+// ---------------------------------------------------------------------------
+
+export type SalesLeadStatus =
+  | 'new'
+  | 'contacted'
+  | 'qualified'
+  | 'won'
+  | 'lost';
+
+export const salesLead = pgTable(
+  'sales_lead',
+  {
+    id: text('id').primaryKey(),
+    storeName: text('store_name').notNull(),
+    contactName: text('contact_name').notNull(),
+    email: text('email').notNull(),
+    phone: text('phone'),
+    city: text('city').notNull(),
+    province: text('province').notNull(),
+    storeCount: integer('store_count').notNull().default(1),
+    preferredLanguage: text('preferred_language')
+      .notNull()
+      .$type<'en' | 'zh'>(),
+    message: text('message'),
+    marketingConsent: boolean('marketing_consent').notNull().default(false),
+    marketingConsentAt: timestamp('marketing_consent_at'),
+    reporterHash: text('reporter_hash').notNull(),
+    status: text('status').notNull().default('new').$type<SalesLeadStatus>(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    salesLeadStatusCreatedIdx: index('sales_lead_status_created_idx').on(
+      table.status,
+      table.createdAt
+    ),
+    salesLeadEmailIdx: index('sales_lead_email_idx').on(table.email),
+  })
+);
+
+export type StoreInviteStatus = 'pending' | 'accepted' | 'revoked';
+
+export const storeInvite = pgTable(
+  'store_invite',
+  {
+    id: text('id').primaryKey(),
+    email: text('email').notNull(),
+    tokenHash: text('token_hash').notNull(),
+    status: text('status')
+      .notNull()
+      .default('pending')
+      .$type<StoreInviteStatus>(),
+    createdByUserId: text('created_by_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    acceptedByUserId: text('accepted_by_user_id').references(() => user.id, {
+      onDelete: 'set null',
+    }),
+    expiresAt: timestamp('expires_at').notNull(),
+    acceptedAt: timestamp('accepted_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    storeInviteTokenHashIdx: uniqueIndex('store_invite_token_hash_idx').on(
+      table.tokenHash
+    ),
+    storeInviteEmailStatusIdx: index('store_invite_email_status_idx').on(
+      table.email,
+      table.status
+    ),
+  })
+);
+
+export type JobType =
+  | 'shelf_scan'
+  | 'product_enrichment'
+  | 'video_finalize'
+  | 'notification'
+  | 'data_delete';
+export type JobStatus =
+  | 'queued'
+  | 'processing'
+  | 'succeeded'
+  | 'failed'
+  | 'dead_letter';
+
+export const backgroundJob = pgTable(
+  'background_job',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id').references(() => store.id, {
+      onDelete: 'set null',
+    }),
+    type: text('type').notNull().$type<JobType>(),
+    status: text('status').notNull().default('queued').$type<JobStatus>(),
+    idempotencyKey: text('idempotency_key').notNull(),
+    payloadJson: jsonb('payload_json').notNull(),
+    attempts: integer('attempts').notNull().default(0),
+    maxAttempts: integer('max_attempts').notNull().default(5),
+    runAfter: timestamp('run_after').notNull().defaultNow(),
+    lockedAt: timestamp('locked_at'),
+    lockedBy: text('locked_by'),
+    lastErrorCode: text('last_error_code'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    completedAt: timestamp('completed_at'),
+  },
+  (table) => ({
+    backgroundJobIdempotencyIdx: uniqueIndex(
+      'background_job_idempotency_idx'
+    ).on(table.idempotencyKey),
+    backgroundJobRunIdx: index('background_job_run_idx').on(
+      table.status,
+      table.runAfter
+    ),
+    backgroundJobStoreIdx: index('background_job_store_idx').on(table.storeId),
+  })
+);
+
+export const impersonationGrant = pgTable(
+  'impersonation_grant',
+  {
+    id: text('id').primaryKey(),
+    tokenHash: text('token_hash').notNull(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => store.id, { onDelete: 'cascade' }),
+    actorUserId: text('actor_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    expiresAt: timestamp('expires_at').notNull(),
+    consumedAt: timestamp('consumed_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    impersonationGrantTokenIdx: uniqueIndex(
+      'impersonation_grant_token_idx'
+    ).on(table.tokenHash),
+    impersonationGrantExpiryIdx: index('impersonation_grant_expiry_idx').on(
+      table.expiresAt
+    ),
+  })
+);
 
 /**
  * Fixed-window rate limiting (PIN attempts, shopper search).

@@ -17,7 +17,12 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
   const localePathname = useLocalePathname();
 
   return (
-    <footer className={cn('border-t', className)}>
+    <footer
+      className={cn(
+        'bg-[var(--brand-green)] text-[var(--brand-cream)]',
+        className
+      )}
+    >
       <Container className="px-4">
         <div className="grid grid-cols-2 gap-8 py-16 md:grid-cols-6">
           <div className="flex flex-col items-start col-span-full md:col-span-2">
@@ -31,7 +36,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
               </div>
 
               {/* tagline */}
-              <p className="text-muted-foreground text-base py-2 md:pr-12">
+              <p className="text-[var(--brand-cream)]/70 text-base py-2 md:pr-12">
                 {t('Marketing.footer.tagline')}
               </p>
 
@@ -48,8 +53,8 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                       target="_blank"
                       rel="noreferrer"
                       aria-label={link.title}
-                      className="border border-border inline-flex size-8 items-center
-                          justify-center rounded-full hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-200"
+                      className="border border-[var(--brand-cream)]/20 inline-flex size-8 items-center
+                          justify-center rounded-full text-[var(--brand-cream)]/80 transition-all duration-200 hover:border-[var(--brand-lime)] hover:text-[var(--brand-lime)]"
                     >
                       {link.icon ? link.icon : null}
                     </a>
@@ -65,7 +70,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
               key={section.title}
               className="col-span-1 md:col-span-1 items-start"
             >
-              <span className="text-sm font-semibold uppercase">
+              <span className="text-sm font-bold uppercase tracking-[0.04em] text-[var(--brand-lime)]">
                 {section.title}
               </span>
               <ul className="mt-4 list-inside space-y-3">
@@ -77,13 +82,13 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                           href={item.href || '#'}
                           target={item.external ? '_blank' : undefined}
                           className={cn(
-                            'text-sm text-muted-foreground transition-colors duration-150 hover:text-primary',
+                            'text-sm text-[var(--brand-cream)]/70 transition-colors duration-150 hover:text-[var(--brand-lime)]',
                             !item.external &&
                               !item.href.includes('#') &&
                               (item.href === '/'
                                 ? localePathname === '/'
                                 : localePathname.startsWith(item.href)) &&
-                              'font-semibold text-primary'
+                              'font-semibold text-[var(--brand-lime)]'
                           )}
                         >
                           {item.title}
@@ -97,14 +102,14 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
         </div>
       </Container>
 
-      <div className="border-t py-8">
+      <div className="border-t border-[var(--brand-cream)]/15 py-8">
         <Container className="px-4 flex items-center justify-between gap-x-4">
-          <span className="text-muted-foreground text-sm">
+          <span className="text-[var(--brand-cream)]/70 text-sm">
             &copy; {new Date().getFullYear()} {t('Metadata.name')}. All Rights
             Reserved.
           </span>
 
-          <div className="flex items-center gap-x-4">
+          <div className="flex items-center gap-x-4 text-[var(--brand-cream)]/70">
             <ModeSwitcherHorizontal />
           </div>
         </Container>

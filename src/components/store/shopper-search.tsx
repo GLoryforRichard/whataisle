@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CameraIcon, Loader2Icon, MicIcon, SearchIcon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -119,37 +118,39 @@ export function ShopperSearch() {
   // --- Confirm step ---
   if (confirm) {
     return (
-      <div className="flex flex-col gap-4">
-        <p className="text-muted-foreground">
+      <div className="wa-fade-up flex flex-col gap-4">
+        <p className="text-[#566058]">
           {confirm.kind === 'voice' ? t('confirmHeard') : t('confirmSaw')}
         </p>
-        <p className="rounded-lg border bg-muted/40 p-4 text-center font-semibold text-xl">
+        <p className="rounded-2xl border border-[#D8EBB4] bg-[#F1F7E8] p-4 text-center font-bold text-[var(--brand-ink)] text-xl">
           {confirm.text}
         </p>
         {confirm.kind === 'voice' && confirm.candidates.length > 0 ? (
           <div className="flex flex-col gap-2">
-            <p className="text-muted-foreground text-sm">{t('didYouMean')}</p>
+            <p className="text-[#566058] text-sm">{t('didYouMean')}</p>
             {confirm.candidates.map((c) => (
-              <Button
+              <button
                 key={c}
-                variant="outline"
+                type="button"
                 onClick={() => goSearch(c, 'voice')}
+                className="h-12 rounded-xl border border-[#D5DCCB] bg-white px-4 font-semibold text-[var(--brand-ink)] transition-colors hover:border-[var(--brand-green)] active:scale-[0.98]"
               >
                 {c}
-              </Button>
+              </button>
             ))}
           </div>
         ) : null}
         <div className="flex gap-3">
-          <Button
-            variant="outline"
-            className="flex-1"
+          <button
+            type="button"
+            className="h-13 flex-1 rounded-xl border border-[#D5DCCB] bg-white font-semibold text-[var(--brand-ink)] transition-transform active:scale-[0.98]"
             onClick={() => setConfirm(null)}
           >
             {t('confirmRetry')}
-          </Button>
-          <Button
-            className="flex-1"
+          </button>
+          <button
+            type="button"
+            className="h-13 flex-1 rounded-xl bg-[var(--brand-green)] font-bold text-[var(--brand-lime)] transition-transform active:scale-[0.98] disabled:opacity-50"
             disabled={!confirm.text}
             onClick={() =>
               goSearch(
@@ -159,18 +160,20 @@ export function ShopperSearch() {
             }
           >
             {t('confirmYes')}
-          </Button>
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      <h1 className="text-center font-bold text-2xl">{t('greeting')}</h1>
+    <div className="wa-fade-up flex flex-col gap-5">
+      <h1 className="text-center font-bold text-[27px] text-[var(--brand-ink)]">
+        {t('greeting')}
+      </h1>
 
       <form
-        className="flex gap-2"
+        className="flex gap-2.5"
         onSubmit={(e) => {
           e.preventDefault();
           goSearch(text, 'text');
@@ -180,25 +183,22 @@ export function ShopperSearch() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={t('placeholder')}
-          className="h-14 flex-1 text-lg"
+          className="h-15 flex-1 rounded-2xl bg-white text-lg"
           enterKeyHint="search"
         />
-        <Button
+        <button
           type="submit"
-          size="lg"
-          className="h-14 px-5"
+          className="flex size-15 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand-green)] text-[var(--brand-lime)] shadow-[0_6px_18px_rgba(15,76,63,0.3)] transition-transform active:scale-95"
           aria-label={t('searchButton')}
         >
-          <SearchIcon className="size-5" />
-        </Button>
+          <SearchIcon className="size-6" />
+        </button>
       </form>
 
       <div className="grid grid-cols-2 gap-3">
-        <Button
+        <button
           type="button"
-          variant="outline"
-          size="lg"
-          className="h-16 flex-col gap-1"
+          className="flex h-19 flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-[#D5DCCB] bg-white font-semibold text-[var(--brand-ink)] transition-transform active:scale-[0.98] disabled:opacity-50"
           onPointerDown={startRecording}
           onPointerUp={stopRecording}
           onPointerLeave={stopRecording}
@@ -210,13 +210,11 @@ export function ShopperSearch() {
             <MicIcon className="size-6" />
           )}
           <span className="text-sm">{t('voiceHold')}</span>
-        </Button>
+        </button>
 
-        <Button
+        <button
           type="button"
-          variant="outline"
-          size="lg"
-          className="h-16 flex-col gap-1"
+          className="flex h-19 flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-[#D5DCCB] bg-white font-semibold text-[var(--brand-ink)] transition-transform active:scale-[0.98] disabled:opacity-50"
           onClick={() => photoInputRef.current?.click()}
           disabled={busy !== null}
         >
@@ -226,7 +224,7 @@ export function ShopperSearch() {
             <CameraIcon className="size-6" />
           )}
           <span className="text-sm">{t('photoButton')}</span>
-        </Button>
+        </button>
       </div>
 
       <input
@@ -241,9 +239,7 @@ export function ShopperSearch() {
         }}
       />
 
-      <p className="text-center text-muted-foreground text-xs">
-        {t('photoNotKept')}
-      </p>
+      <p className="text-center text-[#566058] text-xs">{t('photoNotKept')}</p>
 
       {permError ? (
         <p role="alert" className="text-center text-destructive text-sm">

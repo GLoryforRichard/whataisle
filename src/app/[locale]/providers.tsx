@@ -3,7 +3,6 @@
 import { PostHogProvider } from '@/analytics/posthog-analytics';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { websiteConfig } from '@/config/website';
 import { ThemeProvider } from 'next-themes';
 import type { ReactNode } from 'react';
 
@@ -22,15 +21,15 @@ interface ProvidersProps {
  * - TooltipProvider: Provides the tooltip to the app.
  */
 export function Providers({ children }: ProvidersProps) {
-  const defaultMode = websiteConfig.ui.mode?.defaultMode ?? 'system';
-
   return (
     <PostHogProvider>
       <QueryProvider>
+        {/* Dark mode is removed — the product is light-only, so force light and
+            ignore system/stored preferences. */}
         <ThemeProvider
           attribute="class"
-          defaultTheme={defaultMode}
-          enableSystem={true}
+          forcedTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <TooltipProvider>{children}</TooltipProvider>

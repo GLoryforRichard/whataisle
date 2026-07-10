@@ -202,7 +202,7 @@ export function MappingTool({
                 fontSize={Math.min(s.w, s.h) * 0.4}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fill="#333"
+                fill="var(--foreground)"
               >
                 {s.code || '?'}
               </text>

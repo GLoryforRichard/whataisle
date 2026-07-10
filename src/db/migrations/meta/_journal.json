@@ -127,6 +127,13 @@
       "when": 1783438826841,
       "tag": "0017_natural_angel",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1783644050056,
+      "tag": "0018_cheerful_steel_serpent",
+      "breakpoints": true
     }
   ]
 }

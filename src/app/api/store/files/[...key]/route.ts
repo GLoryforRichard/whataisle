@@ -1,6 +1,10 @@
 import { requireStaff } from '@/lib/require-staff';
 import { getRequestStore } from '@/lib/store-context';
-import { contentTypeForKey, getBuffer } from '@/storage/local-store';
+import {
+  contentTypeForKey,
+  getStorageProvider,
+  isStoreStorageKey,
+} from '@/storage';
 import { type NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -25,9 +29,9 @@ export async function GET(
     return new NextResponse(null, { status: 404 });
   }
 
-  // Key must be scoped to this store's prefix.
+  // The provider also rejects traversal; this check binds the key to the host.
   const prefix = `stores/${store.id}/`;
-  if (!key.startsWith(prefix)) {
+  if (!isStoreStorageKey(key, store.id)) {
     return new NextResponse(null, { status: 404 });
   }
 
@@ -47,14 +51,15 @@ export async function GET(
     }
   }
 
-  const buffer = await getBuffer(key);
-  if (!buffer) {
+  const object = await getStorageProvider().stream(key);
+  if (!object) {
     return new NextResponse(null, { status: 404 });
   }
 
-  return new NextResponse(new Uint8Array(buffer), {
+  return new NextResponse(object.body, {
     headers: {
-      'Content-Type': contentTypeForKey(key),
+      'Content-Type': object.contentType || contentTypeForKey(key),
+      'Content-Length': String(object.size),
       'Cache-Control': isThumbnail
         ? 'public, max-age=31536000, immutable'
         : 'private, max-age=60',

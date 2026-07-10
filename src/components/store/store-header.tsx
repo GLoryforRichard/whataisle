@@ -12,11 +12,13 @@ interface StoreHeaderProps {
  */
 export function StoreHeader({ displayName, logoKey }: StoreHeaderProps) {
   return (
-    <header className="sticky top-0 z-40 border-b bg-background">
-      <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4">
+    <header className="sticky top-0 z-40 bg-[var(--brand-green)]">
+      <div className="mx-auto flex h-15 max-w-2xl items-center justify-between px-4">
         <a href="/" className="flex min-w-0 items-center gap-2">
           {/* Logo upload lands in Phase 5; until then the name is the brand. */}
-          <span className="truncate font-semibold text-lg">{displayName}</span>
+          <span className="truncate font-bold text-[var(--brand-cream)] text-lg">
+            {displayName}
+          </span>
         </a>
         <StoreLocaleToggle />
       </div>

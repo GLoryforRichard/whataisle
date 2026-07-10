@@ -4,18 +4,22 @@ import {
   addRegisterGiftCredits,
 } from '@/credits/credits';
 import { getDbSync } from '@/db/index';
+import { storeInvite, user } from '@/db/schema';
 import { defaultMessages } from '@/i18n/messages';
 import { LOCALE_COOKIE_NAME, routing } from '@/i18n/routing';
 import { sendEmail } from '@/mail';
 import { type User, betterAuth } from 'better-auth';
+import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { emailHarmony } from 'better-auth-harmony';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { admin, apiKey } from 'better-auth/plugins';
+import { admin } from 'better-auth/plugins';
+import { and, eq } from 'drizzle-orm';
 import { parse as parseCookies } from 'cookie';
 import type { Locale } from 'next-intl';
 import { getAllPricePlans } from './price-plan';
 import { getBaseUrl, getUrlWithLocaleInCallbackUrl } from './urls';
 import { isE2ETestMode } from './e2e';
+import { getValidStoreInvite, isPublicSignupEnabled } from './store-invites';
 
 /**
  * Better Auth configuration
@@ -85,14 +89,18 @@ export const auth = betterAuth({
     },
     sendOnSignIn: true,
   },
-  socialProviders: {
-    // https://www.better-auth.com/docs/authentication/google
-    // GitHub OAuth is intentionally absent: store owners don't have GitHub accounts.
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-  },
+  socialProviders:
+    websiteConfig.auth.enableGoogleLogin &&
+    process.env.GOOGLE_CLIENT_ID &&
+    process.env.GOOGLE_CLIENT_SECRET
+      ? {
+          google: {
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            disableImplicitSignUp: !isPublicSignupEnabled(),
+          },
+        }
+      : {},
   account: {
     // https://www.better-auth.com/docs/concepts/users-accounts#account-linking
     accountLinking: {
@@ -133,9 +141,6 @@ export const auth = betterAuth({
       bannedUserMessage:
         'You have been banned from this application. Please contact support if you believe this is an error.',
     }),
-    // https://www.better-auth.com/docs/plugins/api-key
-    // support API key management for user authentication
-    apiKey(),
     // https://github.com/gekorm/better-auth-harmony
     // Email normalization and validation to prevent duplicate registrations
     emailHarmony({
@@ -145,6 +150,48 @@ export const auth = betterAuth({
       allowNormalizedSignin: false,
     }),
   ],
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== '/sign-up/email' || isPublicSignupEnabled()) return;
+      const body = (ctx.body ?? {}) as Record<string, unknown>;
+      const token =
+        typeof body.inviteToken === 'string' ? body.inviteToken : undefined;
+      const email =
+        typeof body.email === 'string' ? body.email.toLowerCase() : '';
+      const invite = await getValidStoreInvite(token);
+      if (!invite || invite.email !== email) {
+        throw new APIError('FORBIDDEN', {
+          code: 'STORE_INVITE_REQUIRED',
+          message: 'A valid store invitation is required.',
+        });
+      }
+    }),
+    after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== '/sign-up/email' || isPublicSignupEnabled()) return;
+      const body = (ctx.body ?? {}) as Record<string, unknown>;
+      const token =
+        typeof body.inviteToken === 'string' ? body.inviteToken : undefined;
+      const invite = await getValidStoreInvite(token);
+      if (!invite) return;
+
+      const createdUser = await getDbSync()
+        .select({ id: user.id, email: user.email })
+        .from(user)
+        .where(eq(user.email, invite.email))
+        .limit(1);
+      if (!createdUser[0]) return;
+      await getDbSync()
+        .update(storeInvite)
+        .set({
+          status: 'accepted',
+          acceptedAt: new Date(),
+          acceptedByUserId: createdUser[0].id,
+        })
+        .where(
+          and(eq(storeInvite.id, invite.id), eq(storeInvite.status, 'pending'))
+        );
+    }),
+  },
   onAPIError: {
     // https://www.better-auth.com/docs/reference/options#onapierror
     errorURL: '/auth/error',

@@ -15,10 +15,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLocaleRouter } from '@/i18n/navigation';
-import { Trash2Icon } from 'lucide-react';
+import { PackageOpenIcon, PlusIcon, Trash2Icon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -88,98 +87,127 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
     <div className="flex flex-col gap-6">
       {/* Add shelf */}
       <form
-        className="flex flex-wrap items-end gap-2"
+        className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(15,53,44,0.04)]"
         onSubmit={(e) => {
           e.preventDefault();
           addShelf();
         }}
       >
-        <div className="flex flex-col gap-1">
-          <label htmlFor="new-code" className="text-sm">
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="new-code"
+            className="font-semibold text-foreground text-sm"
+          >
             {t('shelfCode')}
           </label>
           <Input
             id="new-code"
             value={newCode}
             onChange={(e) => setNewCode(e.target.value)}
-            className="h-10 w-28"
+            className="h-11 w-24 rounded-xl text-center font-bold text-lg"
             placeholder="B4"
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="new-label" className="text-sm">
+        <div className="flex min-w-[10rem] flex-1 flex-col gap-1.5">
+          <label
+            htmlFor="new-label"
+            className="font-semibold text-foreground text-sm"
+          >
             {t('shelfLabel')}
           </label>
           <Input
             id="new-label"
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
-            className="h-10 w-48"
+            className="h-11 rounded-xl"
           />
         </div>
-        <Button type="submit" disabled={busy || !newCode.trim()}>
+        <button
+          type="submit"
+          disabled={busy || !newCode.trim()}
+          className="inline-flex h-11 items-center gap-1.5 rounded-full bg-[var(--brand-green)] px-5 font-bold text-[var(--brand-lime)] transition-transform active:scale-[0.97] disabled:opacity-50"
+        >
+          <PlusIcon className="size-[18px]" aria-hidden />
           {t('add')}
-        </Button>
+        </button>
       </form>
 
       {shelves.length === 0 ? (
-        <p className="text-muted-foreground">{t('noShelves')}</p>
+        /* Empty state */
+        <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-[#CBD9C6] border-dashed bg-card p-10 text-center">
+          <div className="flex size-16 items-center justify-center rounded-2xl bg-[#F1F7E8]">
+            <PackageOpenIcon
+              className="size-8 text-[var(--brand-green)]"
+              aria-hidden
+            />
+          </div>
+          <p className="max-w-sm text-muted-foreground leading-relaxed">
+            {t('noShelves')}
+          </p>
+        </div>
       ) : (
         <div className="flex flex-col gap-4">
           {shelves.map((shelf) => (
-            <div key={shelf.id} className="rounded-lg border p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="font-bold text-lg">{shelf.code}</span>
-                  {shelf.label ? (
-                    <span className="ml-2 text-muted-foreground">
-                      {shelf.label}
-                    </span>
-                  ) : null}
-                  <span className="ml-2 text-muted-foreground text-sm">
-                    · {t('products', { count: shelf.products.length })}
+            <div
+              key={shelf.id}
+              className="rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(15,53,44,0.04)]"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex items-center justify-center rounded-xl border border-[#D8EBB4] bg-[#F1F7E8] px-3 py-1.5 font-bold text-[var(--brand-green)] text-lg leading-none">
+                    {shelf.code}
                   </span>
+                  <div className="min-w-0">
+                    {shelf.label ? (
+                      <p className="truncate font-semibold text-foreground">
+                        {shelf.label}
+                      </p>
+                    ) : null}
+                    <p className="text-muted-foreground text-sm">
+                      {t('products', { count: shelf.products.length })}
+                    </p>
+                  </div>
                 </div>
                 {shelf.products.length > 0 ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive"
+                  <button
+                    type="button"
                     onClick={() => setClearTarget(shelf)}
+                    className="shrink-0 font-semibold text-destructive text-sm hover:underline"
                   >
                     {t('clearShelf')}
-                  </Button>
+                  </button>
                 ) : null}
               </div>
 
               {shelf.products.length === 0 ? (
-                <p className="mt-2 text-muted-foreground text-sm">
+                <p className="mt-3 text-muted-foreground text-sm">
                   {t('empty')}
                 </p>
               ) : (
-                <ul className="mt-3 flex flex-col gap-1">
+                <ul className="mt-4 flex flex-col gap-1">
                   {shelf.products.map((p) => (
                     <li
                       key={p.id}
-                      className="flex items-center justify-between border-b py-1.5 last:border-0"
+                      className="group flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-[#F7FBEF]"
                     >
-                      <span>
-                        {p.name}
+                      <span className="min-w-0 truncate">
+                        <span className="font-medium text-foreground">
+                          {p.name}
+                        </span>
                         {p.nameZh ? (
                           <span className="ml-2 text-muted-foreground text-sm">
                             {p.nameZh}
                           </span>
                         ) : null}
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-muted-foreground"
+                      <button
+                        type="button"
                         onClick={() => deleteProduct(p.id)}
                         aria-label={t('delete')}
+                        className="flex size-8 shrink-0 items-center justify-center rounded-full text-[#7B8479] transition-colors hover:bg-destructive/10 hover:text-destructive"
                       >
                         <Trash2Icon className="size-4" />
-                      </Button>
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -193,7 +221,7 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
         open={!!clearTarget}
         onOpenChange={(o) => !o && setClearTarget(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-[20px]">
           <AlertDialogHeader>
             <AlertDialogTitle>{t('clearShelf')}</AlertDialogTitle>
             <AlertDialogDescription>
@@ -206,14 +234,16 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={busy}>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogCancel disabled={busy} className="rounded-xl">
+              {t('cancel')}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 clearShelf();
               }}
               disabled={busy}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="rounded-xl bg-destructive font-bold text-destructive-foreground hover:bg-destructive/90"
             >
               {t('clear')}
             </AlertDialogAction>

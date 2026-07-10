@@ -43,7 +43,10 @@ export default async function ManageShelvesPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
-      <h1 className="font-bold text-2xl">{t('title')}</h1>
+      <div className="flex flex-col gap-1.5">
+        <h1 className="font-bold text-2xl text-foreground">{t('title')}</h1>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
+      </div>
       <ShelfManager shelves={withProducts} />
     </div>
   );

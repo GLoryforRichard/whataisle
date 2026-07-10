@@ -3,6 +3,7 @@ import { insightsRepo } from '@/data/insights-repo';
 import { mappingRepo } from '@/data/mapping-repo';
 import { tenantRepo } from '@/data/tenant-repo';
 import { LocaleLink } from '@/i18n/navigation';
+import { checkPremiumAccess } from '@/lib/premium-access';
 import { getSession } from '@/lib/server';
 import { getStoreByOwner } from '@/lib/store-context';
 import { Routes } from '@/routes';
@@ -11,6 +12,7 @@ import {
   ChartNoAxesCombinedIcon,
   ExternalLinkIcon,
   FilmIcon,
+  LockIcon,
   QrCodeIcon,
 } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
@@ -28,11 +30,12 @@ export default async function DashboardPage() {
   ]);
   const td = await getTranslations('Dashboard');
 
-  const store = session?.user ? await getStoreByOwner(session.user.id) : null;
+  const userId = session?.user?.id ?? null;
+  const store = userId ? await getStoreByOwner(userId) : null;
 
   const breadcrumbs = [{ label: td('dashboard.title'), isCurrentPage: true }];
 
-  if (!store) {
+  if (!store || !userId) {
     // Platform admins without a store land here too.
     return (
       <>
@@ -44,11 +47,12 @@ export default async function DashboardPage() {
     );
   }
 
-  const [health, hitRate, shelves, map] = await Promise.all([
+  const [health, hitRate, shelves, map, hasPaid] = await Promise.all([
     insightsRepo(store.id).health(),
     insightsRepo(store.id).hitRate(7),
     tenantRepo(store.id).listShelves(),
     mappingRepo(store.id).getFloorMap(),
+    checkPremiumAccess(userId),
   ]);
 
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'whataisle.com';
@@ -86,6 +90,21 @@ export default async function DashboardPage() {
       <DashboardHeader breadcrumbs={breadcrumbs} />
 
       <div className="flex flex-col gap-6 px-4 py-6 lg:px-6">
+        {!hasPaid && (
+          <LocaleLink
+            href={Routes.OnboardingPayment}
+            className="flex items-center gap-3 rounded-xl border border-[var(--brand-green)] bg-[var(--brand-green)]/5 p-4 hover:bg-[var(--brand-green)]/10"
+          >
+            <LockIcon className="size-5 shrink-0 text-[var(--brand-green)]" />
+            <div>
+              <p className="font-semibold">{t('payBannerTitle')}</p>
+              <p className="text-muted-foreground text-sm">
+                {t('payBannerSubtitle')}
+              </p>
+            </div>
+          </LocaleLink>
+        )}
+
         {/* Store card */}
         <section className="rounded-xl border p-5">
           <p className="text-muted-foreground text-sm">{t('storeCard')}</p>

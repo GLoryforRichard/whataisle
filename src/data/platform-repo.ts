@@ -75,7 +75,7 @@ export async function listTenants(): Promise<TenantRow[]> {
 
     // Churn-risk rules (§7): proactive retention, not waiting for complaints.
     let churnRisk: string | null = null;
-    if (r.status === 'active') {
+    if (r.status === 'live') {
       if (searches7d === 0) churnRisk = '7 days with zero searches';
       else if (daysSinceScan !== null && daysSinceScan > 30)
         churnRisk = '30 days with zero updates';

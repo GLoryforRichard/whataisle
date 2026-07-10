@@ -9,7 +9,9 @@ This file provides guidance to Code Agents (Codex, Cursor, etc.) when working wi
 - `pnpm e2e` - Run Playwright E2E tests
 - `pnpm e2e:ui` - Open Playwright UI runner
 - `pnpm e2e:install` - Install Playwright browsers
-- `pnpm lint` - Biome linter (auto-fixes with `--write`)
+- `pnpm lint` - Read-only Biome formatter/linter check
+- `pnpm lint:fix` - Apply safe Biome formatter/linter fixes
+- `pnpm typecheck` - Run TypeScript without emitting files
 - `pnpm format` - Biome formatter
 - `pnpm db:generate` - Generate Drizzle migration files from schema changes
 - `pnpm db:migrate` - Apply pending migrations
@@ -30,9 +32,9 @@ layout behavior.
 - Config: `playwright.config.ts`; specs: `tests/e2e/specs/`; catalog: `tests/e2e/TEST-CATALOG.md`
 - Workflow: update the catalog first, implement/verify the UI, then add or update the matching Playwright spec.
 - E2E runs against a dedicated local Next.js server on port `3100` using `.next-e2e`, so it can run while normal `pnpm dev` is using port `3000`.
-- E2E mode sets `NEXT_PUBLIC_DEMO_WEBSITE=true`, disables Turnstile with `NEXT_PUBLIC_E2E_TEST_MODE=true`, skips external mail/newsletter side effects, and uses `/api/e2e/users` to clean/verify `e2e-*@example.test` accounts.
-- Keep E2E local-first. CI should prefer fast `pnpm lint` and `pnpm build` unless a dedicated E2E environment is explicitly configured.
-- Run targeted specs while developing, for example `pnpm e2e -- tests/e2e/specs/auth.spec.ts`; run full `pnpm e2e` before releases or broad refactors.
+- E2E mode sets `NEXT_PUBLIC_DEMO_WEBSITE=true`, `NEXT_PUBLIC_E2E_TEST_MODE=true`, and `AI_STUB=true`; it disables Turnstile and external side effects, and uses `/api/e2e/users` to clean/verify `e2e-*@example.test` accounts.
+- Pull requests run lint, typecheck, audit, and build. The manual/release E2E workflow provisions PostgreSQL with pgvector, applies migrations, and seeds deterministic tenants.
+- Run targeted specs while developing, for example `pnpm exec playwright test tests/e2e/specs/auth.spec.ts`; run full `pnpm e2e` before releases or broad refactors.
 
 ## Architecture Overview
 

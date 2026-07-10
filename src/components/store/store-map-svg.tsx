@@ -33,16 +33,19 @@ export function StoreMapSvg({
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      className="h-auto w-full rounded-lg border bg-muted/20"
+      className="h-auto w-full rounded-2xl border border-[#EAE3D2] bg-white"
       role="img"
       aria-label="Store floor map"
     >
       {mapJson.shapes.map((shape) => {
         const isTarget = highlight && shape.shelfCode === highlight;
-        const fill = isTarget ? HIGHLIGHT : 'var(--color-muted, #e5e5e5)';
-        const stroke = isTarget ? HIGHLIGHT : 'var(--color-border, #999)';
-        const textFill = isTarget ? '#fff' : 'var(--color-foreground, #333)';
+        const fill = isTarget ? HIGHLIGHT : '#E9F0E5';
+        const stroke = isTarget ? HIGHLIGHT : '#CBD9C6';
+        const textFill = isTarget ? '#fff' : '#4A5E50';
         const clickable = !!onSelectShelf;
+        const targetStyle = isTarget
+          ? { animation: 'wa-target 1.6s ease-in-out infinite' }
+          : undefined;
 
         if (shape.kind === 'rect') {
           const [x, y, w, h] = shape.coords;
@@ -65,6 +68,7 @@ export function StoreMapSvg({
                 fill={fill}
                 stroke={stroke}
                 strokeWidth={isTarget ? 1 : 0.5}
+                style={targetStyle}
               />
               {/* Left/right side markers when the shelf distinguishes sides */}
               {shape.sides ? (
@@ -132,6 +136,7 @@ export function StoreMapSvg({
               fill={fill}
               stroke={stroke}
               strokeWidth={isTarget ? 1 : 0.5}
+              style={targetStyle}
             />
             <text
               x={label[0]}
