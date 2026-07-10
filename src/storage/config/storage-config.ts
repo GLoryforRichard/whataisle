@@ -12,4 +12,5 @@ export const storageConfig: StorageConfig = {
   secretAccessKey: process.env.STORAGE_SECRET_ACCESS_KEY || '',
   bucketName: process.env.STORAGE_BUCKET_NAME || '',
   publicUrl: process.env.STORAGE_PUBLIC_URL,
+  projectId: process.env.GOOGLE_CLOUD_PROJECT,
 };

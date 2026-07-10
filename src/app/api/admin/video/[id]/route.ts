@@ -1,7 +1,7 @@
 import { getDb } from '@/db';
 import { storeVideo } from '@/db/store.schema';
 import { getSession } from '@/lib/server';
-import { getBuffer } from '@/storage/local-store';
+import { getStorageProvider, isStoreStorageKey } from '@/storage';
 import { eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -27,19 +27,28 @@ export async function GET(
     .where(eq(storeVideo.id, id))
     .limit(1);
   const video = rows[0];
-  if (!video?.storageKey) {
+  if (
+    !video?.storageKey ||
+    !isStoreStorageKey(video.storageKey, video.storeId)
+  ) {
     return new NextResponse(null, { status: 404 });
   }
 
-  const buffer = await getBuffer(video.storageKey);
-  if (!buffer) {
+  const object = await getStorageProvider().stream(video.storageKey);
+  if (!object) {
     return new NextResponse(null, { status: 404 });
   }
 
-  return new NextResponse(new Uint8Array(buffer), {
+  const filename = (video.filename ?? 'walkthrough.mp4').replace(
+    /[\r\n"]/g,
+    '_'
+  );
+  return new NextResponse(object.body, {
     headers: {
-      'Content-Type': 'video/mp4',
-      'Content-Disposition': `attachment; filename="${video.filename ?? 'walkthrough.mp4'}"`,
+      'Content-Type': object.contentType,
+      'Content-Length': String(object.size),
+      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Cache-Control': 'private, no-store',
     },
   });
 }

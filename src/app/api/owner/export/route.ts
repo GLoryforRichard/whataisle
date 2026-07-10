@@ -7,7 +7,7 @@ import {
   shelf,
 } from '@/db/store.schema';
 import { requireOwnerStore } from '@/lib/require-owner-store';
-import { getBuffer } from '@/storage/local-store';
+import { getStorageProvider, isStoreStorageKey } from '@/storage';
 import { and, eq } from 'drizzle-orm';
 import JSZip from 'jszip';
 import { NextResponse } from 'next/server';
@@ -114,10 +114,15 @@ export async function GET() {
   // thumbnails/
   const thumbs = zip.folder('thumbnails');
   for (const p of products) {
-    if (!p.thumbnailKey) continue;
-    const buf = await getBuffer(p.thumbnailKey);
-    if (buf) {
-      thumbs?.file(`${p.canonicalName.replace(/[^\w-]+/g, '_')}.jpg`, buf);
+    if (!p.thumbnailKey || !isStoreStorageKey(p.thumbnailKey, store.id)) {
+      continue;
+    }
+    const object = await getStorageProvider().get(p.thumbnailKey);
+    if (object) {
+      thumbs?.file(
+        `${p.canonicalName.replace(/[^\w-]+/g, '_')}.jpg`,
+        object.data
+      );
     }
   }
 

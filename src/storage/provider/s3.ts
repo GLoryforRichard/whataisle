@@ -1,198 +1,201 @@
-import { randomUUID } from 'crypto';
+import { Readable } from 'node:stream';
 import { S3mini } from 's3mini';
 import { storageConfig } from '../config/storage-config';
 import {
+  contentTypeForKey,
+  normalizeStorageKey,
+  normalizeStoragePrefix,
+  storageUrlForKey,
+} from '../keys';
+import {
   ConfigurationError,
+  type CreateResumableUploadParams,
+  type PutObjectParams,
+  type PutObjectResult,
+  type ResumableUploadResult,
+  type StorageBody,
   type StorageConfig,
   StorageError,
+  type StorageObject,
+  type StorageObjectStream,
   type StorageProvider,
   UploadError,
-  type UploadFileParams,
-  type UploadFileResult,
 } from '../types';
 
-/**
- * Amazon S3 storage provider implementation using s3mini
- *
- * docs:
- * https://mksaas.com/docs/storage
- *
- * This provider works with Amazon S3 and compatible services like Cloudflare R2
- * using s3mini for better Cloudflare Workers compatibility
- * https://github.com/good-lly/s3mini
- * https://developers.cloudflare.com/r2/
- */
+function isWebStream(data: StorageBody): data is ReadableStream<Uint8Array> {
+  return 'getReader' in data && typeof data.getReader === 'function';
+}
+
+function toS3Body(
+  data: StorageBody
+): Blob | Buffer | ReadableStream<Uint8Array> | Uint8Array {
+  if (data instanceof Readable) {
+    return Readable.toWeb(data) as ReadableStream<Uint8Array>;
+  }
+  if (isWebStream(data)) return data;
+  return data;
+}
+
+/** Private S3-compatible object provider (for R2 and legacy deployments). */
 export class S3Provider implements StorageProvider {
-  private config: StorageConfig;
+  private readonly config: StorageConfig;
   private s3Client: S3mini | null = null;
 
   constructor(config: StorageConfig = storageConfig) {
     this.config = config;
   }
 
-  /**
-   * Get the provider name
-   */
-  public getProviderName(): string {
-    return 'S3';
+  getProviderName(): 's3' {
+    return 's3';
   }
 
-  /**
-   * Get the S3 client instance
-   */
   private getS3Client(): S3mini {
-    if (this.s3Client) {
-      return this.s3Client;
-    }
+    if (this.s3Client) return this.s3Client;
 
     const { region, endpoint, accessKeyId, secretAccessKey, bucketName } =
       this.config;
-
     if (!region) {
       throw new ConfigurationError('Storage region is not configured');
     }
-
     if (!accessKeyId || !secretAccessKey) {
       throw new ConfigurationError('Storage credentials are not configured');
     }
-
     if (!endpoint) {
       throw new ConfigurationError('Storage endpoint is required for s3mini');
     }
-
     if (!bucketName) {
       throw new ConfigurationError('Storage bucket name is not configured');
     }
 
-    // s3mini client configuration
-    // The bucket name needs to be included in the endpoint URL for s3mini
-    const endpointWithBucket = `${endpoint.replace(/\/$/, '')}/${bucketName}`;
-
     this.s3Client = new S3mini({
       accessKeyId,
       secretAccessKey,
-      endpoint: endpointWithBucket,
+      endpoint: `${endpoint.replace(/\/$/, '')}/${bucketName}`,
       region,
     });
-
     return this.s3Client;
   }
 
-  /**
-   * Generate a unique filename with a safe original extension.
-   */
-  private generateUniqueFilename(originalFilename: string): string {
-    const extension = originalFilename.split('.').pop()?.toLowerCase();
-    const safeExtension =
-      extension && /^[a-z0-9]{1,16}$/.test(extension) ? extension : '';
-    const uuid = randomUUID();
-    return `${uuid}${safeExtension ? `.${safeExtension}` : ''}`;
-  }
-
-  /**
-   * Normalize a folder path into safe S3 key segments.
-   */
-  private sanitizeFolder(folder?: string): string | undefined {
-    if (!folder) {
-      return undefined;
-    }
-
-    const segments = folder
-      .split('/')
-      .map((segment) => segment.trim())
-      .filter(Boolean);
-
-    if (segments.length === 0) {
-      return undefined;
-    }
-
-    return segments
-      .map((segment) => segment.replace(/[^a-zA-Z0-9._-]/g, '-'))
-      .join('/');
-  }
-
-  /**
-   * Upload a file to S3
-   */
-  public async uploadFile(params: UploadFileParams): Promise<UploadFileResult> {
+  async put(params: PutObjectParams): Promise<PutObjectResult> {
+    const key = normalizeStorageKey(params.key);
+    const contentType = params.contentType ?? contentTypeForKey(key);
     try {
-      const { file, filename, contentType, folder } = params;
-      const s3 = this.getS3Client();
-
-      const uniqueFilename = this.generateUniqueFilename(filename);
-      const sanitizedFolder = this.sanitizeFolder(folder);
-      const key = sanitizedFolder
-        ? `${sanitizedFolder}/${uniqueFilename}`
-        : uniqueFilename;
-
-      // Convert Blob to Buffer if needed
-      let fileContent: Buffer | string;
-      if (file instanceof Blob) {
-        fileContent = Buffer.from(await file.arrayBuffer());
-      } else {
-        fileContent = file;
-      }
-
-      // Upload the file using s3mini
-      const response = await s3.putObject(key, fileContent, contentType);
-
+      const response = await this.getS3Client().putAnyObject(
+        key,
+        toS3Body(params.data),
+        contentType,
+        undefined,
+        undefined,
+        params.contentLength
+      );
       if (!response.ok) {
-        throw new UploadError(`Failed to upload file: ${response.statusText}`);
-      }
-
-      // Generate the URL
-      const { publicUrl } = this.config;
-      let url: string;
-
-      if (publicUrl) {
-        // Use custom domain if provided
-        url = `${publicUrl.replace(/\/$/, '')}/${key}`;
-        console.log('uploadFile, public url', url);
-      } else {
-        // For s3mini, we construct the URL manually
-        // Since bucket is included in endpoint, we just append the key
-        const baseUrl = this.config.endpoint?.replace(/\/$/, '') || '';
-        url = `${baseUrl}/${key}`;
-        console.log('uploadFile, constructed url', url);
-      }
-
-      return { url, key };
-    } catch (error) {
-      if (error instanceof ConfigurationError) {
-        console.error('uploadFile, configuration error', error);
-        throw error;
-      }
-
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Unknown error occurred during file upload';
-      console.error('uploadFile, error', message);
-      throw new UploadError(message);
-    }
-  }
-
-  /**
-   * Delete a file from S3
-   */
-  public async deleteFile(key: string): Promise<void> {
-    try {
-      const s3 = this.getS3Client();
-
-      const wasDeleted = await s3.deleteObject(key);
-
-      if (!wasDeleted) {
-        console.warn(
-          `File with key ${key} was not found or could not be deleted`
+        throw new UploadError(
+          `S3 upload failed with status ${response.status}`
         );
       }
+      return {
+        key,
+        size: params.contentLength ?? this.bodySize(params.data),
+        contentType,
+        etag: response.headers.get('etag') ?? undefined,
+        url: storageUrlForKey(key),
+      };
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Unknown error occurred during file deletion';
-      console.error('deleteFile, error', message);
-      throw new StorageError(message);
+      if (error instanceof StorageError) throw error;
+      throw new UploadError('S3 upload failed', { cause: error });
     }
+  }
+
+  async get(key: string): Promise<StorageObject | null> {
+    const normalizedKey = normalizeStorageKey(key);
+    try {
+      const response =
+        await this.getS3Client().getObjectResponse(normalizedKey);
+      if (!response) return null;
+      const data = Buffer.from(await response.arrayBuffer());
+      return {
+        key: normalizedKey,
+        data,
+        size: data.length,
+        contentType:
+          response.headers.get('content-type') ??
+          contentTypeForKey(normalizedKey),
+        etag: response.headers.get('etag') ?? undefined,
+      };
+    } catch (error) {
+      throw new StorageError('S3 download failed', { cause: error });
+    }
+  }
+
+  async stream(key: string): Promise<StorageObjectStream | null> {
+    const normalizedKey = normalizeStorageKey(key);
+    try {
+      const response =
+        await this.getS3Client().getObjectResponse(normalizedKey);
+      if (!response?.body) return null;
+      return {
+        key: normalizedKey,
+        body: response.body,
+        size: Number(response.headers.get('content-length') ?? 0),
+        contentType:
+          response.headers.get('content-type') ??
+          contentTypeForKey(normalizedKey),
+        etag: response.headers.get('etag') ?? undefined,
+      };
+    } catch (error) {
+      throw new StorageError('S3 streaming download failed', { cause: error });
+    }
+  }
+
+  async delete(key: string): Promise<void> {
+    try {
+      await this.getS3Client().deleteObject(normalizeStorageKey(key));
+    } catch (error) {
+      throw new StorageError('S3 delete failed', { cause: error });
+    }
+  }
+
+  async deletePrefix(prefix: string): Promise<void> {
+    const normalizedPrefix = normalizeStoragePrefix(prefix);
+    try {
+      const keys = await this.listKeysRecursively(normalizedPrefix);
+      if (keys.length > 0) await this.getS3Client().deleteObjects(keys);
+    } catch (error) {
+      throw new StorageError('S3 prefix delete failed', { cause: error });
+    }
+  }
+
+  async createResumableUpload(
+    params: CreateResumableUploadParams
+  ): Promise<ResumableUploadResult> {
+    // The application chunk endpoint remains the S3-compatible fallback.
+    return {
+      strategy: 'chunked',
+      key: normalizeStorageKey(params.key),
+      uploadUrl: null,
+      method: 'POST',
+      headers: {},
+    };
+  }
+
+  private bodySize(data: StorageBody): number {
+    if (data instanceof Blob) return data.size;
+    if (data instanceof Uint8Array) return data.byteLength;
+    return 0;
+  }
+
+  private async listKeysRecursively(prefix: string): Promise<string[]> {
+    const objects = await this.getS3Client().listObjects('/', prefix);
+    if (!objects) return [];
+
+    const keys: string[] = [];
+    for (const object of objects) {
+      if (object.Size === 0 && object.Key.endsWith('/')) {
+        keys.push(...(await this.listKeysRecursively(object.Key)));
+      } else {
+        keys.push(object.Key);
+      }
+    }
+    return keys;
   }
 }

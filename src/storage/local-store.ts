@@ -1,56 +1,151 @@
 import 'server-only';
 
-import { createReadStream } from 'node:fs';
-import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { mkdir, readFile, rename, rm, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
+import { randomUUID } from 'node:crypto';
+import { contentTypeForKey, normalizeStorageKey } from './keys';
+import type { StorageBody, StorageObjectMetadata } from './types';
 
-/**
- * Local-disk store for tenant files (shelf photos, thumbnails, logos, videos).
- *
- * Keys are POSIX-style paths (e.g. "stores/<id>/thumbnails/<id>.jpg") and map
- * to files under STORAGE_LOCAL_DIR. Everything is served through the ACL'd
- * /api/store/files/[...key] route — never a public bucket URL — because the
- * shopper page is the largest photo-leak surface (requirements §10).
- *
- * The GCS driver drops in later behind the same key contract.
- */
+/** Low-level local-disk primitives used only by LocalProvider. */
 
 function baseDir(): string {
-  return path.resolve(
-    process.cwd(),
-    process.env.STORAGE_LOCAL_DIR ?? './.storage'
-  );
-}
-
-/** Reject keys that could escape the storage root. */
-function safeKey(key: string): string {
-  const normalized = path.posix.normalize(key).replace(/^(\.\.(\/|$))+/, '');
-  if (normalized.startsWith('/') || normalized.includes('..')) {
-    throw new Error(`invalid storage key: ${key}`);
-  }
-  return normalized;
+  // A static project subdirectory keeps Next file tracing bounded. Production
+  // uses GCS; local storage is intentionally a development/E2E backend.
+  return path.join(process.cwd(), '.storage');
 }
 
 function keyToPath(key: string): string {
-  return path.join(baseDir(), safeKey(key));
+  return path.join(baseDir(), normalizeStorageKey(key));
 }
 
+function isWebStream(data: StorageBody): data is ReadableStream<Uint8Array> {
+  return 'getReader' in data && typeof data.getReader === 'function';
+}
+
+function toNodeStream(data: StorageBody): Readable {
+  if (data instanceof Readable) return data;
+  if (data instanceof Blob) {
+    return Readable.fromWeb(
+      data.stream() as unknown as NodeReadableStream<Uint8Array>
+    );
+  }
+  if (isWebStream(data)) {
+    return Readable.fromWeb(data as unknown as NodeReadableStream<Uint8Array>);
+  }
+  return Readable.from([data]);
+}
+
+function isNotFound(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    (error as NodeJS.ErrnoException).code === 'ENOENT'
+  );
+}
+
+export async function putLocalObject(
+  key: string,
+  data: StorageBody
+): Promise<StorageObjectMetadata> {
+  const normalizedKey = normalizeStorageKey(key);
+  const filePath = keyToPath(normalizedKey);
+  const tempPath = `${filePath}.${randomUUID()}.upload`;
+  await mkdir(path.dirname(filePath), { recursive: true });
+
+  try {
+    await pipeline(
+      toNodeStream(data),
+      createWriteStream(tempPath, { flags: 'wx' })
+    );
+    await rename(tempPath, filePath);
+  } catch (error) {
+    await rm(tempPath, { force: true }).catch(() => undefined);
+    throw error;
+  }
+
+  const info = await stat(filePath);
+  return {
+    key: normalizedKey,
+    size: info.size,
+    contentType: contentTypeForKey(normalizedKey),
+  };
+}
+
+export async function getLocalObject(
+  key: string
+): Promise<{ metadata: StorageObjectMetadata; data: Buffer } | null> {
+  const normalizedKey = normalizeStorageKey(key);
+  try {
+    const [data, info] = await Promise.all([
+      readFile(keyToPath(normalizedKey)),
+      stat(keyToPath(normalizedKey)),
+    ]);
+    return {
+      data,
+      metadata: {
+        key: normalizedKey,
+        size: info.size,
+        contentType: contentTypeForKey(normalizedKey),
+      },
+    };
+  } catch (error) {
+    if (isNotFound(error)) return null;
+    throw error;
+  }
+}
+
+export async function streamLocalObject(key: string): Promise<{
+  metadata: StorageObjectMetadata;
+  body: ReadableStream<Uint8Array>;
+} | null> {
+  const normalizedKey = normalizeStorageKey(key);
+  try {
+    const info = await stat(keyToPath(normalizedKey));
+    const body = Readable.toWeb(
+      createReadStream(keyToPath(normalizedKey))
+    ) as ReadableStream<Uint8Array>;
+    return {
+      body,
+      metadata: {
+        key: normalizedKey,
+        size: info.size,
+        contentType: contentTypeForKey(normalizedKey),
+      },
+    };
+  } catch (error) {
+    if (isNotFound(error)) return null;
+    throw error;
+  }
+}
+
+export async function deleteLocalObject(key: string): Promise<void> {
+  try {
+    await unlink(keyToPath(key));
+  } catch (error) {
+    if (!isNotFound(error)) throw error;
+  }
+}
+
+export async function deleteLocalPrefix(prefix: string): Promise<void> {
+  const normalizedPrefix = normalizeStorageKey(prefix.replace(/\/+$/, ''));
+  await rm(keyToPath(normalizedPrefix), { force: true, recursive: true });
+}
+
+// Compatibility helpers for code outside the tenant object paths.
 export async function putBuffer(
   key: string,
   data: Buffer
 ): Promise<{ key: string }> {
-  const filePath = keyToPath(key);
-  await mkdir(path.dirname(filePath), { recursive: true });
-  await writeFile(filePath, data);
-  return { key: safeKey(key) };
+  const result = await putLocalObject(key, data);
+  return { key: result.key };
 }
 
 export async function getBuffer(key: string): Promise<Buffer | null> {
-  try {
-    return await readFile(keyToPath(key));
-  } catch {
-    return null;
-  }
+  return (await getLocalObject(key))?.data ?? null;
 }
 
 export function getReadStream(key: string): NodeJS.ReadableStream {
@@ -58,11 +153,7 @@ export function getReadStream(key: string): NodeJS.ReadableStream {
 }
 
 export async function deleteObject(key: string): Promise<void> {
-  try {
-    await unlink(keyToPath(key));
-  } catch {
-    // Already gone — deletion is idempotent.
-  }
+  await deleteLocalObject(key);
 }
 
 /** Decode a data URL (data:image/jpeg;base64,....) to a Buffer. */
@@ -78,21 +169,4 @@ export function dataUrlToBuffer(dataUrl: string): {
   };
 }
 
-export function contentTypeForKey(key: string): string {
-  const ext = path.extname(key).toLowerCase();
-  switch (ext) {
-    case '.jpg':
-    case '.jpeg':
-      return 'image/jpeg';
-    case '.png':
-      return 'image/png';
-    case '.webp':
-      return 'image/webp';
-    case '.mp4':
-      return 'video/mp4';
-    case '.mov':
-      return 'video/quicktime';
-    default:
-      return 'application/octet-stream';
-  }
-}
+export { contentTypeForKey } from './keys';

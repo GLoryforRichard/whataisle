@@ -1,10 +1,11 @@
-import type { StorageConfig as WebsiteStorageConfig } from '@/types';
+import type { Readable } from 'node:stream';
 
-/** Storage provider name from website config */
-export type StorageProviderName = NonNullable<WebsiteStorageConfig['provider']>;
+/** Storage backends supported by the server. */
+export type StorageProviderName = 'gcs' | 'local' | 's3';
 
 /**
- * Storage configuration
+ * Storage configuration. GCS uses Application Default Credentials, while the
+ * access-key fields are only required by the S3-compatible provider.
  */
 export interface StorageConfig {
   region: string;
@@ -13,14 +14,12 @@ export interface StorageConfig {
   secretAccessKey: string;
   bucketName: string;
   publicUrl?: string;
+  projectId?: string;
 }
 
-/**
- * Storage provider error types
- */
 export class StorageError extends Error {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
     this.name = 'StorageError';
   }
 }
@@ -33,15 +32,78 @@ export class ConfigurationError extends StorageError {
 }
 
 export class UploadError extends StorageError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
     this.name = 'UploadError';
   }
 }
 
+export type StorageBody =
+  | Blob
+  | Buffer
+  | Readable
+  | ReadableStream<Uint8Array>
+  | Uint8Array;
+
+export interface PutObjectParams {
+  /** Private object key. Keys are normalized and traversal is rejected. */
+  key: string;
+  data: StorageBody;
+  contentType?: string;
+  cacheControl?: string;
+  /** Required by some streaming S3-compatible backends. */
+  contentLength?: number;
+}
+
+export interface StorageObjectMetadata {
+  key: string;
+  size: number;
+  contentType: string;
+  etag?: string;
+}
+
+export interface PutObjectResult extends StorageObjectMetadata {
+  /** ACL-enforcing application URL. Objects are never made public. */
+  url: string;
+}
+
+export interface StorageObject extends StorageObjectMetadata {
+  data: Buffer;
+}
+
+export interface StorageObjectStream extends StorageObjectMetadata {
+  body: ReadableStream<Uint8Array>;
+}
+
+export interface CreateResumableUploadParams {
+  key: string;
+  contentType: string;
+  contentLength?: number;
+  /** Browser origin allowed to use a provider-issued upload session. */
+  origin?: string;
+}
+
 /**
- * Upload file parameters
+ * GCS returns `direct`; local and S3 use the application's idempotent chunk
+ * API as a compatible fallback.
  */
+export type ResumableUploadResult =
+  | {
+      strategy: 'direct';
+      key: string;
+      uploadUrl: string;
+      method: 'PUT';
+      headers: Record<string, string>;
+    }
+  | {
+      strategy: 'chunked';
+      key: string;
+      uploadUrl: null;
+      method: 'POST';
+      headers: Record<string, never>;
+    };
+
+/** Legacy browser upload parameters retained for the generic upload route. */
 export interface UploadFileParams {
   file: Buffer | Blob;
   filename: string;
@@ -49,30 +111,20 @@ export interface UploadFileParams {
   folder?: string;
 }
 
-/**
- * Upload file result
- */
 export interface UploadFileResult {
   url: string;
   key: string;
 }
 
-/**
- * Storage provider interface
- */
+/** Unified private-object storage contract used by all tenant file paths. */
 export interface StorageProvider {
-  /**
-   * Upload a file to storage
-   */
-  uploadFile(params: UploadFileParams): Promise<UploadFileResult>;
-
-  /**
-   * Delete a file from storage
-   */
-  deleteFile(key: string): Promise<void>;
-
-  /**
-   * Get the provider's name
-   */
-  getProviderName(): string;
+  put(params: PutObjectParams): Promise<PutObjectResult>;
+  get(key: string): Promise<StorageObject | null>;
+  stream(key: string): Promise<StorageObjectStream | null>;
+  delete(key: string): Promise<void>;
+  deletePrefix(prefix: string): Promise<void>;
+  createResumableUpload(
+    params: CreateResumableUploadParams
+  ): Promise<ResumableUploadResult>;
+  getProviderName(): StorageProviderName;
 }

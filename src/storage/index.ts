@@ -1,5 +1,14 @@
+import 'server-only';
+
 import { websiteConfig } from '@/config/website';
+import { nanoid } from 'nanoid';
 import { storageConfig } from './config/storage-config';
+import {
+  contentTypeForKey,
+  sanitizeStorageFolder,
+  storageUrlForKey,
+} from './keys';
+import { GcsProvider } from './provider/gcs';
 import { LocalProvider } from './provider/local';
 import { S3Provider } from './provider/s3';
 import type {
@@ -9,66 +18,64 @@ import type {
   UploadFileResult,
 } from './types';
 
-/**
- * Default storage configuration
- */
 export const defaultStorageConfig: StorageConfig = storageConfig;
 
 type StorageProviderFactory = () => StorageProvider;
 
-const providerRegistry: Partial<
-  Record<StorageProviderName, StorageProviderFactory>
-> = {
-  s3: () => new S3Provider(),
+const providerRegistry: Record<StorageProviderName, StorageProviderFactory> = {
+  gcs: () => new GcsProvider(),
   local: () => new LocalProvider(),
+  s3: () => new S3Provider(),
 };
 
 let storageProvider: StorageProvider | null = null;
 
-function createStorageProvider(): StorageProvider {
-  const name = websiteConfig.storage.provider;
-  if (!name) throw new Error('storage.provider is required in websiteConfig.');
-  const factory = providerRegistry[name];
-  if (!factory) throw new Error(`Unsupported storage provider: ${name}.`);
-  return factory();
+function configuredProviderName(): StorageProviderName {
+  const name =
+    process.env.STORAGE_PROVIDER ?? String(websiteConfig.storage.provider);
+  if (!(name in providerRegistry)) {
+    throw new Error(`Unsupported storage provider: ${name}.`);
+  }
+  return name as StorageProviderName;
 }
 
-/**
- * Get the storage provider
- * @returns current storage provider instance
- * @throws Error if provider is not initialized
- */
-export const getStorageProvider = (): StorageProvider => {
-  if (!storageProvider) storageProvider = createStorageProvider();
+export function getStorageProvider(): StorageProvider {
+  if (!storageProvider) {
+    storageProvider = providerRegistry[configuredProviderName()]();
+  }
   return storageProvider;
-};
+}
 
-/**
- * Uploads a file to the configured storage provider
- *
- * @param file - The file to upload (Buffer or Blob)
- * @param filename - Original filename with extension
- * @param contentType - MIME type of the file
- * @param folder - Optional folder path to store the file in
- * @returns Promise with the URL of the uploaded file and its storage key
- */
-export const uploadFile = async (
+/** Legacy generic upload helper, backed by the unified private-object API. */
+export async function uploadFile(
   file: Buffer | Blob,
   filename: string,
   contentType: string,
   folder?: string
-): Promise<UploadFileResult> => {
-  const provider = getStorageProvider();
-  return provider.uploadFile({ file, filename, contentType, folder });
-};
+): Promise<UploadFileResult> {
+  const extension = filename.includes('.')
+    ? filename.slice(filename.lastIndexOf('.')).toLowerCase()
+    : '';
+  const safeExtension = /^\.[a-z0-9]{1,16}$/.test(extension) ? extension : '';
+  const safeFolder = sanitizeStorageFolder(folder);
+  const key = `${safeFolder ? `${safeFolder}/` : ''}${nanoid()}${safeExtension}`;
+  const result = await getStorageProvider().put({
+    key,
+    data: file,
+    contentType,
+  });
+  return { key: result.key, url: storageUrlForKey(result.key) };
+}
 
-/**
- * Deletes a file from the storage provider
- *
- * @param key - The storage key of the file to delete
- * @returns Promise that resolves when the file is deleted
- */
-export const deleteFile = async (key: string): Promise<void> => {
-  const provider = getStorageProvider();
-  return provider.deleteFile(key);
-};
+export async function deleteFile(key: string): Promise<void> {
+  await getStorageProvider().delete(key);
+}
+
+export { contentTypeForKey };
+export {
+  isStoreStorageKey,
+  normalizeStorageKey,
+  normalizeStoragePrefix,
+  storeStoragePrefix,
+} from './keys';
+export type * from './types';
