@@ -44,9 +44,9 @@ export default async function HomePage({ params }: HomePageProps) {
     answer: t(`seo.faq.a${n}`),
   }));
 
-  const exampleQuestions = (
-    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const
-  ).map((n) => t(`seo.examples.q${n}`));
+  const exampleQuestions = ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const).map(
+    (n) => t(`seo.examples.q${n}`)
+  );
 
   const faqJsonLd = {
     '@context': 'https://schema.org',

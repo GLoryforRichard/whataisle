@@ -27,6 +27,7 @@ export default defineConfig({
       'NEXT_PUBLIC_DEMO_WEBSITE=true',
       'NEXT_PUBLIC_E2E_TEST_MODE=true',
       'NEXT_PUBLIC_PAYMENT_PROVIDER=stripe',
+      'NEXT_PUBLIC_STRIPE_PRICE_LIFETIME=price_e2e_lifetime',
       'NEXT_DIST_DIR=.next-e2e',
       'BETTER_AUTH_SECRET=e2e-better-auth-secret-at-least-32-characters',
       'E2E_TEST_SECRET=mksaas-e2e-secret',
