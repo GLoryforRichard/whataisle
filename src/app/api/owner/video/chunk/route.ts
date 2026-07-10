@@ -29,7 +29,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
   }
   const videoId = form.get('videoId');
-  const chunkIndex = Number(form.get('chunkIndex'));
+  const rawChunkIndex = form.get('chunkIndex');
+  const chunkIndex =
+    typeof rawChunkIndex === 'string' ? Number(rawChunkIndex) : Number.NaN;
   const chunk = form.get('chunk');
   if (
     typeof videoId !== 'string' ||

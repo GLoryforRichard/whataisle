@@ -190,7 +190,11 @@ export class S3Provider implements StorageProvider {
 
     const keys: string[] = [];
     for (const object of objects) {
-      if (object.Size === 0 && object.Key.endsWith('/')) {
+      if (
+        object.Size === 0 &&
+        object.Key.endsWith('/') &&
+        object.Key !== prefix
+      ) {
         keys.push(...(await this.listKeysRecursively(object.Key)));
       } else {
         keys.push(object.Key);
