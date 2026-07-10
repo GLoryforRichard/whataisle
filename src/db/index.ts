@@ -14,9 +14,12 @@ export function getDbSync() {
   const connectionString = process.env.DATABASE_URL!;
   // Cloud SQL unix sockets arrive as `?host=/cloudsql/...`; postgres.js
   // ignores the query param, so pass the socket dir as an explicit option.
-  const socketHost = new URL(
-    connectionString.replace(/^postgres(ql)?:/, 'http:')
-  ).searchParams.get('host');
+  // DATABASE_URL is absent during `next build` page-data collection.
+  const socketHost = connectionString
+    ? new URL(
+        connectionString.replace(/^postgres(ql)?:/, 'http:')
+      ).searchParams.get('host')
+    : null;
   const client = postgres(connectionString, {
     prepare: false,
     ...(socketHost ? { host: socketHost } : {}),
