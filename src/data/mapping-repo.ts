@@ -7,6 +7,7 @@ import {
   floorMap,
   mappingTicket,
   shelf,
+  store,
   storeVideo,
 } from '@/db/store.schema';
 import { and, eq } from 'drizzle-orm';
@@ -129,15 +130,22 @@ export function mappingRepo(storeId: string) {
     /** Owner confirms the published draft → live. */
     async confirmMap() {
       const db = await getDb();
-      await db
-        .update(floorMap)
-        .set({ status: 'published', ownerNote: null, updatedAt: new Date() })
-        .where(eq(floorMap.storeId, storeId));
-      await db.insert(auditLog).values({
-        id: nanoid(),
-        storeId,
-        action: 'floor_map.confirm',
-        targetType: 'floor_map',
+      await db.transaction(async (tx) => {
+        await tx
+          .update(floorMap)
+          .set({ status: 'published', ownerNote: null, updatedAt: new Date() })
+          .where(eq(floorMap.storeId, storeId));
+        await tx
+          .update(store)
+          .set({ status: 'live', updatedAt: new Date() })
+          .where(eq(store.id, storeId));
+        await tx.insert(auditLog).values({
+          id: nanoid(),
+          storeId,
+          action: 'floor_map.confirm',
+          targetType: 'floor_map',
+          detailJson: { storeStatus: 'live' },
+        });
       });
     },
 

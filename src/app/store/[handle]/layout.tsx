@@ -50,7 +50,7 @@ export default async function StoreLayout({
   const { handle } = await params;
   const locale = await getLocale();
   const store = await getStoreByHandle(handle);
-  const active = store && store.status === 'active';
+  const active = store && store.status === 'live';
 
   return (
     <html suppressHydrationWarning lang={locale}>

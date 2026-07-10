@@ -12,6 +12,6 @@ export async function requireOwnerStore(): Promise<Store | null> {
   const session = await getSession();
   if (!session?.user) return null;
   const store = await getStoreByOwner(session.user.id);
-  if (!store || store.status !== 'active') return null;
+  if (!store || !['onboarding', 'live'].includes(store.status)) return null;
   return store;
 }

@@ -64,8 +64,8 @@ export async function getRequestStoreHandle(): Promise<string | null> {
 }
 
 /**
- * Resolve the active store for the current request, or null when the request
- * is not on a store subdomain / the store doesn't exist / it is closed.
+ * Resolve a live store for the current request. Onboarding, suspended, closing,
+ * and closed stores never expose shopper or staff surfaces.
  *
  * This is the single tenant-resolution point for store API routes: the store
  * a request operates on is ALWAYS derived from the request host, never from
@@ -75,7 +75,7 @@ export async function getRequestStore(): Promise<Store | null> {
   const handle = await getRequestStoreHandle();
   if (!handle) return null;
   const found = await getStoreByHandle(handle);
-  if (!found || found.status !== 'active') return null;
+  if (!found || found.status !== 'live') return null;
   return found;
 }
 
