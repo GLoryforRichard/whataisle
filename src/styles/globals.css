@@ -523,6 +523,36 @@ div[class*="border-t"][class*="bg-fd-secondary"]:not(:has(*)):not(
   animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Blinking caret for the landing-page typing demo. */
+@keyframes wa-caret {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.wa-caret {
+  animation: wa-caret 1s step-end infinite;
+}
+
+/* Voice waveform bars for the landing-page search demo. */
+@keyframes wa-wave {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.wa-wave {
+  animation: wa-wave 1.1s ease-in-out infinite;
+}
+
 /* Dotted "paper" background used on onboarding + shopper search. */
 .wa-dotted {
   background-color: var(--brand-cream);
