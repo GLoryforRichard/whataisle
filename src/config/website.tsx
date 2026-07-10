@@ -42,9 +42,9 @@ const priceIds = {
 export const websiteConfig: WebsiteConfig = {
   ui: {
     mode: {
-      // Store owners and staff are not tech-savvy; light mode is the familiar default.
+      // Light-only product: dark mode was removed. Force light, hide the toggle.
       defaultMode: 'light',
-      enableSwitch: true,
+      enableSwitch: false,
     },
   },
   metadata: {
@@ -100,8 +100,8 @@ export const websiteConfig: WebsiteConfig = {
     relatedPostsSize: 3,
   },
   docs: {
-    // Repurposed as the bilingual help center.
-    enable: true,
+    // Docs/help-center section removed from the product.
+    enable: false,
   },
   mail: {
     enable: true,

@@ -1,5 +1,6 @@
 import { ShopperSearch } from '@/components/store/shopper-search';
 import { getStoreByHandle } from '@/lib/store-context';
+import { MegaphoneIcon } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
 
 interface ShopperPageProps {
@@ -25,13 +26,23 @@ export default async function ShopperPage({ params }: ShopperPageProps) {
       : store.announcement;
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8">
+    <div className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-6">
       {announcement ? (
-        <div className="rounded-lg border bg-muted/50 p-4">
-          <p className="font-medium text-muted-foreground text-sm">
-            {t('shopper.announcementLabel')}
-          </p>
-          <p className="mt-1">{announcement}</p>
+        <div className="flex items-start gap-3 rounded-2xl border border-[#EAE3D2] bg-white p-4 shadow-[0_1px_2px_rgba(15,53,44,0.04)]">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand-green)]">
+            <MegaphoneIcon
+              className="size-[18px] text-[var(--brand-lime)]"
+              aria-hidden
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="font-semibold text-[#566058] text-[11px] uppercase tracking-[0.08em]">
+              {t('shopper.announcementLabel')}
+            </p>
+            <p className="mt-0.5 text-[var(--brand-ink)] leading-snug">
+              {announcement}
+            </p>
+          </div>
         </div>
       ) : null}
 

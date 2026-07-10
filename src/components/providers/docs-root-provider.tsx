@@ -4,7 +4,6 @@ import { websiteConfig } from '@/config/website';
 import type { Translations } from 'fumadocs-ui/i18n';
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import { useTranslations } from 'next-intl';
-import { useTheme } from 'next-themes';
 import { useParams } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -13,7 +12,6 @@ import type { ReactNode } from 'react';
  * Only used in docs, blog post, and legal layouts so fumadocs-ui is not loaded on other pages.
  */
 export function DocsRootProvider({ children }: { children: ReactNode }) {
-  const theme = useTheme();
   const params = useParams();
   const locale = (params?.locale as string) ?? websiteConfig.i18n.defaultLocale;
 
@@ -36,7 +34,10 @@ export function DocsRootProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <RootProvider theme={theme} i18n={{ locale, locales, translations }}>
+    <RootProvider
+      theme={{ enabled: false }}
+      i18n={{ locale, locales, translations }}
+    >
       {children}
     </RootProvider>
   );

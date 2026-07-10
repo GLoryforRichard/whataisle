@@ -3,7 +3,6 @@
 import { Routes } from '@/routes';
 import type { NestedMenuItem } from '@/types';
 import { useTranslations } from 'next-intl';
-import { websiteConfig } from './website';
 
 /**
  * Get footer config with translations
@@ -24,15 +23,6 @@ export function useFooterLinks(): NestedMenuItem[] {
           href: Routes.HowItWorks,
           external: false,
         },
-        ...(websiteConfig.docs.enable
-          ? [
-              {
-                title: t('resources.items.docs'),
-                href: Routes.Docs,
-                external: false,
-              },
-            ]
-          : []),
       ],
     },
     {

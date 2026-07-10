@@ -3,7 +3,6 @@
 import { Routes } from '@/routes';
 import type { NestedMenuItem } from '@/types';
 import { useTranslations } from 'next-intl';
-import { websiteConfig } from './website';
 
 /**
  * Get navbar config with translations
@@ -19,19 +18,10 @@ export function useNavbarLinks(): NestedMenuItem[] {
 
   return [
     {
-      title: t('howItWorks.title'),
-      href: Routes.HowItWorks,
+      title: t('pricing.title'),
+      href: Routes.Pricing,
       external: false,
     },
-    ...(websiteConfig.docs.enable
-      ? [
-          {
-            title: t('docs.title'),
-            href: Routes.Docs,
-            external: false,
-          },
-        ]
-      : []),
     {
       title: t('about.title'),
       href: Routes.About,

@@ -91,7 +91,7 @@ export function NavbarMobile({ className, ...props }: NavbarMobileProps) {
           role="dialog"
           aria-modal="true"
           aria-label="Mobile navigation"
-          className="fixed inset-0 top-14.25 z-50 flex flex-col overflow-y-auto bg-background animate-in fade-in-0 duration-200"
+          className="fixed inset-0 top-20 z-50 flex flex-col overflow-y-auto bg-background text-foreground animate-in fade-in-0 duration-200"
         >
           <div className="flex flex-1 flex-col items-start gap-4 p-4">
             {!currentUser && (

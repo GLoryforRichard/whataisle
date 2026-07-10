@@ -191,7 +191,7 @@ export function UserDetailViewer({ user }: UserDetailViewerProps) {
                     }}
                   >
                     {user.emailVerified ? (
-                      <MailCheckIcon className="stroke-green-500 dark:stroke-green-400" />
+                      <MailCheckIcon className="stroke-green-600 dark:stroke-green-400" />
                     ) : (
                       <MailQuestionIcon className="stroke-red-500 dark:stroke-red-400" />
                     )}

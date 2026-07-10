@@ -2,7 +2,7 @@ import { websiteConfig } from '@/config/website';
 import { getLocalePathname } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { generateHreflangUrls } from '@/lib/hreflang';
-import { blogSource, categorySource, source } from '@/lib/source';
+import { blogSource, categorySource } from '@/lib/source';
 import type { MetadataRoute } from 'next';
 import type { Locale } from 'next-intl';
 import { getBaseUrl } from '@/lib/urls';
@@ -25,7 +25,6 @@ const staticRoutes = [
   '/auth/login',
   '/auth/register',
   ...(websiteConfig.blog.enable ? ['/blog'] : []),
-  ...(websiteConfig.docs.enable ? ['/docs'] : []),
 ];
 
 /**
@@ -127,21 +126,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
       });
     });
-  }
-
-  // add docs related routes if enabled
-  if (websiteConfig.docs.enable) {
-    const docsParams = source.generateParams();
-    sitemapList.push(
-      ...docsParams.flatMap((param) =>
-        routing.locales.map((locale) => ({
-          url: getUrl(`/docs/${param.slug.join('/')}`, locale),
-          alternates: {
-            languages: generateHreflangUrls(`/docs/${param.slug.join('/')}`),
-          },
-        }))
-      )
-    );
   }
 
   return sitemapList;

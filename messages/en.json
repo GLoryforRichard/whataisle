@@ -770,7 +770,10 @@
       "title": "Shoppers ask. Your store answers: “Shelf B4.”",
       "description": "Staff snap casual photos of shelves and your store grows a memory of what's where. Shoppers scan a QR code and search by typing, speaking, or taking a photo — in English or Chinese.",
       "primaryCta": "Get started",
-      "secondaryCta": "How it works"
+      "secondaryCta": "How it works",
+      "demoStore": "Demo Market",
+      "demoAsked": "You asked: chili sauce",
+      "demoAnswer": "Yes — we've seen it on shelf B4, left side."
     },
     "how": {
       "title": "How it works",
@@ -780,6 +783,13 @@
       "growDescription": "Products are recognized automatically, with names in English, Chinese, pinyin — even common misspellings. The more you snap, the better the search.",
       "findTitle": "Shoppers find it",
       "findDescription": "Shoppers scan an in-store QR code and ask any way they like. They get the shelf number and a highlighted floor map."
+    },
+    "scan": {
+      "tag": "IN-STORE",
+      "title": "One QR code. Every shelf, answered.",
+      "sub": "Print it, stick it up, done. Shoppers scan and ask — your store answers the aisle. No app to install.",
+      "cta": "Get your store poster",
+      "caption": "scan to find any product"
     }
   },
   "Store": {
@@ -911,6 +921,10 @@
   "Manage": {
     "video": {
       "title": "Send us a store walk-through",
+      "subtitle": "Film one lap of your store and we'll turn it into your floor map.",
+      "dropHint": "Drag a video here, or",
+      "formats": "MP4 or MOV, any length",
+      "keepOpen": "You can leave this page — the upload keeps going and picks up where it left off.",
       "guideTitle": "How to film it",
       "guide1": "Walk one full lap of your store.",
       "guide2": "Point the camera at each aisle and its sign.",
@@ -1055,6 +1069,7 @@
     "shelves": {
       "nav": "Shelves",
       "title": "Shelves & products",
+      "subtitle": "Everything your store remembers, organised shelf by shelf.",
       "addShelf": "Add shelf",
       "shelfCode": "Shelf code",
       "shelfLabel": "Label (optional)",

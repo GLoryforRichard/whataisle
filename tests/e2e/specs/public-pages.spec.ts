@@ -22,10 +22,9 @@ const publicPages = [
   { path: '/auth/reset-password', name: 'reset password' },
 ] as const;
 
+// Dark mode was removed — the product is light-only, so only light is exercised.
 const smokeMatrix: Array<{ locale: LocaleMode; theme: ThemeMode }> = [
-  { locale: 'en', theme: 'dark' },
   { locale: 'en', theme: 'light' },
-  { locale: 'zh', theme: 'dark' },
   { locale: 'zh', theme: 'light' },
 ];
 
@@ -49,10 +48,10 @@ test.describe('public page smoke coverage', () => {
   }
 
   test('opens the home page login modal', async ({ page }) => {
-    await setTheme(page, 'dark');
+    await setTheme(page, 'light');
     const monitor = installPageHealthMonitor(page);
 
-    await expectHealthyPage(page, monitor, '/', { theme: 'dark' });
+    await expectHealthyPage(page, monitor, '/', { theme: 'light' });
     await page.waitForLoadState('networkidle');
     await page.getByRole('button', { name: /^log in$/i }).click();
 

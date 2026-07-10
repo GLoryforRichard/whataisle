@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { LOCALE_COOKIE_NAME } from '@/i18n/routing';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -26,15 +25,14 @@ export function StoreLocaleToggle() {
   }
 
   return (
-    <Button
-      variant="outline"
-      size="sm"
+    <button
+      type="button"
       onClick={toggle}
       disabled={isPending}
       aria-label="Switch language"
-      className="min-w-14 font-medium"
+      className="inline-flex h-9 min-w-14 items-center justify-center rounded-full border border-[var(--brand-cream)]/30 bg-transparent px-3.5 font-semibold text-[var(--brand-cream)] text-sm transition-colors hover:border-[var(--brand-lime)] hover:text-[var(--brand-lime)] disabled:opacity-60"
     >
       {t('header.languageToggle')}
-    </Button>
+    </button>
   );
 }

@@ -1,7 +1,0 @@
-{
-  "title": "Help Center",
-  "description": "How to use WhatAisle",
-  "icon": "Album",
-  "root": true,
-  "pages": ["index"]
-}
