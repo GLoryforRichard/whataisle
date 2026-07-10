@@ -247,7 +247,10 @@
       "emailRequired": "请输入邮箱",
       "passwordRequired": "请输入密码",
       "captchaInvalid": "验证码验证失败",
-      "captchaError": "验证码验证出错"
+      "captchaError": "验证码验证出错",
+      "inviteOnlyTitle": "WhatAisle 目前仅限邀请注册",
+      "inviteOnlyDescription": "我们目前为安大略省零售商提供人工协助开通。提交申请后，团队会与您联系。",
+      "requestAccess": "申请开通"
     },
     "forgotPassword": {
       "title": "忘记密码",
@@ -1118,6 +1121,9 @@
     "accepting": "…"
   },
   "Admin": {
+    "onboarding": {
+      "nav": "商用开通"
+    },
     "tenants": {
       "nav": "门店",
       "title": "门店控制台",

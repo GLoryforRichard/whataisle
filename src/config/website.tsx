@@ -71,10 +71,12 @@ export const websiteConfig: WebsiteConfig = {
     enableSpeedInsights: false,
   },
   apikeys: {
-    enable: process.env.NEXT_PUBLIC_DEMO_WEBSITE === 'true',
+    enable: false,
   },
   auth: {
-    enableGoogleLogin: true,
+    enableGoogleLogin:
+      process.env.PUBLIC_GOOGLE_LOGIN_ENABLED === 'true' ||
+      process.env.NODE_ENV !== 'production',
     enableGithubLogin: false,
     enableCredentialLogin: true,
     enableDeleteUser: true,

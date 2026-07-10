@@ -9,12 +9,12 @@ import {
   CoinsIcon,
   DatabaseIcon,
   FilmIcon,
-  KeyIcon,
   LayoutDashboardIcon,
   LifeBuoyIcon,
   LockKeyholeIcon,
   MapIcon,
   MapPinnedIcon,
+  MailPlusIcon,
   MegaphoneIcon,
   PackageIcon,
   QrCodeIcon,
@@ -112,6 +112,12 @@ export function useSidebarLinks(): NestedMenuItem[] {
           external: false,
         },
         {
+          title: at('onboarding.nav'),
+          icon: <MailPlusIcon className="size-4 shrink-0" />,
+          href: Routes.AdminOnboarding,
+          external: false,
+        },
+        {
           title: mt('adminMapping.nav'),
           icon: <MapPinnedIcon className="size-4 shrink-0" />,
           href: Routes.AdminMapping,
@@ -165,16 +171,6 @@ export function useSidebarLinks(): NestedMenuItem[] {
                 title: t('settings.credits.title'),
                 icon: <CoinsIcon className="size-4 shrink-0" />,
                 href: Routes.SettingsCredits,
-                external: false,
-              },
-            ]
-          : []),
-        ...(websiteConfig.apikeys.enable
-          ? [
-              {
-                title: t('settings.apiKeys.title'),
-                icon: <KeyIcon className="size-4 shrink-0" />,
-                href: Routes.SettingsApiKeys,
                 external: false,
               },
             ]

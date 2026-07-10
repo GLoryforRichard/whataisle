@@ -37,6 +37,7 @@ export enum Routes {
   AdminUsers = '/admin/users',
   AdminMapping = '/admin/mapping',
   AdminTenants = '/admin/tenants',
+  AdminOnboarding = '/admin/onboarding',
   AdminCosts = '/admin/costs',
   AdminTickets = '/admin/tickets',
   AdminAnnouncements = '/admin/announcements',
@@ -47,7 +48,6 @@ export enum Routes {
   SettingsBilling = '/settings/billing',
   SettingsCredits = '/settings/credits',
   SettingsSecurity = '/settings/security',
-  SettingsApiKeys = '/settings/apikeys',
 
   // payment processing
   Payment = '/payment',
@@ -73,6 +73,7 @@ export const protectedRoutes = [
   Routes.AdminUsers,
   Routes.AdminMapping,
   Routes.AdminTenants,
+  Routes.AdminOnboarding,
   Routes.AdminCosts,
   Routes.AdminTickets,
   Routes.AdminAnnouncements,
@@ -81,7 +82,6 @@ export const protectedRoutes = [
   Routes.SettingsBilling,
   Routes.SettingsCredits,
   Routes.SettingsSecurity,
-  Routes.SettingsApiKeys,
   Routes.Payment,
 ];
 
