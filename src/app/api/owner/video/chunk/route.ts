@@ -1,7 +1,7 @@
 import { mappingRepo } from '@/data/mapping-repo';
 import { getDb } from '@/db';
 import { storeVideo } from '@/db/store.schema';
-import { requireOwnerStore } from '@/lib/require-owner-store';
+import { requirePaidOwnerStore } from '@/lib/require-owner-store';
 import { getStorageProvider } from '@/storage';
 import { MAX_VIDEO_CHUNKS, VIDEO_CHUNK_BYTES } from '@/storage/video';
 import { and, eq } from 'drizzle-orm';
@@ -17,10 +17,14 @@ export const maxDuration = 60;
  * on /complete.
  */
 export async function POST(req: NextRequest) {
-  const store = await requireOwnerStore();
-  if (!store) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  const access = await requirePaidOwnerStore();
+  if ('error' in access) {
+    return NextResponse.json(
+      { error: access.error },
+      { status: access.error === 'payment_required' ? 402 : 401 }
+    );
   }
+  const { store } = access;
 
   let form: FormData;
   try {

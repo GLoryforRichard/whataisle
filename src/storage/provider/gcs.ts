@@ -154,6 +154,23 @@ export class GcsProvider implements StorageProvider {
     }
   }
 
+  async getSignedDownloadUrl(key: string, ttlSeconds: number): Promise<string> {
+    const normalizedKey = normalizeStorageKey(key);
+    // V4 signatures cap at 7 days; signing uses IAM signBlob under ADC, so
+    // the runtime service account needs iam.serviceAccountTokenCreator.
+    const expires = Date.now() + Math.min(ttlSeconds, 604800) * 1000;
+    try {
+      const [url] = await this.getBucket()
+        .file(normalizedKey)
+        .getSignedUrl({ version: 'v4', action: 'read', expires });
+      return url;
+    } catch (error) {
+      throw new StorageError('GCS signed URL generation failed', {
+        cause: error,
+      });
+    }
+  }
+
   async createResumableUpload(
     params: CreateResumableUploadParams
   ): Promise<ResumableUploadResult> {

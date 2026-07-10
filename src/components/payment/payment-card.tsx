@@ -97,7 +97,7 @@ export function PaymentCard() {
           await queryClient.refetchQueries({
             queryKey: ['credits'],
           });
-        } else if (callback === Routes.SettingsBilling) {
+        } else {
           // Invalidate and refetch payment/subscription related queries
           await queryClient.invalidateQueries({
             queryKey: ['payment'],

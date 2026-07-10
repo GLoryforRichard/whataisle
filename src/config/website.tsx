@@ -131,6 +131,8 @@ export const websiteConfig: WebsiteConfig = {
         prices: [],
         isFree: true,
         isLifetime: false,
+        // Single $999 tier for launch — free/pro hidden from pricing UI.
+        disabled: true,
         credits: {
           enable: true,
           amount: 50,
@@ -139,6 +141,7 @@ export const websiteConfig: WebsiteConfig = {
       },
       pro: {
         id: 'pro',
+        disabled: true,
         prices: [
           {
             type: PaymentTypes.SUBSCRIPTION,
@@ -170,7 +173,7 @@ export const websiteConfig: WebsiteConfig = {
           {
             type: PaymentTypes.ONE_TIME,
             priceId: priceIds.lifetime,
-            amount: 19900,
+            amount: 99900,
             currency: 'USD',
             allowPromotionCode: true,
           },

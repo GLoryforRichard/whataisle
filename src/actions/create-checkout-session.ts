@@ -13,11 +13,23 @@ import { z } from 'zod';
 
 // Checkout schema for validation
 // metadata is optional, and may contain referral information if you need
+// Where the payment page may send the user after a confirmed payment.
+const allowedCallbackUrls: string[] = [
+  Routes.SettingsBilling,
+  Routes.ManageVideo,
+];
+
 const checkoutSchema = z.object({
   userId: z.string().min(1, { error: 'User ID is required' }),
   planId: z.string().min(1, { error: 'Plan ID is required' }),
   priceId: z.string().min(1, { error: 'Price ID is required' }),
   metadata: z.record(z.string(), z.string()).optional(),
+  callbackUrl: z
+    .string()
+    .refine((value) => allowedCallbackUrls.includes(value), {
+      error: 'Invalid callback URL',
+    })
+    .optional(),
 });
 
 /**
@@ -26,7 +38,7 @@ const checkoutSchema = z.object({
 export const createCheckoutAction = userActionClient
   .inputSchema(checkoutSchema)
   .action(async ({ parsedInput, ctx }) => {
-    const { planId, priceId, metadata } = parsedInput;
+    const { planId, priceId, metadata, callbackUrl } = parsedInput;
     const currentUser = ctx.user;
 
     try {
@@ -64,11 +76,12 @@ export const createCheckoutAction = userActionClient
       //   then the Payment page polls by sessionId until the webhook writes the DB record.
       // For Creem: Creem does NOT replace URL placeholders and has its own
       //   payment confirmation page, so redirect straight to billing.
+      const callback = callbackUrl ?? Routes.SettingsBilling;
       const isCreem = websiteConfig.payment.provider === 'creem';
       const successUrl = isCreem
-        ? getUrlWithLocale(Routes.SettingsBilling, locale)
+        ? getUrlWithLocale(callback, locale)
         : getUrlWithLocale(
-            `${Routes.Payment}?session_id={CHECKOUT_SESSION_ID}&callback=${Routes.SettingsBilling}`,
+            `${Routes.Payment}?session_id={CHECKOUT_SESSION_ID}&callback=${callback}`,
             locale
           );
       const cancelUrl = getUrlWithLocale(Routes.SettingsBilling, locale);

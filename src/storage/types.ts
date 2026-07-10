@@ -126,5 +126,10 @@ export interface StorageProvider {
   createResumableUpload(
     params: CreateResumableUploadParams
   ): Promise<ResumableUploadResult>;
+  /**
+   * Time-limited download URL for a private object. GCS signs a V4 URL
+   * (max TTL 7 days); local/s3 fall back to the ACL-enforcing app URL.
+   */
+  getSignedDownloadUrl(key: string, ttlSeconds: number): Promise<string>;
   getProviderName(): StorageProviderName;
 }

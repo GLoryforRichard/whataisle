@@ -1,8 +1,12 @@
+import { FilmingChecklist } from '@/components/manage/filming-checklist';
 import { VideoUpload } from '@/components/manage/video-upload';
 import { getDb } from '@/db';
 import { storeVideo } from '@/db/store.schema';
+import { localeRedirect } from '@/i18n/navigation';
+import { checkPremiumAccess } from '@/lib/premium-access';
 import { getSession } from '@/lib/server';
 import { getStoreByOwner } from '@/lib/store-context';
+import { Routes } from '@/routes';
 import { and, eq } from 'drizzle-orm';
 import type { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -18,6 +22,12 @@ export default async function ManageVideoPage({ params }: PageProps) {
 
   const session = await getSession();
   const store = session?.user ? await getStoreByOwner(session.user.id) : null;
+
+  // The video pipeline is the paid deliverable — unpaid owners go to the
+  // paywall (the API routes enforce the same check server-side).
+  if (session?.user && store && !(await checkPremiumAccess(session.user.id))) {
+    localeRedirect({ href: Routes.OnboardingPayment, locale });
+  }
 
   let hasVideo = false;
   if (store) {
@@ -38,6 +48,7 @@ export default async function ManageVideoPage({ params }: PageProps) {
         <h1 className="font-bold text-2xl text-foreground">{t('title')}</h1>
         <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
+      <FilmingChecklist />
       <VideoUpload hasVideo={hasVideo} />
     </div>
   );

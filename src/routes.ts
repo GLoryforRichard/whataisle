@@ -24,6 +24,9 @@ export enum Routes {
   // dashboard routes
   Dashboard = '/dashboard',
 
+  // onboarding
+  OnboardingPayment = '/onboarding/payment',
+
   // store management (owner)
   ManageVideo = '/manage/video',
   ManageMap = '/manage/map',

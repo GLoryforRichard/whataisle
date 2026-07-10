@@ -63,4 +63,9 @@ export class LocalProvider implements StorageProvider {
       headers: {},
     };
   }
+
+  async getSignedDownloadUrl(key: string, _ttlSeconds: number) {
+    // No signing locally — the ACL-enforcing app route is the download URL.
+    return storageUrlForKey(normalizeStorageKey(key));
+  }
 }

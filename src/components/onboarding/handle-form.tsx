@@ -92,7 +92,7 @@ export function HandleForm() {
       if (data?.success) {
         // Hard navigation: this is a one-time completion, and it guarantees
         // the protected layout re-runs server-side and sees the new store.
-        window.location.assign(Routes.Dashboard);
+        window.location.assign(Routes.OnboardingPayment);
         return;
       }
       const code = data && 'error' in data ? data.error : undefined;

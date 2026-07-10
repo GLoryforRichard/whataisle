@@ -178,6 +178,11 @@ export class S3Provider implements StorageProvider {
     };
   }
 
+  async getSignedDownloadUrl(key: string, _ttlSeconds: number) {
+    // s3mini has no presign support — fall back to the ACL-enforcing app URL.
+    return storageUrlForKey(normalizeStorageKey(key));
+  }
+
   private bodySize(data: StorageBody): number {
     if (data instanceof Blob) return data.size;
     if (data instanceof Uint8Array) return data.byteLength;

@@ -53,6 +53,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_BASE_URL=${{ env.BASE_URL }}
             NEXT_PUBLIC_ROOT_DOMAIN=${{ env.ROOT_DOMAIN }}
+            NEXT_PUBLIC_STRIPE_PRICE_LIFETIME=${{ vars.NEXT_PUBLIC_STRIPE_PRICE_LIFETIME }}
           cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
 

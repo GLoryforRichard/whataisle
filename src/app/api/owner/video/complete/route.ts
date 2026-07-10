@@ -2,7 +2,8 @@ import { Readable } from 'node:stream';
 import { mappingRepo } from '@/data/mapping-repo';
 import { getDb } from '@/db';
 import { storeVideo } from '@/db/store.schema';
-import { requireOwnerStore } from '@/lib/require-owner-store';
+import { requirePaidOwnerStore } from '@/lib/require-owner-store';
+import { notifyVideoUploaded } from '@/lib/video-upload-notification';
 import {
   contentTypeForKey,
   getStorageProvider,
@@ -74,10 +75,14 @@ async function validateStoredVideo(
  * path buffers the complete video in application memory.
  */
 export async function POST(req: NextRequest) {
-  const store = await requireOwnerStore();
-  if (!store) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  const access = await requirePaidOwnerStore();
+  if ('error' in access) {
+    return NextResponse.json(
+      { error: access.error },
+      { status: access.error === 'payment_required' ? 402 : 401 }
+    );
   }
+  const { store, ownerEmail } = access;
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
@@ -178,6 +183,18 @@ export async function POST(req: NextRequest) {
     .where(and(eq(storeVideo.storeId, store.id), eq(storeVideo.id, videoId)));
 
   const result = await mappingRepo(store.id).completeVideo(videoId);
+
+  // Ops notification with a signed download link. Fire-and-forget: the
+  // idempotent retry path above intentionally does not re-notify.
+  notifyVideoUploaded({
+    store,
+    videoId,
+    storageKey: video.storageKey,
+    filename: video.filename,
+    sizeBytes: video.sizeBytes,
+    ownerEmail,
+  }).catch((error) => console.error('[video] notify failed', error));
+
   return NextResponse.json(
     { ok: true, ...result },
     { headers: { 'Cache-Control': 'private, no-store' } }
