@@ -33,6 +33,19 @@ export default async function proxy(req: NextRequest) {
   console.log('>> proxy start, pathname', nextUrl.pathname);
 
   // ---------------------------------------------------------------------------
+  // Canonical host: pages served from the apex domain must redirect to www.
+  // The client bundle bakes NEXT_PUBLIC_BASE_URL (www) into auth API calls, so
+  // a page loaded from the apex issues cross-origin requests that the browser
+  // blocks — signup/login break entirely. API routes are outside the matcher,
+  // so webhooks registered against either host keep working.
+  // ---------------------------------------------------------------------------
+  const canonicalRedirect = getCanonicalHostRedirect(req);
+  if (canonicalRedirect) {
+    console.log('<< proxy end, apex host redirected to canonical www host');
+    return canonicalRedirect;
+  }
+
+  // ---------------------------------------------------------------------------
   // Host routing: <handle>.<root-domain> serves the store's shopper/staff pages.
   // Store subdomains are rewritten to /store/<handle>/* and bypass the locale
   // middleware entirely — store pages read the locale from a cookie instead of
@@ -116,6 +129,32 @@ export default async function proxy(req: NextRequest) {
 function getPathnameWithoutLocale(pathname: string, locales: string[]): string {
   const localePattern = new RegExp(`^/(${locales.join('|')})/`);
   return pathname.replace(localePattern, '/');
+}
+
+/**
+ * Redirect apex-host page requests to the canonical www host, or null when no
+ * redirect applies. Only active when NEXT_PUBLIC_BASE_URL points at
+ * www.<root-domain> (production); in dev and E2E the base URL host equals the
+ * root domain, so requests pass through untouched. 308 preserves the method
+ * for any in-flight form posts.
+ */
+function getCanonicalHostRedirect(req: NextRequest): NextResponse | null {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  if (!baseUrl) return null;
+  let canonicalHost: string;
+  try {
+    canonicalHost = new URL(baseUrl).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+  const rootDomain = (
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'localhost'
+  ).toLowerCase();
+  if (canonicalHost !== `www.${rootDomain}`) return null;
+  const hostname = (req.headers.get('host') ?? '').split(':')[0].toLowerCase();
+  if (hostname !== rootDomain) return null;
+  const target = new URL(req.nextUrl.pathname + req.nextUrl.search, baseUrl);
+  return NextResponse.redirect(target, 308);
 }
 
 /**
