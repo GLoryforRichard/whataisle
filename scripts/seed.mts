@@ -12,12 +12,27 @@
  * Idempotent: safe to run repeatedly.
  */
 import nextEnv from '@next/env';
+import type { FloorMapJson } from '../src/db/store.schema';
 
 nextEnv.loadEnvConfig(process.cwd());
 
 const OWNER_PASSWORD = 'Demo12345678!';
 
-const STORES = [
+interface StoreDef {
+  handle: string;
+  displayName: string;
+  displayNameZh: string | null;
+  announcement: string | null;
+  announcementZh: string | null;
+  ownerEmail: string;
+  ownerName: string;
+  pin: string;
+  shelves: Array<{ code: string; label: string; labelZh: string | null }>;
+  /** Optional pre-published floor map so the store is map-complete from seed. */
+  floorMap?: FloorMapJson;
+}
+
+const STORES: StoreDef[] = [
   {
     handle: 'demo',
     displayName: 'Demo Market',
@@ -52,12 +67,52 @@ const STORES = [
       { code: 'D2', label: 'Snacks', labelZh: '零食' },
     ],
   },
+  {
+    // Full-fidelity test store: seeded with a PUBLISHED floor map so the
+    // map-based shelf picker and shopper map highlighting work from day one.
+    handle: 'teststore',
+    displayName: 'Test Store',
+    displayNameZh: '测试超市',
+    announcement: null,
+    announcementZh: null,
+    ownerEmail: 'owner@example.test',
+    ownerName: 'Owner Test',
+    pin: '9999',
+    shelves: [
+      { code: 'A1', label: 'Produce', labelZh: '蔬果' },
+      { code: 'A2', label: 'Snacks', labelZh: '零食' },
+      { code: 'B1', label: 'Rice & Noodles', labelZh: '米面' },
+      { code: 'B2', label: 'Canned Food', labelZh: '罐头' },
+      { code: 'B3', label: 'Condiments', labelZh: '调味品' },
+      { code: 'B4', label: 'Sauces', labelZh: '酱料' },
+      { code: 'C1', label: 'Frozen', labelZh: '冷冻' },
+      { code: 'C2', label: 'Drinks', labelZh: '饮料' },
+    ],
+    floorMap: {
+      viewBox: { width: 100, height: 100 },
+      shapes: [
+        // Left wall
+        { shelfCode: 'A1', kind: 'rect', coords: [6, 8, 10, 36] },
+        { shelfCode: 'A2', kind: 'rect', coords: [6, 52, 10, 36] },
+        // Center aisle runs (L/R sides)
+        { shelfCode: 'B1', kind: 'rect', coords: [26, 12, 8, 40], sides: true },
+        { shelfCode: 'B2', kind: 'rect', coords: [42, 12, 8, 40], sides: true },
+        { shelfCode: 'B3', kind: 'rect', coords: [58, 12, 8, 40], sides: true },
+        // Bottom promo run
+        { shelfCode: 'B4', kind: 'rect', coords: [26, 64, 40, 8] },
+        // Right wall
+        { shelfCode: 'C1', kind: 'rect', coords: [84, 8, 10, 40] },
+        { shelfCode: 'C2', kind: 'rect', coords: [84, 56, 10, 32] },
+      ],
+    },
+  },
 ];
 
 async function main() {
   const { getDb } = await import('../src/db');
   const {
     account,
+    floorMap,
     product,
     productLocation,
     shelf,
@@ -164,6 +219,28 @@ async function main() {
       );
     } else {
       console.log(`seed: shelves for ${def.handle} already exist`);
+    }
+
+    // --- floor map (optional, seeded as already-published) ---
+    if (def.floorMap) {
+      const existingMap = await db
+        .select({ id: floorMap.id })
+        .from(floorMap)
+        .where(eq(floorMap.storeId, storeId))
+        .limit(1);
+      if (existingMap.length === 0) {
+        await db.insert(floorMap).values({
+          id: nanoid(),
+          storeId,
+          status: 'published',
+          mapJson: def.floorMap,
+          version: 1,
+          publishedAt: new Date(),
+        });
+        console.log(`seed: published floor map for ${def.handle}`);
+      } else {
+        console.log(`seed: floor map for ${def.handle} already exists`);
+      }
     }
 
     // The release E2E suite starts from a fresh database. Keep one known

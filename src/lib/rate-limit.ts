@@ -35,6 +35,33 @@ export async function checkRateLimit(
 }
 
 /**
+ * Read a key's current count WITHOUT consuming a unit. Ignores the window on
+ * purpose — its only consumer is the try-out's lifetime cap, whose 10-year
+ * window never rolls over in practice. Returns 0 for unknown keys.
+ */
+export async function peekRateLimit(key: string): Promise<number> {
+  const db = await getDb();
+  const result = await db.execute(sql`
+    SELECT count FROM rate_limit WHERE key = ${key}
+  `);
+  const row = (result as unknown as Array<{ count: number }>)[0];
+  return row?.count ?? 0;
+}
+
+/**
+ * Give back one previously consumed unit (e.g. the scan failed after the
+ * lifetime quota was already charged). Never goes below zero.
+ */
+export async function refundRateLimit(key: string): Promise<void> {
+  const db = await getDb();
+  await db.execute(sql`
+    UPDATE rate_limit
+    SET count = GREATEST(count - 1, 0)
+    WHERE key = ${key}
+  `);
+}
+
+/**
  * Hash an IP for use in rate-limit keys and feedback dedup — raw IPs are
  * never stored.
  */

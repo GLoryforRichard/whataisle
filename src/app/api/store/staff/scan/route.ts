@@ -4,7 +4,9 @@ import { requireStaff } from '@/lib/require-staff';
 import { nanoid } from 'nanoid';
 import { type NextRequest, NextResponse } from 'next/server';
 
-export const maxDuration = 120;
+// Dense shelves (50+ product types) measured ~117s end-to-end through the
+// full rows-hd + grid-readout pipeline — 120 was too tight a ceiling.
+export const maxDuration = 180;
 
 /**
  * Process one shelf photo (multipart: shelfId, image).
@@ -52,7 +54,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       photoId,
       storageKey: result.storageKey,
-      facesBlurred: result.facesBlurred,
       products: result.products,
     });
   } catch (err) {

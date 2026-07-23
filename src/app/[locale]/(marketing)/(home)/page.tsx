@@ -3,6 +3,7 @@ import { AnswerMapVisual } from '@/components/marketing/home/answer-map-visual';
 import { MemoryGridVisual } from '@/components/marketing/home/memory-grid-visual';
 import { SearchWaysVisual } from '@/components/marketing/home/search-ways-visual';
 import { ShelfScanVisual } from '@/components/marketing/home/shelf-scan-visual';
+import { HeroTryScan } from '@/components/marketing/home/try-scan-section';
 import { ScrollReveal } from '@/components/shared/scroll-reveal';
 import { LocaleLink } from '@/i18n/navigation';
 import { constructMetadata } from '@/lib/metadata';
@@ -93,44 +94,8 @@ export default async function HomePage({ params }: HomePageProps) {
                 </div>
               </div>
 
-              {/* Hero visual — phone-answer mock + floating badge */}
-              <div
-                className="wa-fade-up relative mx-auto flex items-center justify-center"
-                aria-hidden="true"
-              >
-                <div className="absolute size-72 rounded-full bg-[radial-gradient(closest-side,rgba(198,242,78,0.22),transparent_70%)]" />
-                <div className="-rotate-3 relative w-[250px] rounded-[30px] bg-[var(--brand-cream)] p-4 shadow-[0_26px_60px_rgba(0,0,0,0.35)]">
-                  <div className="overflow-hidden rounded-[20px] border border-[#E4DECB]">
-                    <div className="flex items-center justify-between bg-[var(--brand-green)] px-3.5 py-3">
-                      <span className="font-bold text-[var(--brand-cream)] text-[13px]">
-                        {t('hero.demoStore')}
-                      </span>
-                      <span className="text-[11px] text-[var(--brand-lime)]">
-                        中/EN
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-2.5 bg-white p-3.5">
-                      <div className="text-[11px] text-[#566058]">
-                        {t('hero.demoAsked')}
-                      </div>
-                      <div className="flex items-center gap-2.5 rounded-xl border border-[#D8EBB4] bg-[#F1F7E8] p-2.5">
-                        <div className="flex size-11 items-center justify-center rounded-[10px] bg-[var(--brand-lime)] font-bold text-[var(--brand-green)] text-xl">
-                          B4
-                        </div>
-                        <div className="font-semibold text-[#12352C] text-xs leading-snug">
-                          {t('hero.demoAnswer')}
-                        </div>
-                      </div>
-                      <div className="h-2 w-[90%] rounded bg-[#EEF0EA]" />
-                      <div className="h-2 w-[70%] rounded bg-[#EEF0EA]" />
-                    </div>
-                  </div>
-                </div>
-                <div className="wa-float absolute right-6 bottom-3 flex items-center gap-1.5 rounded-2xl bg-[var(--brand-lime)] px-3.5 py-2.5 font-bold text-[var(--brand-green)] shadow-[0_12px_24px_rgba(15,53,44,0.25)]">
-                  <MapPinIcon className="size-4" aria-hidden />
-                  15s
-                </div>
-              </div>
+              {/* Hero visual — live one-photo scan demo */}
+              <HeroTryScan />
             </div>
           </div>
         </Container>

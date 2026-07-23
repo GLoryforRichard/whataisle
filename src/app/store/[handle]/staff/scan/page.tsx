@@ -1,5 +1,6 @@
 import { ScanFlow } from '@/components/store/scan-flow';
 import { tenantRepo } from '@/data/tenant-repo';
+import type { FloorMapJson } from '@/db/store.schema';
 import { getStaffSession } from '@/lib/staff-auth';
 import { getStoreByHandle } from '@/lib/store-context';
 import { getTranslations } from 'next-intl/server';
@@ -22,10 +23,14 @@ export default async function StaffScanPage({ params }: StaffScanPageProps) {
     redirect('/staff');
   }
 
-  const [t, shelves] = await Promise.all([
+  const repo = tenantRepo(store.id);
+  const [t, shelves, map] = await Promise.all([
     getTranslations('Store.staff.scan'),
-    tenantRepo(store.id).listShelves(),
+    repo.listShelves(),
+    repo.getFloorMap(),
   ]);
+  const mapJson: FloorMapJson | null =
+    map && map.status === 'published' ? (map.mapJson ?? null) : null;
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8">
@@ -36,6 +41,7 @@ export default async function StaffScanPage({ params }: StaffScanPageProps) {
           code: s.code,
           label: s.label,
         }))}
+        mapJson={mapJson}
       />
     </div>
   );

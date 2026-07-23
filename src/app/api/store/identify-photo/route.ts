@@ -1,5 +1,5 @@
 import { identifyProductFromPhoto } from '@/ai/identify-photo';
-import { GEN_MODEL } from '@/ai/models';
+import { VISION_MODEL } from '@/ai/models';
 import { recordUsage } from '@/ai/usage';
 import { checkRateLimit, hashIp } from '@/lib/rate-limit';
 import { getRequestStore } from '@/lib/store-context';
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     await recordUsage({
       storeId: store.id,
       kind: 'identify',
-      model: GEN_MODEL,
+      model: VISION_MODEL,
       usage: result.usage,
       latencyMs: Date.now() - started,
     });

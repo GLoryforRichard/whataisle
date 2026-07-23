@@ -525,8 +525,16 @@ export const scanPhoto = pgTable(
 // ---------------------------------------------------------------------------
 
 export type AiUsageKind =
+  // legacy kinds from the retired two-stage Qwen scan (historic rows exist)
   | 'vision_stage1'
   | 'vision_stage2'
+  // rows-hd scan engine (OpenRouter): row detect / band detect / grid readout
+  | 'scan_rows'
+  | 'scan_detect'
+  | 'scan_readout'
+  // landing try-out: precheck gate + fast detection
+  | 'try_precheck'
+  | 'try_detect'
   | 'alias'
   | 'embed'
   | 'transcribe'

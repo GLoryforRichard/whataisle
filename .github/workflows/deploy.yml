@@ -77,7 +77,12 @@ jobs:
             --region=${{ env.REGION }} --wait
 
       - name: Deploy Cloud Run service
+        # --update-env-vars merges with the env already on the service.
+        # AI keys live in GitHub secrets because local gcloud access to
+        # whataisle-prod is org-restricted; ADMIN_TASK_TOKEN authorizes
+        # machine calls to /api/admin/re-embed after embedding-model changes.
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --region=${{ env.REGION }} \
-            --image=${{ env.IMAGE }}:${{ github.sha }}
+            --image=${{ env.IMAGE }}:${{ github.sha }} \
+            --update-env-vars='^@^DASHSCOPE_API_KEY=${{ secrets.DASHSCOPE_API_KEY }}@DASHSCOPE_BASE_URL=${{ secrets.DASHSCOPE_BASE_URL }}@OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}@ADMIN_TASK_TOKEN=${{ secrets.ADMIN_TASK_TOKEN }}@AI_STUB=false@AI_MAX_CONCURRENT=36'

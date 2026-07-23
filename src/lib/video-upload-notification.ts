@@ -48,6 +48,12 @@ export async function notifyVideoUploaded(
         params.storageKey,
         SIGNED_URL_TTL_SECONDS
       );
+      // Providers without presigning (s3mini/local) return an app-relative
+      // proxy path — useless in an email, and the files proxy rejects video
+      // keys anyway. Fall back to the admin link.
+      if (signedUrl && !/^https?:\/\//.test(signedUrl)) {
+        signedUrl = null;
+      }
     } catch (error) {
       console.error('[video] signed URL generation failed', error);
     }

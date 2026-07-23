@@ -513,6 +513,54 @@ div[class*="border-t"][class*="bg-fd-secondary"]:not(:has(*)):not(
   }
 }
 
+/* Staff scan-flow motion (ported from the wherebear entry UX) */
+@keyframes wa-scanline {
+  0%,
+  100% {
+    top: 8%;
+  }
+  50% {
+    top: 88%;
+  }
+}
+.wa-scanline {
+  position: absolute;
+  left: 1.5rem;
+  right: 1.5rem;
+  animation: wa-scanline 2.4s ease-in-out infinite;
+}
+
+@keyframes wa-sweep {
+  0% {
+    left: -35%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+.wa-sweep {
+  animation: wa-sweep 1.2s ease-in-out infinite;
+}
+
+@keyframes wa-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.wa-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(0, 0, 0, 0.06) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: wa-shimmer 1.6s linear infinite;
+}
+
 .wa-float {
   animation: wa-float 4s ease-in-out infinite;
 }

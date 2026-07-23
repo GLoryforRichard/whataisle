@@ -1,5 +1,7 @@
 export const VIDEO_CHUNK_BYTES = 4 * 1024 * 1024;
-export const MAX_VIDEO_BYTES = 5 * 1024 * 1024 * 1024;
+// 4.9 GiB — kept under Cloudflare R2's single-PUT limit (~4.995 GiB) so the
+// chunk-assembly put() at /api/owner/video/complete never exceeds it.
+export const MAX_VIDEO_BYTES = Math.floor(4.9 * 1024 * 1024 * 1024);
 export const MAX_VIDEO_DURATION_SECONDS = 30 * 60;
 export const MAX_VIDEO_CHUNKS = Math.ceil(MAX_VIDEO_BYTES / VIDEO_CHUNK_BYTES);
 

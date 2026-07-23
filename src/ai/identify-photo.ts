@@ -1,9 +1,8 @@
 import 'server-only';
 
-import { ThinkingLevel } from '@google/genai';
 import sharp from 'sharp';
-import { generateContentWithHedge, isAiConfigured } from './client';
-import { GEN_MODEL } from './models';
+import { chatWithHedge, isAiConfigured } from './client';
+import { VISION_MODEL } from './models';
 import { type UsageTotals, extractUsage } from './usage';
 
 /**
@@ -56,34 +55,20 @@ export async function identifyProductFromPhoto(
       ? '\n\nIf the product name is Chinese, answer in Chinese.'
       : '';
 
-  const result = await generateContentWithHedge(
+  const result = await chatWithHedge(
     {
-      model: GEN_MODEL,
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { text: PROMPT + hint },
-            {
-              inlineData: {
-                data: jpeg.toString('base64'),
-                mimeType: 'image/jpeg',
-              },
-            },
-          ],
-        },
+      model: VISION_MODEL,
+      parts: [
+        { text: PROMPT + hint },
+        { image: { base64: jpeg.toString('base64'), mimeType: 'image/jpeg' } },
       ],
-      config: {
-        temperature: 0.2,
-        thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL },
-      },
+      temperature: 0.2,
+      thinking: false,
     },
     5000
   );
   const usage = extractUsage(result, 1);
-  let text = (result.text ?? '')
-    .trim()
-    .replace(/^["'“”「」[(]+|["'“”」)\]]+$/g, '');
+  let text = result.text.trim().replace(/^["'“”「」[(]+|["'“”」)\]]+$/g, '');
   if (/^\(?unclear\)?$/i.test(text)) text = '';
   return { text, usage };
 }

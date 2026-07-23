@@ -1,6 +1,6 @@
+import { ASR_MODEL, GEN_MODEL } from '@/ai/models';
 import { transcribeAudio } from '@/ai/transcribe';
 import { recordUsage } from '@/ai/usage';
-import { GEN_MODEL } from '@/ai/models';
 import { checkRateLimit, hashIp } from '@/lib/rate-limit';
 import { getRequestStore } from '@/lib/store-context';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -51,12 +51,22 @@ export async function POST(req: NextRequest) {
       audio.type || 'audio/webm',
       lang
     );
+    const latencyMs = Date.now() - started;
+    // Two models per voice search now: one ASR row (inputTokens = audio
+    // seconds) and one cleanup-LLM row, so per-model cost math stays honest.
+    await recordUsage({
+      storeId: store.id,
+      kind: 'transcribe',
+      model: ASR_MODEL,
+      usage: result.asrUsage,
+      latencyMs,
+    });
     await recordUsage({
       storeId: store.id,
       kind: 'transcribe',
       model: GEN_MODEL,
-      usage: result.usage,
-      latencyMs: Date.now() - started,
+      usage: result.llmUsage,
+      latencyMs,
     });
     return NextResponse.json({
       text: result.text,

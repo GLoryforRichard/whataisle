@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { generateContentWithRetry, isAiConfigured } from './client';
+import { chatWithRetry, isAiConfigured } from './client';
 import { GEN_MODEL } from './models';
 import { stubAliases } from './stub';
 import { type UsageTotals, EMPTY_USAGE, extractUsage } from './usage';
@@ -90,29 +90,25 @@ export async function generateAliasesBatch(
     return { aliasesByName, usage: { ...EMPTY_USAGE } };
   }
 
-  const result = await generateContentWithRetry({
+  const result = await chatWithRetry({
     model: GEN_MODEL,
-    contents: [
+    parts: [
+      { text: BATCH_PROMPT },
       {
-        role: 'user',
-        parts: [
-          { text: BATCH_PROMPT },
-          {
-            text:
-              (opts.shelfContext
-                ? `Shelf context: ${opts.shelfContext}\n\n`
-                : '') + `Canonical names:\n${JSON.stringify(names)}`,
-          },
-        ],
+        text:
+          (opts.shelfContext ? `Shelf context: ${opts.shelfContext}\n\n` : '') +
+          `Canonical names:\n${JSON.stringify(names)}`,
       },
     ],
-    config: { responseMimeType: 'application/json', temperature: 0.4 },
+    json: true,
+    temperature: 0.4,
+    thinking: false,
   });
   const usage = extractUsage(result, 0);
 
   const aliasesByName: Record<string, ProductAliases> = {};
   try {
-    const parsed = JSON.parse(result.text ?? '{}') as Record<string, unknown>;
+    const parsed = JSON.parse(result.text || '{}') as Record<string, unknown>;
     for (const name of names) {
       const raw = parsed[name] as Record<string, unknown> | undefined;
       if (!raw) {

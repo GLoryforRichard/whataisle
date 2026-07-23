@@ -24,25 +24,70 @@ export function addUsage(a: UsageTotals, b: Partial<UsageTotals>): UsageTotals {
   };
 }
 
-/** Pull token counts off a Gemini SDK response, defensively. */
+/**
+ * Pull token counts off a normalized client.ts result, defensively.
+ *
+ * Convention: for ASR calls (billed per audio second, not per token),
+ * inputTokens carries audio seconds when the provider reports them — see
+ * transcribeWithAsr in client.ts and ASR_PRICE_PER_SECOND_USD below.
+ */
 export function extractUsage(
   resp:
-    | {
-        usageMetadata?: {
-          promptTokenCount?: number;
-          candidatesTokenCount?: number;
-        };
-      }
+    | { usage?: { inputTokens?: number; outputTokens?: number } }
     | undefined
     | null,
   images = 0
 ): Partial<UsageTotals> {
-  const meta = resp?.usageMetadata;
   return {
-    inputTokens: meta?.promptTokenCount ?? 0,
-    outputTokens: meta?.candidatesTokenCount ?? 0,
+    inputTokens: resp?.usage?.inputTokens ?? 0,
+    outputTokens: resp?.usage?.outputTokens ?? 0,
     images,
   };
+}
+
+/**
+ * USD per 1M tokens, DashScope International (Singapore), base tier —
+ * verified 2026-07-12 from
+ * https://www.alibabacloud.com/help/en/model-studio/model-pricing.
+ * Keyed by exact model id; env-overridden models fall back to null (shown as
+ * "—" in the back office) rather than a wrong estimate.
+ */
+const MODEL_PRICING: Record<
+  string,
+  { inputPerMTok: number; outputPerMTok: number }
+> = {
+  'qwen3.5-flash': { inputPerMTok: 0.1, outputPerMTok: 0.4 },
+  'qwen3.5-plus': { inputPerMTok: 0.4, outputPerMTok: 2.4 },
+  'qwen3-vl-plus': { inputPerMTok: 0.2, outputPerMTok: 1.6 },
+  'text-embedding-v4': { inputPerMTok: 0.07, outputPerMTok: 0 },
+};
+
+/**
+ * qwen3-asr-flash bills per audio second, not per token (output text is
+ * free); its usage rows carry audio seconds in inputTokens (see extractUsage
+ * above).
+ */
+const ASR_PRICE_PER_SECOND_USD = 0.000035;
+
+const ASR_MODEL_PREFIX = 'qwen3-asr';
+
+/** Estimated USD cost of a usage total, or null when the price is unknown. */
+export function estimateCostUsd(
+  model: string,
+  usage: UsageTotals
+): number | null {
+  if (model.startsWith(ASR_MODEL_PREFIX)) {
+    return ASR_PRICE_PER_SECOND_USD > 0
+      ? usage.inputTokens * ASR_PRICE_PER_SECOND_USD
+      : null;
+  }
+  const p = MODEL_PRICING[model];
+  if (!p || (p.inputPerMTok === 0 && p.outputPerMTok === 0)) return null;
+  return (
+    (usage.inputTokens * p.inputPerMTok +
+      usage.outputTokens * p.outputPerMTok) /
+    1_000_000
+  );
 }
 
 /**

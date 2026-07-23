@@ -33,7 +33,8 @@ export default async function AdminCostsPage({ params }: PageProps) {
                 <th className="py-2 pr-4">{t('calls')}</th>
                 <th className="py-2 pr-4">{t('inputTokens')}</th>
                 <th className="py-2 pr-4">{t('outputTokens')}</th>
-                <th className="py-2">{t('images')}</th>
+                <th className="py-2 pr-4">{t('images')}</th>
+                <th className="py-2">{t('estCost')}</th>
               </tr>
             </thead>
             <tbody>
@@ -54,7 +55,12 @@ export default async function AdminCostsPage({ params }: PageProps) {
                   <td className="py-2 pr-4">
                     {r.outputTokens.toLocaleString()}
                   </td>
-                  <td className="py-2">{r.images}</td>
+                  <td className="py-2 pr-4">{r.images}</td>
+                  <td className="py-2">
+                    {r.estimatedCostUsd === null
+                      ? '—'
+                      : `$${r.estimatedCostUsd.toFixed(2)}`}
+                  </td>
                 </tr>
               ))}
             </tbody>

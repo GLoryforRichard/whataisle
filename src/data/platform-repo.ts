@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { estimateCostUsd } from '@/ai/usage';
 import { getDb } from '@/db';
 import { sql } from 'drizzle-orm';
 
@@ -105,17 +106,22 @@ export interface CostRow {
   inputTokens: number;
   outputTokens: number;
   images: number;
+  /** Estimated month USD across priced models; null when no price is known. */
+  estimatedCostUsd: number | null;
   /** True when this store's month usage looks abnormal (possible scraping). */
   anomaly: boolean;
 }
 
 export async function costByStore(): Promise<CostRow[]> {
   const db = await getDb();
+  // Grouped by model so each model's pricing applies to its own token counts,
+  // then folded into one row per store.
   const rows = (await db.execute(sql`
     SELECT
       au.store_id AS "storeId",
       s.display_name AS "displayName",
       s.handle,
+      au.model,
       count(*)::int AS calls,
       coalesce(sum(au.input_tokens),0)::int AS "inputTokens",
       coalesce(sum(au.output_tokens),0)::int AS "outputTokens",
@@ -123,32 +129,57 @@ export async function costByStore(): Promise<CostRow[]> {
     FROM ai_usage_log au
     LEFT JOIN store s ON s.id = au.store_id
     WHERE au.created_at >= date_trunc('month', now())
-    GROUP BY au.store_id, s.display_name, s.handle
-    ORDER BY calls DESC
+    GROUP BY au.store_id, s.display_name, s.handle, au.model
   `)) as unknown as Array<{
     storeId: string | null;
     displayName: string | null;
     handle: string | null;
+    model: string;
     calls: number;
     inputTokens: number;
     outputTokens: number;
     images: number;
   }>;
 
-  const calls = rows.map((r) => Number(r.calls));
+  const byStore = new Map<string, CostRow>();
+  for (const r of rows) {
+    const key = r.storeId ?? '';
+    let row = byStore.get(key);
+    if (!row) {
+      row = {
+        storeId: r.storeId,
+        displayName: r.displayName,
+        handle: r.handle,
+        calls: 0,
+        inputTokens: 0,
+        outputTokens: 0,
+        images: 0,
+        estimatedCostUsd: null,
+        anomaly: false,
+      };
+      byStore.set(key, row);
+    }
+    row.calls += Number(r.calls);
+    row.inputTokens += Number(r.inputTokens);
+    row.outputTokens += Number(r.outputTokens);
+    row.images += Number(r.images);
+    const cost = estimateCostUsd(r.model, {
+      inputTokens: Number(r.inputTokens),
+      outputTokens: Number(r.outputTokens),
+      images: Number(r.images),
+    });
+    if (cost !== null) {
+      row.estimatedCostUsd = (row.estimatedCostUsd ?? 0) + cost;
+    }
+  }
+
+  const result = [...byStore.values()].sort((a, b) => b.calls - a.calls);
   // Anomaly = a store whose call volume is a large multiple of the median
   // (a crude scraping/misuse signal; the platform alerts, never auto-cuts §7).
-  const sorted = [...calls].sort((a, b) => a - b);
+  const sorted = result.map((r) => r.calls).sort((a, b) => a - b);
   const median = sorted.length ? sorted[Math.floor(sorted.length / 2)] : 0;
-  return rows.map((r) => ({
-    storeId: r.storeId,
-    displayName: r.displayName,
-    handle: r.handle,
-    calls: Number(r.calls),
-    inputTokens: Number(r.inputTokens),
-    outputTokens: Number(r.outputTokens),
-    images: Number(r.images),
-    anomaly:
-      median > 0 && Number(r.calls) > median * 8 && Number(r.calls) > 100,
-  }));
+  for (const r of result) {
+    r.anomaly = median > 0 && r.calls > median * 8 && r.calls > 100;
+  }
+  return result;
 }

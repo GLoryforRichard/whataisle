@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
   /* config options here */
   devIndicators: false,
 
+  // heic-convert lazy-loads a wasm-backed libheif build; bundling it through
+  // the server compiler breaks it, so keep it external (sharp is external by
+  // Next's defaults).
+  serverExternalPackages: ['heic-convert'],
+
   // https://nextjs.org/docs/architecture/nextjs-compiler#remove-console
   // Remove all console.* calls in production only
   compiler: {

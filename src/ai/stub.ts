@@ -3,7 +3,7 @@ import 'server-only';
 import { createHash } from 'node:crypto';
 
 /**
- * Deterministic stub AI, used when no Gemini credentials are configured
+ * Deterministic stub AI, used when no DashScope credentials are configured
  * (isAiConfigured() === false). Lets the scan → dedup → save → alias → embed →
  * seen-count pipeline and the search pipeline be exercised end-to-end offline
  * (local dev without a key, CI without burning quota).
@@ -35,36 +35,39 @@ function hashInt(input: string): number {
   return h.readUInt32BE(0);
 }
 
-export interface StubProduct {
-  name: string;
-  nameZh: string;
-  category: string;
-  confidence: 'high' | 'medium' | 'low';
+export interface StubBox {
+  label: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
 }
 
 /**
- * Deterministically pick 2–4 catalog items for a shelf photo, seeded by a
- * photo key so re-scanning the same photo is idempotent but different photos
- * yield different products.
+ * Deterministic fake shelf layout for the scan engine: 2–4 catalog items
+ * laid out as shelf rows (fractional coords), seeded by a photo key. Used by
+ * both the staff scan and the landing try-out when OpenRouter is not
+ * configured, so both flows can be exercised fully offline.
  */
-export function stubDetectProducts(seed: string): StubProduct[] {
+export function stubScanBoxes(seed: string): StubBox[] {
   const base = hashInt(seed);
   const count = 2 + (base % 3); // 2–4
-  const picks: StubProduct[] = [];
+  const boxes: StubBox[] = [];
   const used = new Set<number>();
   for (let i = 0; i < count; i++) {
     const idx = (base + i * 7) % STUB_CATALOG.length;
     if (used.has(idx)) continue;
     used.add(idx);
-    const item = STUB_CATALOG[idx];
-    picks.push({
-      name: item.name,
-      nameZh: item.zh,
-      category: item.category,
-      confidence: 'high',
+    const x = 0.08 + ((base >>> (i * 3)) % 4) * 0.17;
+    boxes.push({
+      label: STUB_CATALOG[idx].name,
+      x: Math.min(x, 0.68),
+      y: 0.12 + i * 0.22,
+      w: 0.24,
+      h: 0.16,
     });
   }
-  return picks;
+  return boxes;
 }
 
 /** Deterministic bilingual alias set for the stub. */

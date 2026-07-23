@@ -1,11 +1,10 @@
 import 'server-only';
 
 import { type Candidate, searchRepo } from '@/data/search-repo';
-import { ThinkingLevel } from '@google/genai';
-import { generateContentWithHedge, isAiConfigured } from './client';
+import { chatWithHedge, isAiConfigured } from './client';
 import { embedQuery } from './embeddings';
 import { GEN_MODEL } from './models';
-import { recordUsage } from './usage';
+import { extractUsage, recordUsage } from './usage';
 
 /**
  * Fixed (non-agentic) shopper search pipeline:
@@ -100,22 +99,18 @@ async function bucketize(
         category: c.category,
       })),
     });
-    const result = await generateContentWithHedge({
+    const result = await chatWithHedge({
       model: GEN_MODEL,
-      contents: [
-        { role: 'user', parts: [{ text: BUCKET_PROMPT }, { text: ctx }] },
-      ],
-      config: {
-        responseMimeType: 'application/json',
-        temperature: 0.2,
-        thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL },
-      },
+      parts: [{ text: BUCKET_PROMPT }, { text: ctx }],
+      json: true,
+      temperature: 0.2,
+      thinking: false,
     });
     await recordUsage({
       storeId,
       kind: 'answer',
       model: GEN_MODEL,
-      usage: { inputTokens: 0, outputTokens: 0, images: 0 },
+      usage: extractUsage(result, 0),
       latencyMs: Date.now() - started,
     });
     const fromIdx = (arr: unknown): Candidate[] =>
@@ -125,7 +120,7 @@ async function bucketize(
             .filter((c): c is Candidate => !!c)
             .slice(0, 5)
         : [];
-    const p = JSON.parse(result.text ?? '{}');
+    const p = JSON.parse(result.text || '{}');
     const keep = fromIdx(p.keep);
     const guess = fromIdx(p.guess);
     // Fail-open: a garbled reply falls back to the deterministic bucketing.

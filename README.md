@@ -24,7 +24,7 @@ cp env.example .env       # then fill in secrets (see comments); generate the
                           # `openssl rand -base64 32`
 pnpm install
 pnpm db:migrate           # applies schema + pgvector/pg_trgm extensions
-pnpm seed                 # two isolated demo stores (see below)
+pnpm seed                 # three isolated demo stores (see below)
 pnpm dev                  # http://localhost:3000
 ```
 
@@ -39,23 +39,29 @@ pnpm dev                  # http://localhost:3000
 |-------|-----------|-------------|-----------|
 | Demo Market | `demo.localhost:3000` | `demo-owner@example.test` / `Demo12345678!` | `1234` |
 | Second Mart | `mart2.localhost:3000` | `mart2-owner@example.test` / `Demo12345678!` | `5678` |
+| Test Store | `teststore.localhost:3000` | `owner@example.test` / `Demo12345678!` | `9999` |
 
-Two stores exist specifically so tenant isolation is testable from day one.
+Multiple stores exist specifically so tenant isolation is testable from day
+one; Test Store additionally ships a published floor map.
 
-### AI (Gemini)
+### AI (Qwen via DashScope International)
 
 The AI pipeline (shelf vision, aliases, embeddings, voice/photo, answer
-synthesis) runs against Gemini. Provide credentials one of two ways:
-
-- **AI Studio:** set `GEMINI_API_KEY` (free tier).
-- **Vertex (GCP):** `gcloud auth application-default login`, set
-  `GOOGLE_CLOUD_PROJECT`.
+synthesis) runs against Qwen models on DashScope International (Singapore).
+Set `DASHSCOPE_API_KEY` from the Alibaba Cloud Model Studio console. Model
+ids default in `src/ai/models.ts` (`qwen3.5-flash`, `qwen3-vl-plus`,
+`qwen3-asr-flash`, `text-embedding-v4`) and can be overridden with the
+`QWEN_*` env vars.
 
 **Offline / CI:** set `AI_STUB="true"` to run the entire pipeline with
 deterministic stub recognition — no credentials, no quota. The stub exercises
 all plumbing (scan → dedup → save → embeddings → search → answer tones); only
 semantic-match quality (e.g. Chinese partials matching via vector similarity)
-requires real Gemini.
+requires real AI.
+
+**After changing the embedding model** (or restoring old data), run
+`POST /api/admin/re-embed` as an admin — vectors from different embedding
+models live in different spaces and must be regenerated together.
 
 ## Testing
 
@@ -78,9 +84,10 @@ a shopper on one store can never see another store's products.
 - `src/app/[locale]/` — main site: marketing, auth, `/onboarding`, owner portal
   (`/manage/*`), platform back office (`/admin/*`).
 - `src/app/store/[handle]/` — per-store subdomain: shopper search + staff area.
-- `src/ai/` — Gemini pipeline (two-stage shelf vision, face blur, multilingual
-  aliases, embeddings, voice/photo, hybrid search, answer-tone synthesis,
-  guardrails, usage metering). Ported from the proven `wherebear` MVP.
+- `src/ai/` — AI layer: OpenRouter rows-hd shelf detection (`src/ai/scan/`,
+  ported from `whataisle-readshelf`) + Qwen/DashScope for multilingual aliases,
+  embeddings, voice/photo, hybrid search, answer-tone synthesis, guardrails,
+  usage metering.
 - `src/data/` — tenant-scoped data access. **All store-table access binds
   `storeId` here** — the isolation boundary (requirements §5).
 - `src/db/` — Drizzle schemas (`store.schema.ts`) and migrations.
