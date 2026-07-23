@@ -19,6 +19,14 @@ const nextConfig: NextConfig = {
   // Next's defaults).
   serverExternalPackages: ['heic-convert'],
 
+  // sharp ≥0.33 links libvips natively (@rpath into @img/sharp-libvips-*, no
+  // JS require), so output file tracing can't see it and the standalone build
+  // ships a sharp that dies with ERR_DLOPEN_FAILED on first use. Force the
+  // platform libvips package (pnpm layout) into every route's trace.
+  outputFileTracingIncludes: {
+    '/**': ['./node_modules/.pnpm/@img*/**/*'],
+  },
+
   // https://nextjs.org/docs/architecture/nextjs-compiler#remove-console
   // Remove all console.* calls in production only
   compiler: {
