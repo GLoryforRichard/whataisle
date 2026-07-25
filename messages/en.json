@@ -968,6 +968,8 @@
         "savedTitle": "All set — memory saved.",
         "savedStats": "{created} new · {updated} updated",
         "scanAnother": "Scan another shelf",
+        "goFind": "Find a product",
+        "goHome": "Store home",
         "saveError": "Couldn't save. Please try again.",
         "seenOnce": "seen 1×",
         "testSearchCta": "Try a search",

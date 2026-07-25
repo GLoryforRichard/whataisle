@@ -83,9 +83,10 @@ export function ScanFlow({
 }) {
   const t = useTranslations('Store.staff.scan');
   const locale = useLocale();
-  const [shelf, setShelf] = useState<Shelf | null>(
-    shelves.length === 1 ? shelves[0] : null
-  );
+  // Deliberately not auto-selected even when there is one shelf: picking the
+  // shelf is step one of the flow, and skipping it for some stores makes the
+  // screen mean different things in different stores.
+  const [shelf, setShelf] = useState<Shelf | null>(null);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [removedKeys, setRemovedKeys] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
@@ -481,6 +482,9 @@ export function ScanFlow({
             </p>
           </>
         ) : null}
+        {/* Kept as a fallback rather than going map-only: owners can add
+            shelves by hand at /manage/shelves, and those never appear on the
+            drawn map — map-only would make them unreachable. */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {shelves.map((s) => (
             <button
@@ -826,9 +830,29 @@ export function ScanFlow({
                   updated: saveResult.updated,
                 })}
               </p>
-              <Button size="lg" className="mt-3 w-full" onClick={scanAnother}>
-                {t('scanAnother')}
-              </Button>
+              <div className="mt-3 flex flex-col gap-2">
+                <Button size="lg" className="w-full" onClick={scanAnother}>
+                  {t('scanAnother')}
+                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="flex-1"
+                    asChild
+                  >
+                    <a href="/find">{t('goFind')}</a>
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="flex-1"
+                    asChild
+                  >
+                    <a href="/">{t('goHome')}</a>
+                  </Button>
+                </div>
+              </div>
             </>
           ) : null}
         </div>

@@ -968,6 +968,8 @@
         "savedTitle": "完成——已存入门店记忆。",
         "savedStats": "新增 {created} · 更新 {updated}",
         "scanAnother": "再扫一个货架",
+        "goFind": "去找商品",
+        "goHome": "回首页",
         "saveError": "保存失败，请重试。",
         "seenOnce": "见过 1 次",
         "testSearchCta": "试搜一下",
