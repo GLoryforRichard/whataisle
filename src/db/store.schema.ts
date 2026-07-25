@@ -245,39 +245,6 @@ export const salesLead = pgTable(
   })
 );
 
-export type StoreInviteStatus = 'pending' | 'accepted' | 'revoked';
-
-export const storeInvite = pgTable(
-  'store_invite',
-  {
-    id: text('id').primaryKey(),
-    email: text('email').notNull(),
-    tokenHash: text('token_hash').notNull(),
-    status: text('status')
-      .notNull()
-      .default('pending')
-      .$type<StoreInviteStatus>(),
-    createdByUserId: text('created_by_user_id')
-      .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    acceptedByUserId: text('accepted_by_user_id').references(() => user.id, {
-      onDelete: 'set null',
-    }),
-    expiresAt: timestamp('expires_at').notNull(),
-    acceptedAt: timestamp('accepted_at'),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-  },
-  (table) => ({
-    storeInviteTokenHashIdx: uniqueIndex('store_invite_token_hash_idx').on(
-      table.tokenHash
-    ),
-    storeInviteEmailStatusIdx: index('store_invite_email_status_idx').on(
-      table.email,
-      table.status
-    ),
-  })
-);
-
 export type JobType =
   | 'shelf_scan'
   | 'product_enrichment'

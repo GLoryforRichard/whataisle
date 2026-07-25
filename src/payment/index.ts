@@ -1,5 +1,4 @@
 import { websiteConfig } from '@/config/website';
-import { CreemProvider } from './provider/creem';
 import { StripeProvider } from './provider/stripe';
 import type {
   CheckoutResult,
@@ -17,7 +16,6 @@ const providerRegistry: Partial<
   Record<PaymentProviderName, PaymentProviderFactory>
 > = {
   stripe: () => new StripeProvider(),
-  creem: () => new CreemProvider(),
 };
 
 let paymentProvider: PaymentProvider | null = null;

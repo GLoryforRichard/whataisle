@@ -4,7 +4,7 @@ import {
   addRegisterGiftCredits,
 } from '@/credits/credits';
 import { getDbSync } from '@/db/index';
-import { storeInvite, user } from '@/db/schema';
+import { user } from '@/db/schema';
 import { defaultMessages } from '@/i18n/messages';
 import { LOCALE_COOKIE_NAME, routing } from '@/i18n/routing';
 import { sendEmail } from '@/mail';
@@ -19,7 +19,6 @@ import type { Locale } from 'next-intl';
 import { getAllPricePlans } from './price-plan';
 import { getBaseUrl, getUrlWithLocaleInCallbackUrl } from './urls';
 import { isE2ETestMode } from './e2e';
-import { getValidStoreInvite, isPublicSignupEnabled } from './store-invites';
 
 /**
  * Better Auth configuration
@@ -97,7 +96,6 @@ export const auth = betterAuth({
           google: {
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            disableImplicitSignUp: !isPublicSignupEnabled(),
           },
         }
       : {},
@@ -150,48 +148,6 @@ export const auth = betterAuth({
       allowNormalizedSignin: false,
     }),
   ],
-  hooks: {
-    before: createAuthMiddleware(async (ctx) => {
-      if (ctx.path !== '/sign-up/email' || isPublicSignupEnabled()) return;
-      const body = (ctx.body ?? {}) as Record<string, unknown>;
-      const token =
-        typeof body.inviteToken === 'string' ? body.inviteToken : undefined;
-      const email =
-        typeof body.email === 'string' ? body.email.toLowerCase() : '';
-      const invite = await getValidStoreInvite(token);
-      if (!invite || invite.email !== email) {
-        throw new APIError('FORBIDDEN', {
-          code: 'STORE_INVITE_REQUIRED',
-          message: 'A valid store invitation is required.',
-        });
-      }
-    }),
-    after: createAuthMiddleware(async (ctx) => {
-      if (ctx.path !== '/sign-up/email' || isPublicSignupEnabled()) return;
-      const body = (ctx.body ?? {}) as Record<string, unknown>;
-      const token =
-        typeof body.inviteToken === 'string' ? body.inviteToken : undefined;
-      const invite = await getValidStoreInvite(token);
-      if (!invite) return;
-
-      const createdUser = await getDbSync()
-        .select({ id: user.id, email: user.email })
-        .from(user)
-        .where(eq(user.email, invite.email))
-        .limit(1);
-      if (!createdUser[0]) return;
-      await getDbSync()
-        .update(storeInvite)
-        .set({
-          status: 'accepted',
-          acceptedAt: new Date(),
-          acceptedByUserId: createdUser[0].id,
-        })
-        .where(
-          and(eq(storeInvite.id, invite.id), eq(storeInvite.status, 'pending'))
-        );
-    }),
-  },
   onAPIError: {
     // https://www.better-auth.com/docs/reference/options#onapierror
     errorURL: '/auth/error',

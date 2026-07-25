@@ -30,14 +30,10 @@ import { SocialLoginButton } from './social-login-button';
 
 interface RegisterFormProps {
   callbackUrl?: string;
-  inviteToken?: string;
-  invitedEmail?: string;
 }
 
 export const RegisterForm = ({
   callbackUrl: propCallbackUrl,
-  inviteToken,
-  invitedEmail,
 }: RegisterFormProps) => {
   const t = useTranslations('AuthPage.register');
   const searchParams = useSearchParams();
@@ -83,7 +79,7 @@ export const RegisterForm = ({
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
-      email: invitedEmail ?? '',
+      email: '',
       password: '',
       name: '',
       captchaToken: '',
@@ -134,9 +130,6 @@ export const RegisterForm = ({
       password: values.password,
       name: values.name,
       callbackURL: callbackUrl,
-      inviteToken,
-    } as Parameters<typeof authClient.signUp.email>[0] & {
-      inviteToken?: string;
     };
 
     await authClient.signUp.email(signUpPayload, {
@@ -216,7 +209,7 @@ export const RegisterForm = ({
                     <FormControl>
                       <Input
                         {...field}
-                        disabled={isPending || !!invitedEmail}
+                        disabled={isPending}
                         placeholder="name@example.com"
                         type="email"
                       />

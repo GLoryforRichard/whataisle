@@ -246,10 +246,7 @@
       "emailRequired": "Please enter your email",
       "passwordRequired": "Please enter your password",
       "captchaInvalid": "Captcha verification failed",
-      "captchaError": "Captcha verification error",
-      "inviteOnlyTitle": "WhatAisle is invite-only",
-      "inviteOnlyDescription": "We currently onboard Ontario retailers with a guided setup. Request access and our team will contact you.",
-      "requestAccess": "Request access"
+      "captchaError": "Captcha verification error"
     },
     "forgotPassword": {
       "title": "Forgot Password",

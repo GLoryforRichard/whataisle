@@ -3,34 +3,24 @@ import type { PaymentConfig, WebsiteConfig } from '@/types';
 
 const isE2ETestMode = process.env.NEXT_PUBLIC_E2E_TEST_MODE === 'true';
 
-// Payment provider controlled by env var: 'stripe' | 'creem'
-const paymentProvider = (process.env.NEXT_PUBLIC_PAYMENT_PROVIDER ||
-  'stripe') as PaymentConfig['provider'];
-const isCreem = paymentProvider === 'creem';
+// Only Stripe is wired end to end (checkout + webhook + portal). Creem was
+// registered as an alternative provider but never had a webhook route, so
+// selecting it would have taken payment and never fulfilled — removed.
+const paymentProvider: PaymentConfig['provider'] = 'stripe';
 
-// Resolve price/product IDs based on the active payment provider
+// Non-null assertions are deliberate and must stay. These are NEXT_PUBLIC_*,
+// i.e. inlined at build time, and deploy.yml passes only LIFETIME as a build
+// arg — the other six really are undefined in production. That is harmless
+// because their plans are disabled and their priceId is never read. Adding
+// validation here would crash the production build.
 const priceIds = {
-  proMonthly: isCreem
-    ? process.env.NEXT_PUBLIC_CREEM_PRODUCT_PRO_MONTHLY!
-    : process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY!,
-  proYearly: isCreem
-    ? process.env.NEXT_PUBLIC_CREEM_PRODUCT_PRO_YEARLY!
-    : process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY!,
-  lifetime: isCreem
-    ? process.env.NEXT_PUBLIC_CREEM_PRODUCT_LIFETIME!
-    : process.env.NEXT_PUBLIC_STRIPE_PRICE_LIFETIME!,
-  creditsBasic: isCreem
-    ? process.env.NEXT_PUBLIC_CREEM_PRODUCT_CREDITS_BASIC!
-    : process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDITS_BASIC!,
-  creditsStandard: isCreem
-    ? process.env.NEXT_PUBLIC_CREEM_PRODUCT_CREDITS_STANDARD!
-    : process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDITS_STANDARD!,
-  creditsPremium: isCreem
-    ? process.env.NEXT_PUBLIC_CREEM_PRODUCT_CREDITS_PREMIUM!
-    : process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDITS_PREMIUM!,
-  creditsEnterprise: isCreem
-    ? process.env.NEXT_PUBLIC_CREEM_PRODUCT_CREDITS_ENTERPRISE!
-    : process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDITS_ENTERPRISE!,
+  proMonthly: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY!,
+  proYearly: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY!,
+  lifetime: process.env.NEXT_PUBLIC_STRIPE_PRICE_LIFETIME!,
+  creditsBasic: process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDITS_BASIC!,
+  creditsStandard: process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDITS_STANDARD!,
+  creditsPremium: process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDITS_PREMIUM!,
+  creditsEnterprise: process.env.NEXT_PUBLIC_STRIPE_PRICE_CREDITS_ENTERPRISE!,
 };
 
 /**
