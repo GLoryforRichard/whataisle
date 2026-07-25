@@ -24,6 +24,12 @@ Built on [mksaas-template](https://mksaas.com). A fair amount of template
 machinery is retained but dormant — see "Dormant Template Leftovers" before
 assuming a feature is live.
 
+**The requirements document is `docs/REQUIREMENTS.zh.md`** (English:
+`docs/REQUIREMENTS.en.md`). Code comments throughout the repo cite it by
+section as `§5`, `§6`, `§7`, `§10` — that is this file. Read the relevant
+section before changing behavior it describes. It carries a sync note listing
+the parts that have since been withdrawn.
+
 ## Development Commands
 
 - `pnpm dev` — Next.js dev server on :3000
