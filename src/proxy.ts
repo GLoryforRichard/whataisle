@@ -1,6 +1,7 @@
 import { getSessionCookie } from 'better-auth/cookies';
 import createMiddleware from 'next-intl/middleware';
 import { type NextRequest, NextResponse } from 'next/server';
+import { storeHandleFromHost } from './config/reserved-handles';
 import { LOCALES, routing } from './i18n/routing';
 import {
   DEFAULT_LOGIN_REDIRECT,
@@ -51,18 +52,23 @@ export default async function proxy(req: NextRequest) {
   // middleware entirely — store pages read the locale from a cookie instead of
   // the URL, so shoppers see clean URLs like demo.whataisle.com/find?q=milk.
   // ---------------------------------------------------------------------------
-  const storeHandle = getStoreHandleFromHost(req.headers.get('host'));
+  const storeHandle = storeHandleFromHost(req.headers.get('host'));
   if (storeHandle) {
     // Reserved subdomains can never be registered, so they fall through to
     // the store lookup and render the "store not found" page (which links to
     // the main site). A cross-host redirect is avoided on purpose: Next
     // normalizes same-origin Locations to relative paths in dev, which loops.
+    //
+    // DO NOT reintroduce an `x-store-handle` request header here. This used to
+    // set one, and server code preferred it over Host — but the matcher below
+    // excludes /api, so on every store API route that header was neither set
+    // nor stripped and any client could forge it to act on another tenant.
+    // Nothing reads it now; the handle travels in the rewritten path, and
+    // server code derives tenancy from Host via storeHandleFromHost().
     const url = nextUrl.clone();
     url.pathname = `/store/${storeHandle}${nextUrl.pathname === '/' ? '' : nextUrl.pathname}`;
-    const requestHeaders = new Headers(req.headers);
-    requestHeaders.set('x-store-handle', storeHandle);
     console.log('<< proxy end, store rewrite:', url.pathname);
-    return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
+    return NextResponse.rewrite(url);
   }
 
   // Direct path access to /store/* on the main host is not a real surface —
@@ -155,26 +161,6 @@ function getCanonicalHostRedirect(req: NextRequest): NextResponse | null {
   if (hostname !== rootDomain) return null;
   const target = new URL(req.nextUrl.pathname + req.nextUrl.search, baseUrl);
   return NextResponse.redirect(target, 308);
-}
-
-/**
- * Extract the store handle from the request host, or null when the request
- * targets the main site (apex, www, unknown/foreign hosts, nested subdomains).
- *
- * Local dev uses <handle>.localhost:3000 — browsers resolve *.localhost to
- * loopback and treat it as a secure context.
- */
-function getStoreHandleFromHost(host: string | null): string | null {
-  if (!host) return null;
-  const rootDomain = (
-    process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'localhost'
-  ).toLowerCase();
-  const hostname = host.split(':')[0].toLowerCase();
-  if (hostname === rootDomain || hostname === `www.${rootDomain}`) return null;
-  if (!hostname.endsWith(`.${rootDomain}`)) return null;
-  const sub = hostname.slice(0, -(rootDomain.length + 1));
-  if (!sub || sub === 'www' || sub.includes('.')) return null;
-  return sub;
 }
 
 /**

@@ -115,6 +115,15 @@ Verifies the signed-in profile update flow.
 | 2 | Unknown and reserved hosts fail closed | Require the store-not-found page for an unknown handle and reserved `admin` subdomain. |
 | 3 | Staff PIN accepts and rejects correctly | Accept the demo store PIN and reject an incorrect PIN. |
 | 4 | Staff sessions are host-isolated | Authenticate on the demo store and verify the cookie cannot unlock the second store. |
+| 5 | Forged store header cannot unlock another store | POST demo's PIN to mart2's host with `x-store-handle: demo`; require 401. |
+| 6 | Forged store header cannot read another store's products | Search mart2's host for a demo product with `x-store-handle: demo`; require no leak. |
+| 7 | Forged store header cannot revive an unknown host | POST to an unknown store host with `x-store-handle: demo`; require 404. |
+
+Tests 5–7 are the regression for a fixed bypass: tenant identity was taken from
+an inbound `x-store-handle` header in preference to the Host, and the proxy
+matcher excludes `/api`, so the header was forgeable on every store API route.
+The Host-based cases above all passed while the bug was live — only a request
+that actually sends the header catches it.
 
 ## 7. Purchase Funnel And Paywall
 
@@ -131,7 +140,7 @@ Checkout itself stays out of E2E.
 | 2 | Unpaid owner is walled off | Register + create store, open `/manage/video`, expect redirect to `/onboarding/payment` with the $999 offer; POST `/api/owner/video/init` and require 402 `payment_required`. |
 | 3 | Paid owner reaches guided upload | Seed `hasPaid`, open `/onboarding/payment`, expect redirect to `/manage/video` with the filming checklist; `/api/owner/video/init` succeeds. |
 
-The current seven specs expand to 25 Playwright tests across the locale matrices.
+The current seven specs expand to 28 Playwright tests across the locale matrices.
 
 ## Deferred Coverage
 

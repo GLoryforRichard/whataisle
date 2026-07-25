@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { storeHandleFromHost } from '@/config/reserved-handles';
 import { getDb } from '@/db';
 import { store } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -39,28 +40,22 @@ export const getStoreByOwner = cache(
 );
 
 /**
- * Resolve the store handle for the current request.
+ * Resolve the store handle for the current request, from the Host header only.
  *
- * Page routes get `x-store-handle` from the proxy rewrite. API routes are
- * excluded from the proxy matcher, so for them the handle is derived from the
- * Host header with the same rules the proxy applies.
+ * This used to prefer an inbound `x-store-handle` header, which the proxy sets
+ * on the store-subdomain rewrite. That was a tenant-isolation bypass: the proxy
+ * matcher excludes `/api`, so on every store API route the header was neither
+ * set nor stripped and any client could forge it to operate on another store
+ * (unauthenticated cross-tenant reads, and staff sessions on a store the Host
+ * did not own). Host is the only source that cannot be forged this way.
+ *
+ * Safe for page routes too: `NextResponse.rewrite` forwards the original Host
+ * untouched, and no page route calls this — they take `params.handle` from the
+ * URL segment the proxy derived from that same Host.
  */
 export async function getRequestStoreHandle(): Promise<string | null> {
   const headerStore = await headers();
-  const fromProxy = headerStore.get('x-store-handle');
-  if (fromProxy) return fromProxy;
-
-  const host = headerStore.get('host');
-  if (!host) return null;
-  const rootDomain = (
-    process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'localhost'
-  ).toLowerCase();
-  const hostname = host.split(':')[0].toLowerCase();
-  if (hostname === rootDomain || hostname === `www.${rootDomain}`) return null;
-  if (!hostname.endsWith(`.${rootDomain}`)) return null;
-  const sub = hostname.slice(0, -(rootDomain.length + 1));
-  if (!sub || sub === 'www' || sub.includes('.')) return null;
-  return sub;
+  return storeHandleFromHost(headerStore.get('host'));
 }
 
 /**
@@ -76,16 +71,5 @@ export async function getRequestStore(): Promise<Store | null> {
   if (!handle) return null;
   const found = await getStoreByHandle(handle);
   if (!found || found.status !== 'live') return null;
-  return found;
-}
-
-/**
- * Like getRequestStore, but throws — for API routes that must be tenant-scoped.
- */
-export async function requireRequestStore(): Promise<Store> {
-  const found = await getRequestStore();
-  if (!found) {
-    throw new Error('Store not found for this request');
-  }
   return found;
 }

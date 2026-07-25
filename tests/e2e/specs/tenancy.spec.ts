@@ -85,3 +85,69 @@ test.describe('staff PIN isolation', () => {
     await context.close();
   });
 });
+
+test.describe('tenant identity comes from Host, not a request header', () => {
+  /**
+   * Regression for a real bypass: getRequestStoreHandle() used to prefer an
+   * inbound `x-store-handle` header over the Host. The proxy matcher excludes
+   * /api, so on store API routes that header was neither set nor stripped —
+   * forging it let anyone read another store's products unauthenticated, and
+   * unlock a staff session on a store the Host did not own.
+   *
+   * The Host-based isolation tests above all pass even with the bug present,
+   * because none of them send the header. These do.
+   */
+  const forged = { 'x-store-handle': 'demo' };
+
+  test('a forged store header cannot unlock another store with its PIN', async ({
+    request,
+  }) => {
+    // demo's PIN against mart2's host. Returned {ok:true} before the fix.
+    const res = await request.post(
+      storeUrl('mart2', '/api/store/staff/session'),
+      {
+        data: { pin: '1234' },
+        headers: { ...forged, 'x-forwarded-for': '10.0.0.4' },
+      }
+    );
+    expect(res.status()).toBe(401);
+  });
+
+  test('a forged store header cannot read another store products', async ({
+    request,
+  }) => {
+    // mart2 has no products; demo has Wang Korea Gochujang on B4.
+    const res = await request.get(
+      storeUrl('mart2', '/api/store/search?q=Gochujang&input=text'),
+      { headers: { ...forged, 'x-forwarded-for': '10.0.0.5' } }
+    );
+    const body = await res.text();
+
+    // Assert on the parsed candidates, not the raw body: a not-found answer
+    // legitimately echoes the query term back, so a bare substring check on
+    // "Gochujang" fails even when isolation is holding.
+    const result = body
+      .split('\n')
+      .find((l) => l.startsWith('data:') && l.includes('"candidates"'));
+    expect(result, 'search returned no result event').toBeTruthy();
+    const parsed = JSON.parse((result as string).slice('data:'.length));
+    expect(parsed.candidates).toEqual([]);
+
+    // The canonical product name and shelf code exist only in demo's data.
+    expect(body).not.toContain('Wang Korea Gochujang');
+    expect(body).not.toContain('shelfCode');
+  });
+
+  test('a forged store header cannot revive an unknown store host', async ({
+    request,
+  }) => {
+    const res = await request.post(
+      storeUrl('nosuchstore', '/api/store/staff/session'),
+      {
+        data: { pin: '1234' },
+        headers: { ...forged, 'x-forwarded-for': '10.0.0.6' },
+      }
+    );
+    expect(res.status()).toBe(404);
+  });
+});

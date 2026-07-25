@@ -93,3 +93,34 @@ export function isValidHandleFormat(handle: string): boolean {
 export function isReservedHandle(handle: string): boolean {
   return RESERVED_HANDLES.has(handle);
 }
+
+/**
+ * Derive a store handle from the request's Host header, or null when the host
+ * is the main site (apex / www), a foreign domain, or a malformed subdomain.
+ *
+ * THE tenant-identity function (requirements §5). Host is the only acceptable
+ * source: it is set by the client's DNS resolution and validated by the load
+ * balancer's TLS/vhost routing, so it cannot be forged the way an ordinary
+ * request header can. Both the proxy and the server-side store resolver call
+ * this — they used to carry byte-identical private copies, which is how they
+ * drifted into trusting a spoofable `x-store-handle` header instead.
+ *
+ * Lives here rather than in store-context.ts because the proxy runs before the
+ * server-only/db-importing modules and cannot import them.
+ */
+export function storeHandleFromHost(host: string | null): string | null {
+  if (!host) return null;
+  const rootDomain = (
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'localhost'
+  ).toLowerCase();
+  const hostname = host.split(':')[0].toLowerCase();
+  if (hostname === rootDomain || hostname === `www.${rootDomain}`) return null;
+  if (!hostname.endsWith(`.${rootDomain}`)) return null;
+  const sub = hostname.slice(0, -(rootDomain.length + 1));
+  if (!sub || sub === 'www' || sub.includes('.')) return null;
+  // Deliberately NOT filtered by isValidHandleFormat: reserved and malformed
+  // subdomains must still resolve to "store not found" rather than falling
+  // through to the main site. Registration enforces the format; routing only
+  // decides whether this host is a store host at all.
+  return sub;
+}
