@@ -118,6 +118,10 @@ export interface CostRow {
   estimatedCostUsd: number | null;
   /** metered + estimated; null only when both are null (renders as "—"). */
   totalCostUsd: number | null;
+  /** Distinct shelf photos scanned this month (the $/scan denominator). */
+  scans: number;
+  /** totalCostUsd / scans; null when either is unavailable. */
+  costPerScanUsd: number | null;
   /** True when this store's month usage looks abnormal (possible scraping). */
   anomaly: boolean;
 }
@@ -136,7 +140,18 @@ export async function costByStore(): Promise<CostRow[]> {
       coalesce(sum(au.input_tokens),0)::int AS "inputTokens",
       coalesce(sum(au.output_tokens),0)::int AS "outputTokens",
       coalesce(sum(au.images),0)::int AS images,
-      sum(au.cost_usd) AS "meteredCostUsd"
+      sum(au.cost_usd) AS "meteredCostUsd",
+      -- Distinct shelf photos this month. Correlated rather than folded into
+      -- the GROUP BY because one photo emits scan_rows + scan_detect +
+      -- scan_readout rows, usually under the same model id — counting it at
+      -- the (store, model) grain would multiply it by the number of stages.
+      -- IS NOT DISTINCT FROM: store_id is nullable (the landing try-out row).
+      (SELECT count(distinct x.ref_id)
+         FROM ai_usage_log x
+        WHERE x.store_id IS NOT DISTINCT FROM au.store_id
+          AND x.created_at >= date_trunc('month', now())
+          AND x.kind IN ('scan_rows','scan_detect','scan_readout')
+          AND x.ref_id IS NOT NULL)::int AS "scans"
     FROM ai_usage_log au
     LEFT JOIN store s ON s.id = au.store_id
     WHERE au.created_at >= date_trunc('month', now())
@@ -154,6 +169,7 @@ export async function costByStore(): Promise<CostRow[]> {
     // NULL so "unmetered" survives to the UI, and an int cast would truncate
     // sub-dollar spend to zero. postgres.js hands numeric back as a string.
     meteredCostUsd: string | null;
+    scans: number;
   }>;
 
   const byStore = new Map<string, CostRow>();
@@ -172,6 +188,9 @@ export async function costByStore(): Promise<CostRow[]> {
         meteredCostUsd: null,
         estimatedCostUsd: null,
         totalCostUsd: null,
+        // Store-level already (correlated subquery), so assign, never sum.
+        scans: Number(r.scans),
+        costPerScanUsd: null,
         anomaly: false,
       };
       byStore.set(key, row);
@@ -201,17 +220,49 @@ export async function costByStore(): Promise<CostRow[]> {
   }
 
   const result = [...byStore.values()];
-  // Anomaly = a store whose call volume is a large multiple of the median
-  // (a crude scraping/misuse signal; the platform alerts, never auto-cuts §7).
-  const sorted = result.map((r) => r.calls).sort((a, b) => a - b);
-  const median = sorted.length ? sorted[Math.floor(sorted.length / 2)] : 0;
+
+  // Totals first: the anomaly median below is taken over spend, which does not
+  // exist until this loop has run.
   for (const r of result) {
     r.totalCostUsd =
       r.meteredCostUsd === null && r.estimatedCostUsd === null
         ? null
         : (r.meteredCostUsd ?? 0) + (r.estimatedCostUsd ?? 0);
-    r.anomaly = median > 0 && r.calls > median * 8 && r.calls > 100;
+    // The number the $999 question actually turns on: cost per shelf photo,
+    // times shelves per store per year. Note the numerator includes this
+    // store's non-scan spend (search, aliases, voice), so it reads slightly
+    // high for a store that also gets heavy shopper traffic.
+    r.costPerScanUsd =
+      r.totalCostUsd !== null && r.scans > 0 ? r.totalCostUsd / r.scans : null;
   }
+
+  // Anomaly = a store far above the median (a crude scraping/misuse signal;
+  // the platform alerts, never auto-cuts, §7).
+  //
+  // Spend is the better signal now that it is real: 50 dense shelf scans cost
+  // far more than 400 cheap searches and would never trip a call-count rule.
+  // The call-count rule is kept as an OR so stores running only unpriced,
+  // env-overridden models — whose spend reads as $0 — are still covered.
+  const median = (values: number[]) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    return sorted.length ? sorted[Math.floor(sorted.length / 2)] : 0;
+  };
+  const callMedian = median(result.map((r) => r.calls));
+  const spendMedian = median(result.map((r) => r.totalCostUsd ?? 0));
+  // Absolute floors stop the rule firing on noise while the platform is small:
+  // with three stores the median is often ~0, and sub-cent months are normal.
+  const SPEND_FLOOR_USD = 1;
+  const CALL_FLOOR = 100;
+
+  for (const r of result) {
+    const spend = r.totalCostUsd ?? 0;
+    const spendAnomaly =
+      spendMedian > 0 && spend > spendMedian * 8 && spend > SPEND_FLOOR_USD;
+    const callAnomaly =
+      callMedian > 0 && r.calls > callMedian * 8 && r.calls > CALL_FLOOR;
+    r.anomaly = spendAnomaly || callAnomaly;
+  }
+
   // Sort by spend, not call count — now that real dollars exist they are the
   // founder-relevant ordering. Must run after the total loop above.
   return result.sort((a, b) => (b.totalCostUsd ?? 0) - (a.totalCostUsd ?? 0));

@@ -43,7 +43,9 @@ export default async function AdminCostsPage({ params }: PageProps) {
                 <th className="py-2 pr-4">{t('inputTokens')}</th>
                 <th className="py-2 pr-4">{t('outputTokens')}</th>
                 <th className="py-2 pr-4">{t('images')}</th>
-                <th className="py-2">{t('cost')}</th>
+                <th className="py-2 pr-4">{t('scans')}</th>
+                <th className="py-2 pr-4">{t('cost')}</th>
+                <th className="py-2">{t('costPerScan')}</th>
               </tr>
             </thead>
             <tbody>
@@ -71,7 +73,8 @@ export default async function AdminCostsPage({ params }: PageProps) {
                     {r.outputTokens.toLocaleString()}
                   </td>
                   <td className="py-2 pr-4">{r.images}</td>
-                  <td className="py-2">
+                  <td className="py-2 pr-4">{r.scans}</td>
+                  <td className="py-2 pr-4">
                     {r.totalCostUsd === null ? (
                       '—'
                     ) : (
@@ -88,6 +91,9 @@ export default async function AdminCostsPage({ params }: PageProps) {
                         ) : null}
                       </>
                     )}
+                  </td>
+                  <td className="py-2">
+                    {r.costPerScanUsd === null ? '—' : fmtUsd(r.costPerScanUsd)}
                   </td>
                 </tr>
               ))}

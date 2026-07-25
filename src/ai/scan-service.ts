@@ -338,7 +338,9 @@ export async function saveScannedProducts(input: {
     const res = await repo.upsertFromScan({
       canonicalName: p.canonicalName.trim(),
       nameZh: aliases.nameZh,
-      category: p.category ?? null,
+      // Prefer the client's value if the UI ever supplies one, else the
+      // category derived alongside the aliases from the canonical name.
+      category: p.category ?? aliases.category ?? null,
       searchText,
       embedding,
       thumbnailKey,

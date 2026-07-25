@@ -80,7 +80,8 @@ export function productRepo(storeId: string) {
       nameZh: string | null;
       category: string | null;
       searchText: string;
-      embedding: number[];
+      /** Null when the embedder skipped this text — stored as NULL, not noise. */
+      embedding: number[] | null;
       thumbnailKey: string | null;
       aliases: Array<{ alias: string; lang: string; source?: string }>;
       shelfId: string;
@@ -113,7 +114,11 @@ export function productRepo(storeId: string) {
             nameZh: input.nameZh ?? undefined,
             category: input.category ?? undefined,
             searchText: input.searchText,
-            embedding: embeddingValue,
+            // undefined (not null) when the embedder skipped this text, so
+            // drizzle omits the column and a previously good vector survives.
+            // Losing a working vector is worse than carrying a slightly stale
+            // one — the canonical name, which is the match key, is unchanged.
+            embedding: embeddingValue ?? undefined,
             thumbnailKey: input.thumbnailKey ?? undefined,
             status: 'active',
             updatedAt: new Date(),
@@ -286,8 +291,13 @@ export function productRepo(storeId: string) {
 
 export type ProductRepo = ReturnType<typeof productRepo>;
 
-/** Validate embedding dimensionality before it reaches the vector column. */
-function assertDim(vec: number[]): number[] {
+/**
+ * Validate embedding dimensionality before it reaches the vector column.
+ * Null passes through: a product whose text the embedder skipped is stored
+ * with a NULL vector and still matches via the trigram leg of hybrid search.
+ */
+function assertDim(vec: number[] | null): number[] | null {
+  if (vec === null) return null;
   if (vec.length !== EMBEDDING_DIM) {
     throw new Error(
       `embedding must be ${EMBEDDING_DIM} dims, got ${vec.length}`
@@ -298,5 +308,7 @@ function assertDim(vec: number[]): number[] {
 
 /** Format a JS number[] as a pgvector literal string (for raw SQL search). */
 export function toVectorLiteral(vec: number[]): string {
-  return `[${assertDim(vec).join(',')}]`;
+  // Non-null by construction: callers only reach this with a query embedding,
+  // and embedQuery throws rather than returning one it could not produce.
+  return `[${(assertDim(vec) as number[]).join(',')}]`;
 }

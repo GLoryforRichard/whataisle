@@ -1,7 +1,6 @@
 'use client';
 
 import { DividerWithText } from '@/components/auth/divider-with-text';
-import { GitHubIcon } from '@/components/icons/github';
 import { GoogleIcon } from '@/components/icons/google';
 import { Button } from '@/components/ui/button';
 import { websiteConfig } from '@/config/website';
@@ -28,12 +27,9 @@ export const SocialLoginButton = ({
   const t = useTranslations('AuthPage.login');
   const searchParams = useSearchParams();
   const locale = useLocale();
-  const [isLoading, setIsLoading] = useState<'google' | 'github' | null>(null);
+  const [isLoading, setIsLoading] = useState<'google' | null>(null);
 
-  if (
-    !websiteConfig.auth.enableGoogleLogin &&
-    !websiteConfig.auth.enableGithubLogin
-  ) {
+  if (!websiteConfig.auth.enableGoogleLogin) {
     return null;
   }
 
@@ -42,12 +38,12 @@ export const SocialLoginButton = ({
   const defaultCallbackUrl = getPathWithLocale(DEFAULT_LOGIN_REDIRECT, locale);
   const callbackUrl = propCallbackUrl || paramCallbackUrl || defaultCallbackUrl;
 
-  const onClick = async (provider: 'google' | 'github') => {
+  const onClick = async (provider: 'google') => {
     await authClient.signIn.social(
       {
         /**
          * The social provider id
-         * @example "github", "google"
+         * @example "google"
          */
         provider: provider,
         /**
@@ -107,22 +103,6 @@ export const SocialLoginButton = ({
             <GoogleIcon className="size-4 mr-2" />
           )}
           <span>{t('signInWithGoogle')}</span>
-        </Button>
-      )}
-      {websiteConfig.auth.enableGithubLogin && (
-        <Button
-          size="lg"
-          className="w-full"
-          variant="outline"
-          onClick={() => onClick('github')}
-          disabled={isLoading === 'github'}
-        >
-          {isLoading === 'github' ? (
-            <Loader2Icon className="mr-2 size-4 animate-spin" />
-          ) : (
-            <GitHubIcon className="size-4 mr-2" />
-          )}
-          <span>{t('signInWithGitHub')}</span>
         </Button>
       )}
     </div>

@@ -26,6 +26,41 @@ export interface ProductAliases {
   misspelling: string[];
   /** Best single Chinese display name, or null. */
   nameZh: string | null;
+  /**
+   * Coarse product category, constrained to PRODUCT_CATEGORIES.
+   *
+   * Derived here rather than in the vision pipeline on purpose: the category
+   * of "Gochujang" follows from the name, not the pixels, and this call
+   * already runs once per product batch — so it costs nothing extra and keeps
+   * the (unit-tested) grid readout returning names only. The previous
+   * two-stage vision pipeline emitted it and the rows-hd engine dropped it,
+   * which left search-pipeline's category-guess step reading null forever.
+   */
+  category: ProductCategory | null;
+}
+
+/**
+ * Fixed category set. Whitelisted on parse because the old vision pipeline
+ * drifted outside its own enum (it invented values like "ready-meal").
+ */
+export const PRODUCT_CATEGORIES = [
+  'sauce',
+  'noodle',
+  'snack',
+  'frozen',
+  'drink',
+  'dry-good',
+  'fresh',
+  'household',
+  'other',
+] as const;
+
+export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number];
+
+function coerceCategory(v: unknown): ProductCategory | null {
+  if (typeof v !== 'string') return null;
+  const c = v.trim().toLowerCase() as ProductCategory;
+  return PRODUCT_CATEGORIES.includes(c) ? c : null;
 }
 
 const EMPTY_ALIASES: ProductAliases = {
@@ -34,6 +69,7 @@ const EMPTY_ALIASES: ProductAliases = {
   pinyin: [],
   misspelling: [],
   nameZh: null,
+  category: null,
 };
 
 const BATCH_PROMPT = `You generate searchable aliases for grocery products in a bilingual (English + Chinese) supermarket. Shoppers search by typing, so aliases must catch the many ways a real customer might refer to each item.
@@ -43,13 +79,14 @@ For each canonical English product name, produce:
 - "zh": 1–3 Chinese names (simplified; add traditional only if clearly different). [] if there is no natural Chinese name.
 - "pinyin": pinyin/romanization of the Chinese names (space-separated syllables), matching "zh" order. [] if "zh" is [].
 - "misspelling": 0–3 common misspellings or phonetic guesses a shopper might type (e.g. "gochujang" -> "gochu jang", "kochujang").
+- "category": EXACTLY ONE of "sauce","noodle","snack","frozen","drink","dry-good","fresh","household","other". Never invent a value outside this list; use "other" when unsure.
 
 Return ONLY a JSON object (no prose, no code fence) keyed by the input canonical name verbatim:
-{ "<canonical>": { "en":[...], "zh":[...], "pinyin":[...], "misspelling":[...] } }
+{ "<canonical>": { "en":[...], "zh":[...], "pinyin":[...], "misspelling":[...], "category":"..." } }
 
 Example input: ["Gochujang","Lao Gan Ma Chili Crisp"]
 Example output:
-{"Gochujang":{"en":["Korean chili paste","red pepper paste"],"zh":["韩式辣椒酱","辣椒酱"],"pinyin":["hán shì là jiāo jiàng","là jiāo jiàng"],"misspelling":["gochu jang","kochujang"]},"Lao Gan Ma Chili Crisp":{"en":["chili crisp","spicy chili oil"],"zh":["老干妈","油辣椒"],"pinyin":["lǎo gān mā","yóu là jiāo"],"misspelling":["lao gama","laoganma"]}}`;
+{"Gochujang":{"en":["Korean chili paste","red pepper paste"],"zh":["韩式辣椒酱","辣椒酱"],"pinyin":["hán shì là jiāo jiàng","là jiāo jiàng"],"misspelling":["gochu jang","kochujang"],"category":"sauce"},"Lao Gan Ma Chili Crisp":{"en":["chili crisp","spicy chili oil"],"zh":["老干妈","油辣椒"],"pinyin":["lǎo gān mā","yóu là jiāo"],"misspelling":["lao gama","laoganma"],"category":"sauce"}}`;
 
 function coerceStringArray(v: unknown, max: number): string[] {
   if (!Array.isArray(v)) return [];
@@ -85,6 +122,7 @@ export async function generateAliasesBatch(
         pinyin: s.pinyin,
         misspelling: s.misspelling,
         nameZh: s.zh[0] ?? null,
+        category: null,
       };
     }
     return { aliasesByName, usage: { ...EMPTY_USAGE } };
@@ -122,6 +160,7 @@ export async function generateAliasesBatch(
         pinyin: coerceStringArray(raw.pinyin, 3),
         misspelling: coerceStringArray(raw.misspelling, 3),
         nameZh: zh[0] ?? null,
+        category: coerceCategory(raw.category),
       };
     }
   } catch {

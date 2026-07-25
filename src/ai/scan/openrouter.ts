@@ -81,7 +81,10 @@ async function callModelOnce(opts: CallModelOptions): Promise<CallOutcome> {
     prompt,
     schema,
     schemaName = 'scan_result',
-    timeoutMs = 240_000,
+    // Below every route budget that reaches this (staff scan 180s, save 120s,
+    // try-scan 60s), so a caller that forgets to pass one cannot outlive its
+    // own request. Every real call site sets this explicitly anyway.
+    timeoutMs = 60_000,
     reasoningEffort,
   } = opts;
   const content = [

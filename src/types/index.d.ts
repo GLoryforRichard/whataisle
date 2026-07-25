@@ -103,7 +103,6 @@ export interface ApiKeysConfig {
  */
 export interface AuthConfig {
   enableGoogleLogin?: boolean;       // Whether to enable google login
-  enableGithubLogin?: boolean;       // Whether to enable github login
   enableCredentialLogin?: boolean;   // Whether to enable email/password login
   enableDeleteUser?: boolean;        // Whether to enable user deletion
 }

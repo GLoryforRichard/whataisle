@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
   const stores = await db.select({ id: store.id }).from(store);
 
   let products = 0;
+  let skipped = 0;
   const failures: string[] = [];
 
   for (const s of stores) {
@@ -77,12 +78,20 @@ export async function POST(req: NextRequest) {
           page.map((p) => p.searchText || p.id)
         );
         for (let i = 0; i < page.length; i++) {
+          // Skip rather than write. A null here means the provider dropped
+          // this text from the batch; overwriting an existing good vector on
+          // the strength of that would be a silent downgrade, and re-embed is
+          // exactly the operation you run when you cannot afford one.
+          if (vectors[i] === null) {
+            skipped++;
+            continue;
+          }
           await db
             .update(product)
             .set({ embedding: vectors[i], updatedAt: new Date() })
             .where(eq(product.id, page[i].id));
+          embedded++;
         }
-        embedded += page.length;
       }
       if (embedded > 0) {
         await recordUsage({
@@ -100,5 +109,10 @@ export async function POST(req: NextRequest) {
     products += embedded;
   }
 
-  return NextResponse.json({ stores: stores.length, products, failures });
+  return NextResponse.json({
+    stores: stores.length,
+    products,
+    skipped,
+    failures,
+  });
 }

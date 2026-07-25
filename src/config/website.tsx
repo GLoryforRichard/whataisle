@@ -77,7 +77,6 @@ export const websiteConfig: WebsiteConfig = {
     enableGoogleLogin:
       process.env.PUBLIC_GOOGLE_LOGIN_ENABLED === 'true' ||
       process.env.NODE_ENV !== 'production',
-    enableGithubLogin: false,
     enableCredentialLogin: true,
     enableDeleteUser: true,
   },
