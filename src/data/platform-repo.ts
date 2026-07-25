@@ -106,8 +106,18 @@ export interface CostRow {
   inputTokens: number;
   outputTokens: number;
   images: number;
-  /** Estimated month USD across priced models; null when no price is known. */
+  /**
+   * Real month USD reported by the provider (OpenRouter `usage.cost`); null
+   * when no call this month reported one.
+   */
+  meteredCostUsd: number | null;
+  /**
+   * Estimated month USD for models we only have a published price for
+   * (DashScope); null when nothing in this store's usage is priced.
+   */
   estimatedCostUsd: number | null;
+  /** metered + estimated; null only when both are null (renders as "—"). */
+  totalCostUsd: number | null;
   /** True when this store's month usage looks abnormal (possible scraping). */
   anomaly: boolean;
 }
@@ -125,7 +135,8 @@ export async function costByStore(): Promise<CostRow[]> {
       count(*)::int AS calls,
       coalesce(sum(au.input_tokens),0)::int AS "inputTokens",
       coalesce(sum(au.output_tokens),0)::int AS "outputTokens",
-      coalesce(sum(au.images),0)::int AS images
+      coalesce(sum(au.images),0)::int AS images,
+      sum(au.cost_usd) AS "meteredCostUsd"
     FROM ai_usage_log au
     LEFT JOIN store s ON s.id = au.store_id
     WHERE au.created_at >= date_trunc('month', now())
@@ -139,6 +150,10 @@ export async function costByStore(): Promise<CostRow[]> {
     inputTokens: number;
     outputTokens: number;
     images: number;
+    // No coalesce and no ::int on the sum above: an all-NULL group must stay
+    // NULL so "unmetered" survives to the UI, and an int cast would truncate
+    // sub-dollar spend to zero. postgres.js hands numeric back as a string.
+    meteredCostUsd: string | null;
   }>;
 
   const byStore = new Map<string, CostRow>();
@@ -154,7 +169,9 @@ export async function costByStore(): Promise<CostRow[]> {
         inputTokens: 0,
         outputTokens: 0,
         images: 0,
+        meteredCostUsd: null,
         estimatedCostUsd: null,
+        totalCostUsd: null,
         anomaly: false,
       };
       byStore.set(key, row);
@@ -163,23 +180,39 @@ export async function costByStore(): Promise<CostRow[]> {
     row.inputTokens += Number(r.inputTokens);
     row.outputTokens += Number(r.outputTokens);
     row.images += Number(r.images);
-    const cost = estimateCostUsd(r.model, {
-      inputTokens: Number(r.inputTokens),
-      outputTokens: Number(r.outputTokens),
-      images: Number(r.images),
-    });
-    if (cost !== null) {
-      row.estimatedCostUsd = (row.estimatedCostUsd ?? 0) + cost;
+    // Number(null) is 0, which would turn every unmetered store into a
+    // confident "$0.00" — the exact blind spot this column exists to fix.
+    const metered = r.meteredCostUsd === null ? null : Number(r.meteredCostUsd);
+    if (metered !== null) {
+      row.meteredCostUsd = (row.meteredCostUsd ?? 0) + metered;
+    } else {
+      // Estimate only where the provider didn't meter. Decided per
+      // (store, model) group — the GROUP BY grain — so a model that is both
+      // metered and in MODEL_PRICING can never be counted twice.
+      const cost = estimateCostUsd(r.model, {
+        inputTokens: Number(r.inputTokens),
+        outputTokens: Number(r.outputTokens),
+        images: Number(r.images),
+      });
+      if (cost !== null) {
+        row.estimatedCostUsd = (row.estimatedCostUsd ?? 0) + cost;
+      }
     }
   }
 
-  const result = [...byStore.values()].sort((a, b) => b.calls - a.calls);
+  const result = [...byStore.values()];
   // Anomaly = a store whose call volume is a large multiple of the median
   // (a crude scraping/misuse signal; the platform alerts, never auto-cuts §7).
   const sorted = result.map((r) => r.calls).sort((a, b) => a - b);
   const median = sorted.length ? sorted[Math.floor(sorted.length / 2)] : 0;
   for (const r of result) {
+    r.totalCostUsd =
+      r.meteredCostUsd === null && r.estimatedCostUsd === null
+        ? null
+        : (r.meteredCostUsd ?? 0) + (r.estimatedCostUsd ?? 0);
     r.anomaly = median > 0 && r.calls > median * 8 && r.calls > 100;
   }
-  return result;
+  // Sort by spend, not call count — now that real dollars exist they are the
+  // founder-relevant ordering. Must run after the total loop above.
+  return result.sort((a, b) => (b.totalCostUsd ?? 0) - (a.totalCostUsd ?? 0));
 }

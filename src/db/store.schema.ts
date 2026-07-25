@@ -3,6 +3,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgTable,
   text,
   timestamp,
@@ -551,6 +552,14 @@ export const aiUsageLog = pgTable(
     inputTokens: integer('input_tokens').notNull().default(0),
     outputTokens: integer('output_tokens').notNull().default(0),
     images: integer('images').notNull().default(0),
+    /**
+     * Real USD billed by the provider for this call, when it reports one
+     * (OpenRouter returns `usage.cost`). NULL means no cost was reported —
+     * a network failure, or a provider we only have a price list for — and is
+     * deliberately distinct from a real 0. Scale 8 because single cheap calls
+     * bill as little as $0.0000028, which scale 6 would round away.
+     */
+    costUsd: numeric('cost_usd', { precision: 14, scale: 8, mode: 'number' }),
     latencyMs: integer('latency_ms').notNull().default(0),
     refId: text('ref_id'),
     createdAt: timestamp('created_at').notNull().defaultNow(),

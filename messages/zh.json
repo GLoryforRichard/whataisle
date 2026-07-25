@@ -1299,7 +1299,10 @@
       "inputTokens": "输入token",
       "outputTokens": "输出token",
       "images": "图片数",
-      "estCost": "预估成本",
+      "cost": "成本",
+      "costSplit": "实计 {metered} · 预估 {estimated}",
+      "costNote": "识别调用按供应商返回的实际计费金额统计；其他模型按公开价格预估。",
+      "landingTryOut": "落地页试用（免费）",
       "anomaly": "异常",
       "anomalyNote": "异常用量会触发告警——绝不会自动切断。",
       "empty": "还没有AI用量。"

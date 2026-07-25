@@ -1299,7 +1299,10 @@
       "inputTokens": "Input tokens",
       "outputTokens": "Output tokens",
       "images": "Images",
-      "estCost": "Est. cost",
+      "cost": "Cost",
+      "costSplit": "{metered} metered · {estimated} est.",
+      "costNote": "Detection spend uses the billed cost reported by the provider; other models are estimated from published prices.",
+      "landingTryOut": "Landing try-out (free)",
       "anomaly": "ANOMALY",
       "anomalyNote": "Abnormal usage triggers an alert — never an automatic cutoff.",
       "empty": "No AI usage yet."
