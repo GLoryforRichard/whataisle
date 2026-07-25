@@ -31,7 +31,10 @@ export async function generateMetadata({
   const { handle } = await params;
   const store = await getStoreByHandle(handle);
   return {
-    title: store?.displayName ?? 'WhatAisle',
+    // Gate on status, not just existence: the body already renders
+    // "store not found" for anything but a live store, and leaking the
+    // display name in the title undoes that.
+    title: store?.status === 'live' ? store.displayName : 'WhatAisle',
     // Store pages are phone-first; keep robots off until stores go live.
     robots: { index: false },
   };

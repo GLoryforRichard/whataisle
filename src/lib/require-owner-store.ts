@@ -1,3 +1,4 @@
+import { ACTIVE_STORE_STATUSES } from '@/db/store.schema';
 import 'server-only';
 
 import { checkPremiumAccess } from './premium-access';
@@ -13,7 +14,7 @@ export async function requireOwnerStore(): Promise<Store | null> {
   const session = await getSession();
   if (!session?.user) return null;
   const store = await getStoreByOwner(session.user.id);
-  if (!store || !['onboarding', 'live'].includes(store.status)) return null;
+  if (!store || !ACTIVE_STORE_STATUSES.includes(store.status)) return null;
   return store;
 }
 
@@ -30,7 +31,7 @@ export async function requirePaidOwnerStore(): Promise<PaidOwnerStoreResult> {
   const session = await getSession();
   if (!session?.user) return { error: 'unauthorized' };
   const store = await getStoreByOwner(session.user.id);
-  if (!store || !['onboarding', 'live'].includes(store.status)) {
+  if (!store || !ACTIVE_STORE_STATUSES.includes(store.status)) {
     return { error: 'unauthorized' };
   }
   if (!(await checkPremiumAccess(session.user.id))) {

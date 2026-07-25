@@ -10,6 +10,7 @@ import {
   store,
   storeVideo,
 } from '@/db/store.schema';
+import { user } from '@/db/auth.schema';
 import { and, eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 
@@ -76,6 +77,15 @@ export function mappingRepo(storeId: string) {
         .set({ status: 'received', completedAt: new Date() })
         .where(eq(storeVideo.id, videoId));
 
+      // The video is what moves a store out of plain onboarding: from here the
+      // owner is waiting on us, and the dashboard can say so honestly. Only
+      // advance forward — a re-upload from an already-live store must not
+      // re-lock it.
+      await db
+        .update(store)
+        .set({ status: 'awaiting_map', updatedAt: new Date() })
+        .where(and(eq(store.id, storeId), eq(store.status, 'onboarding')));
+
       // Open (or reuse) an initial mapping ticket for this store.
       const existingTicket = await db
         .select({ id: mappingTicket.id })
@@ -127,7 +137,14 @@ export function mappingRepo(storeId: string) {
       return rows[0] ?? null;
     },
 
-    /** Owner confirms the published draft → live. */
+    /**
+     * Owner confirms the drawn map matches the aisle signs in the store.
+     *
+     * NOT a gate: publishFloorMap already made the store live, because making
+     * the customer click before their own store exists means a paying owner
+     * who never opens /manage/map sits invisible forever. This records that
+     * they checked, and closes out our mapping ticket.
+     */
     async confirmMap() {
       const db = await getDb();
       await db.transaction(async (tx) => {
@@ -136,15 +153,19 @@ export function mappingRepo(storeId: string) {
           .set({ status: 'published', ownerNote: null, updatedAt: new Date() })
           .where(eq(floorMap.storeId, storeId));
         await tx
-          .update(store)
-          .set({ status: 'live', updatedAt: new Date() })
-          .where(eq(store.id, storeId));
+          .update(mappingTicket)
+          .set({ status: 'published', updatedAt: new Date() })
+          .where(
+            and(
+              eq(mappingTicket.storeId, storeId),
+              eq(mappingTicket.type, 'initial')
+            )
+          );
         await tx.insert(auditLog).values({
           id: nanoid(),
           storeId,
           action: 'floor_map.confirm',
           targetType: 'floor_map',
-          detailJson: { storeStatus: 'live' },
         });
       });
     },
@@ -251,6 +272,14 @@ export async function publishFloorMap(input: {
     .set({ status: 'awaiting_confirm', updatedAt: new Date() })
     .where(eq(mappingTicket.id, input.ticketId));
 
+  // Publishing the map is what opens the store. Everything the owner needs
+  // exists at this point — shelf codes and a map to pick them from — so
+  // holding scanning behind their confirmation only delays their own launch.
+  await db
+    .update(store)
+    .set({ status: 'live', updatedAt: new Date() })
+    .where(eq(store.id, input.storeId));
+
   await db.insert(auditLog).values({
     id: nanoid(),
     actorUserId: input.actorUserId,
@@ -259,4 +288,23 @@ export async function publishFloorMap(input: {
     targetType: 'floor_map',
     detailJson: { shelfCount: mapCodes.length, createdShelves: missing },
   });
+
+  // Returned so the action can tell the owner their store just opened.
+  const owner = await db
+    .select({
+      handle: store.handle,
+      displayName: store.displayName,
+      email: user.email,
+      staffPinHash: store.staffPinHash,
+    })
+    .from(store)
+    .innerJoin(user, eq(user.id, store.ownerUserId))
+    .where(eq(store.id, input.storeId))
+    .limit(1);
+
+  return {
+    shelfCount: mapCodes.length,
+    createdShelves: missing,
+    owner: owner[0] ?? null,
+  };
 }
