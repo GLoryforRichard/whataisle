@@ -14,8 +14,6 @@ export type WebsiteConfig = {
   apikeys: ApiKeysConfig;
   auth: AuthConfig;
   i18n: I18nConfig;
-  blog: BlogConfig;
-  docs: DocsConfig;
   mail: MailConfig;
   newsletter: NewsletterConfig;
   notification?: NotificationConfig;
@@ -124,22 +122,6 @@ export interface I18nConfig {
     name: string;                     // The name of the locale
     hreflang?: string;                // Hreflang value for SEO (e.g., 'en', 'zh-CN')
   }>;
-}
-
-/**
- * Blog configuration
- */
-export interface BlogConfig {
-  enable: boolean;                   // Whether to enable the blog
-  paginationSize: number;            // Number of posts per page
-  relatedPostsSize: number;          // Number of related posts to show
-}
-
-/**
- * Docs configuration
- */
-export interface DocsConfig {
-  enable: boolean;                   // Whether to enable the docs
 }
 
 /**

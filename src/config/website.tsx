@@ -96,15 +96,6 @@ export const websiteConfig: WebsiteConfig = {
       },
     },
   },
-  blog: {
-    enable: false,
-    paginationSize: 6,
-    relatedPostsSize: 3,
-  },
-  docs: {
-    // Docs/help-center section removed from the product.
-    enable: false,
-  },
   mail: {
     enable: true,
     provider: process.env.MAIL_PROVIDER === 'smtp' ? 'smtp' : 'resend',
