@@ -1,6 +1,11 @@
+import { getDb } from '@/db';
+import { auditLog, impersonationGrant } from '@/db/store.schema';
+import { eq } from 'drizzle-orm';
+import { nanoid } from 'nanoid';
 import {
   STAFF_COOKIE_NAME,
   createStaffCookieValue,
+  getStaffSession,
   isValidPinFormat,
   staffCookieOptions,
   verifyPin,
@@ -68,6 +73,32 @@ export async function DELETE() {
  *  (used by the impersonation banner's Exit link). Builds the redirect from the
  *  Host header because req.url reflects the internal apex rewrite. */
 export async function GET(req: NextRequest) {
+  // Close the audit trail. Only 'impersonation.start' was ever recorded, so a
+  // session's end — and therefore its real duration — was invisible.
+  const store = await getRequestStore();
+  if (store) {
+    const session = await getStaffSession(store);
+    if (session?.isImpersonation) {
+      const db = await getDb();
+      await db.insert(auditLog).values({
+        id: nanoid(),
+        storeId: store.id,
+        action: 'impersonation.end',
+        targetType: 'store',
+        targetId: store.id,
+        isImpersonation: true,
+        detailJson: { grantId: session.grantId },
+      });
+      if (session.grantId) {
+        // The session is over; drop the grant so the cookie cannot be
+        // resurrected from a back button or a restored tab.
+        await db
+          .delete(impersonationGrant)
+          .where(eq(impersonationGrant.id, session.grantId));
+      }
+    }
+  }
+
   const host = req.headers.get('host') ?? '';
   const res = NextResponse.redirect(`${req.nextUrl.protocol}//${host}/`);
   res.cookies.set(STAFF_COOKIE_NAME, '', { ...staffCookieOptions, maxAge: 0 });

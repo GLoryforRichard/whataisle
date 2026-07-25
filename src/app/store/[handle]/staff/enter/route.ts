@@ -1,9 +1,11 @@
 import {
   STAFF_COOKIE_NAME,
   createStaffCookieValue,
+  hashImpersonationToken,
   staffCookieOptions,
   verifyImpersonationToken,
 } from '@/lib/staff-auth';
+import { impersonationRepo } from '@/data/impersonation-repo';
 import { getRequestStore } from '@/lib/store-context';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -25,8 +27,19 @@ export async function GET(req: NextRequest) {
   const sameHost = (path: string) => `${protocol}//${host}${path}`;
 
   const token = new URL(req.url).searchParams.get('t') ?? undefined;
-  if (!verifyImpersonationToken(token, store.id)) {
+  if (!token || !verifyImpersonationToken(token, store.id)) {
     // Bad/expired token — send to the normal PIN gate.
+    return NextResponse.redirect(sameHost('/staff'));
+  }
+
+  // Burn the grant. A valid signature is necessary but not sufficient: this
+  // is what makes the hand-off genuinely one-time, and it is atomic so two
+  // simultaneous replays cannot both win.
+  const grantId = await impersonationRepo().consume({
+    tokenHash: hashImpersonationToken(token),
+    storeId: store.id,
+  });
+  if (!grantId) {
     return NextResponse.redirect(sameHost('/staff'));
   }
 
@@ -35,8 +48,9 @@ export async function GET(req: NextRequest) {
     STAFF_COOKIE_NAME,
     createStaffCookieValue(store.id, store.pinVersion, {
       isImpersonation: true,
+      grantId,
     }),
-    staffCookieOptions
+    { ...staffCookieOptions, maxAge: 60 * 60 }
   );
   return res;
 }
