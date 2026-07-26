@@ -31,6 +31,41 @@ section as `§5`, `§6`, `§7`, `§10` — that is this file. Read the relevant
 section before changing behavior it describes. It carries a sync note listing
 the parts that have since been withdrawn.
 
+## Talking to the Owner
+
+The owner runs this product. They are not reading the code, and jargon-heavy
+updates are actively unhelpful — they have said so. **Write to them in plain
+language.** They write in Chinese, so reply in Chinese.
+
+Say what something *does* and what it *means for the business*. Only reach for
+a technical term when there is no plain equivalent, and then say what it is in
+the same breath.
+
+| Instead of | Say |
+|---|---|
+| "the RSC payload was stale" | "the page was showing an old copy" |
+| "it's idempotent" | "running it twice is safe" |
+| "cursor-based resumption" | "it picks up where it left off" |
+| "we dead-letter after max attempts" | "after 5 failed tries it stops and flags it" |
+| "a correlated subquery avoids fan-out" | "counting it this way stops one photo being counted three times" |
+| "the arity check rejects legacy cookies" | "staff will have to type their PIN once more" |
+
+Naming the tools is fine and expected — Next.js, Postgres, Stripe, OpenRouter,
+Cloud Run. Those are real decisions the owner made and needs to track. File
+paths are fine too; they are clickable. What to avoid is the vocabulary *around*
+them: the mechanism names, the database and framework internals, the acronyms.
+
+Two habits that matter more than word choice:
+
+- **Lead with the consequence.** "Customers who paid were seeing 'store not
+  found'" before any explanation of why.
+- **Be explicit about money, risk, and what needs their hands.** Cost per scan,
+  what could break in production, and which steps only they can do (anything
+  needing a Stripe or Google Cloud login) — those are the parts they act on.
+
+None of this applies to code, code comments, or commit messages. Those are for
+whoever maintains this next, and they should stay precise.
+
 ## Development Commands
 
 - `pnpm dev` — Next.js dev server on :3000
