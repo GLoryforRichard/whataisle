@@ -31,6 +31,22 @@ section as `§5`, `§6`, `§7`, `§10` — that is this file. Read the relevant
 section before changing behavior it describes. It carries a sync note listing
 the parts that have since been withdrawn.
 
+## Who Is Reading This
+
+The rule is about **audience**, not about which file you are in:
+
+- **A person is going to read it** → make it easy to read and understand.
+  Chat replies, status docs, anything reporting on the work.
+- **An AI or a program is going to read it** → leave nothing out. Code, code
+  comments, commit messages, this file, `AGENTS.md`, `docs/REQUIREMENTS.*`,
+  test names, error messages. Precision beats brevity; do not simplify these
+  to match the tone of the first group.
+
+Those pull in opposite directions on purpose. A commit message that reads
+nicely but omits why a guard exists has failed. A status update that is
+technically exhaustive but leaves the owner unable to decide anything has
+also failed. Write each for the thing that will actually consume it.
+
 ## Talking to the Owner
 
 The owner runs this product. They are not reading the code, and jargon-heavy
@@ -63,8 +79,9 @@ Two habits that matter more than word choice:
   what could break in production, and which steps only they can do (anything
   needing a Stripe or Google Cloud login) — those are the parts they act on.
 
-None of this applies to code, code comments, or commit messages. Those are for
-whoever maintains this next, and they should stay precise.
+None of this applies to anything in the second group above. In particular, do
+not let it leak into this file: guidance for agents should stay long and
+specific, because the cost of a vague instruction here is a wrong change later.
 
 ## Development Commands
 
