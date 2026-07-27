@@ -40,7 +40,10 @@ gcloud run deploy "$SERVICE_NAME" --region="$REGION" \
   --service-account="$RUNTIME_SA" \
   --add-cloudsql-instances="$CONNECTION_NAME" \
   --allow-unauthenticated \
-  --cpu=1 --memory=1Gi --min-instances=0 --max-instances=4 \
+  # Scan photos are memory-heavy (sharp + 3072px band slices). Two concurrent
+  # HD scans OOM'd a 1Gi / concurrency=80 box; keep per-instance concurrency
+  # low and scale out so a 10-photo staff batch can run in parallel.
+  --cpu=2 --memory=4Gi --concurrency=2 --min-instances=0 --max-instances=20 \
   --set-env-vars="NODE_ENV=production,MAIL_PROVIDER=resend,STORAGE_PROVIDER=gcs,STORAGE_BUCKET_NAME=${BUCKET_NAME},GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_CLOUD_LOCATION=${REGION},NEXT_PUBLIC_BASE_URL=${BASE_URL},NEXT_PUBLIC_ROOT_DOMAIN=${ROOT_DOMAIN},TRUST_GCP_LOAD_BALANCER=false,VIDEO_NOTIFY_EMAIL=lby2024xd@outlook.com" \
   --set-secrets="DATABASE_URL=DATABASE_URL:latest,BETTER_AUTH_SECRET=BETTER_AUTH_SECRET:latest,STAFF_COOKIE_SECRET=STAFF_COOKIE_SECRET:latest,RESEND_API_KEY=RESEND_API_KEY:latest,STRIPE_SECRET_KEY=STRIPE_SECRET_KEY:latest,STRIPE_WEBHOOK_SECRET=STRIPE_WEBHOOK_SECRET:latest"
 

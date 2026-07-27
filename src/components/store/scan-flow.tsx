@@ -62,7 +62,11 @@ interface SaveStep {
 /** In-page camera viewport state ("Take photo" opens a live viewfinder). */
 type CameraState = 'closed' | 'starting' | 'live' | 'denied' | 'unavailable';
 
-const MAX_CONCURRENT = 2;
+// Staff can pick up to ~10 photos at once; each photo is its own request so
+// one failure never blocks the batch (§4.2). Cloud Run is sized so these
+// land on separate instances (low container concurrency + higher max
+// instances) — two HD scans on a 1Gi box already OOM'd in production.
+const MAX_CONCURRENT = 10;
 
 const CONFIDENCE_RANK: Record<string, number> = { high: 3, medium: 2, low: 1 };
 

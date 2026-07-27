@@ -81,8 +81,13 @@ jobs:
         # AI keys live in GitHub secrets because local gcloud access to
         # whataisle-prod is org-restricted; ADMIN_TASK_TOKEN authorizes
         # machine calls to /api/admin/re-embed after embedding-model changes.
+        # Scan photos are memory-heavy (sharp + 3072px band slices). Cap
+        # per-instance concurrency at 2 and scale out so a 10-photo staff
+        # batch can run in parallel without OOMing a single box.
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --region=${{ env.REGION }} \
             --image=${{ env.IMAGE }}:${{ github.sha }} \
+            --cpu=2 --memory=4Gi --concurrency=2 \
+            --min-instances=0 --max-instances=20 \
             --update-env-vars='^@^DASHSCOPE_API_KEY=${{ secrets.DASHSCOPE_API_KEY }}@DASHSCOPE_BASE_URL=${{ secrets.DASHSCOPE_BASE_URL }}@OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}@ADMIN_TASK_TOKEN=${{ secrets.ADMIN_TASK_TOKEN }}@AI_STUB=false@AI_MAX_CONCURRENT=36'
