@@ -1,4 +1,5 @@
 import { feedbackRepo } from '@/data/feedback-repo';
+import { getClientIp } from '@/lib/client-ip';
 import { checkRateLimit, hashIp } from '@/lib/rate-limit';
 import { getRequestStore } from '@/lib/store-context';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -21,8 +22,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'store_not_found' }, { status: 404 });
   }
 
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  const ip = getClientIp(req.headers);
   const ua = req.headers.get('user-agent') ?? '';
 
   const allowed = await checkRateLimit(`feedback:${store.id}:${hashIp(ip)}`, {

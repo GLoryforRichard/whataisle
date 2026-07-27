@@ -1,6 +1,7 @@
 import { identifyProductFromPhoto } from '@/ai/identify-photo';
 import { VISION_MODEL } from '@/ai/models';
 import { recordUsage } from '@/ai/usage';
+import { getClientIp } from '@/lib/client-ip';
 import { checkRateLimit, hashIp } from '@/lib/rate-limit';
 import { getRequestStore } from '@/lib/store-context';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -19,8 +20,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'store_not_found' }, { status: 404 });
   }
 
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  const ip = getClientIp(req.headers);
   const allowed = await checkRateLimit(`photo:${store.id}:${hashIp(ip)}`, {
     windowSeconds: 60,
     max: 20,

@@ -115,6 +115,15 @@ Verifies the signed-in profile update flow.
 | 2 | Unknown and reserved hosts fail closed | Require the store-not-found page for an unknown handle and reserved `admin` subdomain. |
 | 3 | Staff PIN accepts and rejects correctly | Accept the demo store PIN and reject an incorrect PIN. |
 | 4 | Staff sessions are host-isolated | Authenticate on the demo store and verify the cookie cannot unlock the second store. |
+| 5 | Forged store header cannot unlock another store | POST demo's PIN to mart2's host with `x-store-handle: demo`; require 401. |
+| 6 | Forged store header cannot read another store's products | Search mart2's host for a demo product with `x-store-handle: demo`; require no leak. |
+| 7 | Forged store header cannot revive an unknown host | POST to an unknown store host with `x-store-handle: demo`; require 404. |
+
+Tests 5–7 are the regression for a fixed bypass: tenant identity was taken from
+an inbound `x-store-handle` header in preference to the Host, and the proxy
+matcher excludes `/api`, so the header was forgeable on every store API route.
+The Host-based cases above all passed while the bug was live — only a request
+that actually sends the header catches it.
 
 ## 7. Purchase Funnel And Paywall
 
@@ -131,7 +140,57 @@ Checkout itself stays out of E2E.
 | 2 | Unpaid owner is walled off | Register + create store, open `/manage/video`, expect redirect to `/onboarding/payment` with the $999 offer; POST `/api/owner/video/init` and require 402 `payment_required`. |
 | 3 | Paid owner reaches guided upload | Seed `hasPaid`, open `/onboarding/payment`, expect redirect to `/manage/video` with the filming checklist; `/api/owner/video/init` succeeds. |
 
-The current seven specs expand to 25 Playwright tests across the locale matrices.
+## 8. Resumable Video Upload
+
+**File:** `specs/video-upload.spec.ts` | **Priority:** P1
+
+| # | Test name | Flow |
+|---|---|---|
+| 1 | A re-sent chunk is idempotent and the upload still completes | Init a 3-chunk upload, send chunks 0 and 2, re-send 0 and require the received count stays 2, require `/complete` fails while chunk 1 is missing, then send it and complete. |
+
+## 9. Store File Access Control
+
+**File:** `specs/storage-acl.spec.ts` | **Priority:** P0
+
+Provider-agnostic: `isStoreStorageKey()` and the staff/thumbnail/video split
+live in the route, so the local storage driver exercises them exactly. All
+negative cases, so no fixture files are needed.
+
+| # | Test name | Flow |
+|---|---|---|
+| 1 | A key belonging to another store is refused | Well-formed key, wrong tenant; require 404. |
+| 2 | Path traversal out of the store prefix is refused | `stores/../../etc/passwd`; require 4xx. |
+| 3 | Walkthrough videos are never served | Videos are platform-internal (§10); require 404 even on the owning store. |
+| 4 | Non-thumbnail store files require a staff session | Anonymous shelf-photo fetch; require 403/404. |
+
+## 10. Stripe Webhook Signature
+
+**File:** `specs/stripe-webhook.spec.ts` | **Priority:** P0
+
+The only path that grants paid entitlement, unauthenticated by necessity — the
+signature is the guard. Note the route answers 200 to processing failures on
+purpose (Stripe retries 4xx/5xx for three days), so "rejected" is read from the
+body, not the status.
+
+| # | Test name | Flow |
+|---|---|---|
+| 1 | A request with no signature is rejected outright | POST a forged `checkout.session.completed` with no signature header; require 400. |
+| 2 | A forged signature is not processed | Shape-correct but wrong signature; require 200 with `Webhook handler failed`. |
+
+## 11. Store Closure
+
+**File:** `specs/store-closure.spec.ts` | **Priority:** P1
+
+Closure means immediate deletion, no retention (§7). Registers throwaway
+owners — it destroys its own tenant.
+
+| # | Test name | Flow |
+|---|---|---|
+| 1 | A mistyped store name does not delete the store | Type a wrong name; require the close button stays disabled and the store still resolves. |
+| 2 | The exact store name deletes the store and frees its subdomain | Type the exact name, confirm twice, then require the subdomain renders store-not-found and the owner is bounced to `/onboarding/handle`. |
+
+
+The current eleven specs expand to 37 Playwright tests across the locale matrices.
 
 ## Deferred Coverage
 
@@ -139,9 +198,9 @@ These flows should be added after their dependencies are made deterministic:
 
 | Area | Reason |
 |---|---|
-| Hosted Stripe Checkout, webhook, and portal | Requires Stripe test fixtures and webhook simulation (`stripe listen`); covered manually with test cards. Entitlement gating is covered by `paywall.spec.ts`. |
+| Hosted Stripe Checkout and portal UI | Automating a third-party origin with its own CAPTCHA and unstable DOM. Reclassified as permanently manual rather than deferred. Signature enforcement is covered by `stripe-webhook.spec.ts`; entitlement by `paywall.spec.ts`. The webhook *happy path* stays out because the handlers behind `constructEvent` call the Stripe API, so it needs network or a mocked client. |
 | Video upload completion email | Requires a fake mail provider or Mailpit assertions; verified manually (notification to the ops inbox with signed link). |
-| GCS uploads and cross-store ACLs | Requires deterministic private-bucket fixtures or a storage emulator. |
+| GCS-specific resumable/signed-URL behavior | Needs fake-gcs-server, whose V4 signing and resumable semantics diverge from real GCS — it would buy less confidence than it costs. Cross-store ACLs are now covered against the local driver in `storage-acl.spec.ts`. |
 | Transactional email | Requires a fake mail provider or captured verification links. |
-| Real Vertex AI golden set | Runs in staging on a schedule; pull-request and release E2E stay on the deterministic AI stub. |
-| Invite onboarding, video resume, and store closure | Add after the persistent invite/job/upload flows land. |
+| Real-model golden set | Runs in staging on a schedule; PR and release E2E stay on the deterministic AI stub. At the measured $0.26/scan even a 20-photo set is ~$5 per run, so it must never enter PR CI. (The old wording said "Vertex" — the repo has used OpenRouter + DashScope since `76eefdc`.) |
+| — | Invite onboarding no longer exists (invite-only signup removed). Video resume and store closure are now covered by `video-upload.spec.ts` and `store-closure.spec.ts`; neither needed the infrastructure this row assumed. |

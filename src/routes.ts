@@ -7,7 +7,6 @@ export enum Routes {
   // marketing pages
   HowItWorks = '/#how-it-works',
   Pricing = '/pricing',
-  Docs = '/docs',
   About = '/about',
   Contact = '/contact',
   CookiePolicy = '/cookie',

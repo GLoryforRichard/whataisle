@@ -1,6 +1,7 @@
 import { checkQuery } from '@/ai/guardrails';
 import { type SearchResult, runSearch } from '@/ai/search-pipeline';
 import { searchRepo } from '@/data/search-repo';
+import { getClientIp } from '@/lib/client-ip';
 import { getStaffSession } from '@/lib/staff-auth';
 import { checkRateLimit, hashIp } from '@/lib/rate-limit';
 import { getRequestStore } from '@/lib/store-context';
@@ -33,8 +34,7 @@ export async function GET(req: NextRequest) {
 
   // Rate limit the public endpoint (skip for authenticated staff test search).
   if (!isTest) {
-    const ip =
-      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+    const ip = getClientIp(req.headers);
     const allowed = await checkRateLimit(`search:${store.id}:${hashIp(ip)}`, {
       windowSeconds: 60,
       max: 30,

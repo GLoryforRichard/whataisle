@@ -134,6 +134,20 @@
       "when": 1783644050056,
       "tag": "0018_cheerful_steel_serpent",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1784949734331,
+      "tag": "0019_huge_sasquatch",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1784960522182,
+      "tag": "0020_peaceful_pixie",
+      "breakpoints": true
     }
   ]
 }

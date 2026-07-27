@@ -167,6 +167,11 @@ export async function detectBoxes(
         schema: BOX_SCHEMA,
         schemaName: 'shelf_product_boxes',
         reasoningEffort: opts.reasoningEffort,
+        // Explicit, and matched to the sibling calls. Without it these
+        // inherited the 240s default — longer than the 180s budget of the
+        // staff scan route that invokes them, so a single hung band call
+        // could outlive the whole request. Bands measure ~31s in practice.
+        timeoutMs: 120_000,
       });
     const attempts: CallOutcome[] = [];
     let parsed: ReturnType<typeof parseBoxes> | null = null;

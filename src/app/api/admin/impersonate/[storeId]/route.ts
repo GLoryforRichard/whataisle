@@ -1,7 +1,12 @@
 import { getDb } from '@/db';
 import { auditLog, store } from '@/db/store.schema';
 import { getSession } from '@/lib/server';
-import { signImpersonationToken } from '@/lib/staff-auth';
+import {
+  IMPERSONATION_TTL_MS,
+  hashImpersonationToken,
+  signImpersonationToken,
+} from '@/lib/staff-auth';
+import { impersonationRepo } from '@/data/impersonation-repo';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -47,6 +52,15 @@ export async function GET(
   });
 
   const token = signImpersonationToken(storeId);
+  // Recorded so /staff/enter can enforce single use: the token rides in a
+  // redirect URL, so a signature check alone leaves it replayable for its
+  // whole 60-second life by anything that saw the URL.
+  await impersonationRepo().create({
+    tokenHash: hashImpersonationToken(token),
+    storeId,
+    actorUserId: session.user.id,
+    expiresAt: new Date(Date.now() + IMPERSONATION_TTL_MS),
+  });
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'whataisle.com';
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
   const port = _req.headers.get('host')?.split(':')[1];

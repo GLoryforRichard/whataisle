@@ -1,5 +1,4 @@
 import { listCommercialOnboarding } from '@/actions/commercial-onboarding';
-import { StoreInviteForm } from '@/components/admin/store-invite-form';
 import type { Locale } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 
@@ -10,21 +9,16 @@ export default async function CommercialOnboardingPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const { leads, invites } = await listCommercialOnboarding();
+  const { leads } = await listCommercialOnboarding();
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 lg:px-6">
       <div>
         <h1 className="font-bold text-2xl">Commercial onboarding</h1>
         <p className="mt-1 text-muted-foreground text-sm">
-          Review Canadian demo requests and issue single-use owner invitations.
+          Review demo requests from prospective stores.
         </p>
       </div>
-
-      <section className="rounded-xl border bg-card p-5">
-        <h2 className="mb-4 font-semibold">Invite a store owner</h2>
-        <StoreInviteForm />
-      </section>
 
       <section>
         <h2 className="mb-3 font-semibold text-lg">Demo requests</h2>
@@ -77,32 +71,6 @@ export default async function CommercialOnboardingPage({
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section>
-        <h2 className="mb-3 font-semibold text-lg">Owner invitations</h2>
-        <div className="overflow-x-auto rounded-xl border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/60 text-left">
-              <tr>
-                <th className="p-3">Email</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Expires</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invites.map((invite) => (
-                <tr key={invite.id} className="border-t">
-                  <td className="p-3">{invite.email}</td>
-                  <td className="p-3">{invite.status}</td>
-                  <td className="p-3 text-muted-foreground">
-                    {invite.expiresAt.toLocaleString('en-CA')}
-                  </td>
-                </tr>
-              ))}
             </tbody>
           </table>
         </div>

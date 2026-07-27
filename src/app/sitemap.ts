@@ -1,8 +1,6 @@
-import { websiteConfig } from '@/config/website';
 import { getLocalePathname } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { generateHreflangUrls } from '@/lib/hreflang';
-import { blogSource, categorySource } from '@/lib/source';
 import type { MetadataRoute } from 'next';
 import type { Locale } from 'next-intl';
 import { getBaseUrl } from '@/lib/urls';
@@ -10,21 +8,20 @@ import { getBaseUrl } from '@/lib/urls';
 type Href = Parameters<typeof getLocalePathname>[0]['href'];
 
 /**
- * static routes for sitemap, you may change the routes for your own
+ * Every public route the marketing site actually serves. Keep this list in
+ * sync with src/app/[locale]/(marketing) — advertising a URL that 404s is
+ * worse than omitting it.
  */
 const staticRoutes = [
   '/',
   '/pricing',
   '/about',
   '/contact',
-  '/waitlist',
-  '/changelog',
   '/privacy',
   '/terms',
   '/cookie',
   '/auth/login',
   '/auth/register',
-  ...(websiteConfig.blog.enable ? ['/blog'] : []),
 ];
 
 /**
@@ -48,85 +45,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
     })
   );
-
-  // add blog related routes if enabled
-  if (websiteConfig.blog.enable) {
-    // add paginated blog list pages
-    routing.locales.forEach((locale) => {
-      const posts = blogSource
-        .getPages(locale)
-        .filter((post) => post.data.published);
-      const totalPages = Math.max(
-        1,
-        Math.ceil(posts.length / websiteConfig.blog.paginationSize)
-      );
-      // /blog/page/[page] (from 2)
-      for (let page = 2; page <= totalPages; page++) {
-        sitemapList.push({
-          url: getUrl(`/blog/page/${page}`, locale),
-          alternates: {
-            languages: generateHreflangUrls(`/blog/page/${page}`),
-          },
-        });
-      }
-    });
-
-    // add paginated category pages
-    routing.locales.forEach((locale) => {
-      const localeCategories = categorySource.getPages(locale);
-      localeCategories.forEach((category) => {
-        // posts in this category and locale
-        const postsInCategory = blogSource
-          .getPages(locale)
-          .filter((post) => post.data.published)
-          .filter((post) =>
-            post.data.categories.some((cat) => cat === category.slugs[0])
-          );
-        const totalPages = Math.max(
-          1,
-          Math.ceil(postsInCategory.length / websiteConfig.blog.paginationSize)
-        );
-        // /blog/category/[slug] (first page)
-        sitemapList.push({
-          url: getUrl(`/blog/category/${category.slugs[0]}`, locale),
-          alternates: {
-            languages: generateHreflangUrls(
-              `/blog/category/${category.slugs[0]}`
-            ),
-          },
-        });
-        // /blog/category/[slug]/page/[page] (from 2)
-        for (let page = 2; page <= totalPages; page++) {
-          sitemapList.push({
-            url: getUrl(
-              `/blog/category/${category.slugs[0]}/page/${page}`,
-              locale
-            ),
-            alternates: {
-              languages: generateHreflangUrls(
-                `/blog/category/${category.slugs[0]}/page/${page}`
-              ),
-            },
-          });
-        }
-      });
-    });
-
-    // add posts (single post pages)
-    routing.locales.forEach((locale) => {
-      const posts = blogSource
-        .getPages(locale)
-        .filter((post) => post.data.published);
-      posts.forEach((post) => {
-        sitemapList.push({
-          url: getUrl(`/blog/${post.slugs.join('/')}`, locale),
-          alternates: {
-            languages: generateHreflangUrls(`/blog/${post.slugs.join('/')}`),
-          },
-        });
-      });
-    });
-  }
 
   return sitemapList;
 }

@@ -1,10 +1,6 @@
 import { RegisterForm } from '@/components/auth/register-form';
 import { LocaleLink } from '@/i18n/navigation';
 import { constructMetadata } from '@/lib/metadata';
-import {
-  getValidStoreInvite,
-  isPublicSignupEnabled,
-} from '@/lib/store-invites';
 import { Routes } from '@/routes';
 import type { Metadata } from 'next';
 import type { Locale } from 'next-intl';
@@ -30,38 +26,14 @@ export async function generateMetadata({
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ invite?: string; callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string }>;
 }) {
-  const { invite: inviteToken, callbackUrl } = await searchParams;
-  const invite = await getValidStoreInvite(inviteToken);
-  const signupEnabled = isPublicSignupEnabled();
+  const { callbackUrl } = await searchParams;
   const t = await getTranslations('AuthPage.common');
-  const rt = await getTranslations('AuthPage.register');
-
-  if (!signupEnabled && !invite) {
-    return (
-      <div className="mx-auto max-w-md space-y-5 text-center">
-        <h1 className="text-2xl font-semibold">{rt('inviteOnlyTitle')}</h1>
-        <p className="text-sm text-muted-foreground">
-          {rt('inviteOnlyDescription')}
-        </p>
-        <LocaleLink
-          href={Routes.Contact}
-          className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
-        >
-          {rt('requestAccess')}
-        </LocaleLink>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-4">
-      <RegisterForm
-        callbackUrl={callbackUrl}
-        inviteToken={inviteToken}
-        invitedEmail={invite?.email}
-      />
+      <RegisterForm callbackUrl={callbackUrl} />
       <div className="text-balance text-center text-xs text-muted-foreground">
         {t('byClickingContinue')}
         <LocaleLink

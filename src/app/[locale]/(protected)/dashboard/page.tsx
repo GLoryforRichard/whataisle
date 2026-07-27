@@ -155,7 +155,16 @@ export default async function DashboardPage() {
           <div className="rounded-xl border p-4">
             <p className="text-muted-foreground text-sm">{t('mapStatus')}</p>
             <p className="mt-1 font-medium text-lg">
-              {t(`mapStates.${map?.status ?? 'none'}`)}
+              {/* Before we publish there is no floor_map row at all, so
+                  keying purely off the map showed "Not started" during the
+                  exact window when the owner is waiting on us. Fall back to
+                  the store's own status. */}
+              {t(
+                `mapStates.${
+                  map?.status ??
+                  (store.status === 'awaiting_map' ? 'awaiting_map' : 'none')
+                }`
+              )}
             </p>
           </div>
         </section>

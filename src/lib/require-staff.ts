@@ -19,5 +19,6 @@ export async function requireStaff(): Promise<StaffContext | null> {
   if (!store) return null;
   const session = await getStaffSession(store);
   if (!session) return null;
+
   return { store, isImpersonation: session.isImpersonation };
 }

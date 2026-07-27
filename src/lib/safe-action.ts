@@ -1,3 +1,4 @@
+import { ACTIVE_STORE_STATUSES } from '@/db/store.schema';
 import { createSafeActionClient } from 'next-safe-action';
 import type { SessionUser } from './auth-types';
 import { isDemoWebsite } from './demo';
@@ -47,7 +48,7 @@ export const storeActionClient = userActionClient.use(async ({ next, ctx }) => {
   if (!store) {
     throw new Error('No store is linked to this account');
   }
-  if (!['onboarding', 'live'].includes(store.status)) {
+  if (!ACTIVE_STORE_STATUSES.includes(store.status)) {
     throw new Error('This store is not available for changes');
   }
 

@@ -17,7 +17,7 @@ import { ScanFailedError, detectBoxes, detectRowBands } from './scan/detect';
 import { cropRect } from './scan/grid';
 import { type PreparedScanImages, prepareScanImages } from './scan/image';
 import { applyReadoutNames, extractEntries } from './scan/names';
-import { sumTokens } from './scan/openrouter';
+import { sumCost, sumTokens } from './scan/openrouter';
 import { readProductNames } from './scan/readout';
 import type { NormalizedBox, PreparedImage } from './scan/types';
 import { stubScanBoxes } from './stub';
@@ -130,6 +130,7 @@ export async function processShelfPhoto(input: {
         outputTokens: t?.completion ?? 0,
         images: 1,
       },
+      costUsd: rows.outcome.costUsd,
       latencyMs: rows.outcome.latencyMs,
       refId: input.photoId,
     });
@@ -154,6 +155,7 @@ export async function processShelfPhoto(input: {
           outputTokens: t.completion,
           images: err.outcomes.length,
         },
+        costUsd: sumCost(err.outcomes),
         latencyMs: Date.now() - detStarted,
         refId: input.photoId,
       });
@@ -170,6 +172,7 @@ export async function processShelfPhoto(input: {
       outputTokens: detTokens.completion,
       images: det.outcomes.length,
     },
+    costUsd: sumCost(det.outcomes),
     latencyMs: det.latencyMs,
     refId: input.photoId,
   });
@@ -187,6 +190,7 @@ export async function processShelfPhoto(input: {
         outputTokens: roTokens.completion,
         images: readout.outcomes.length,
       },
+      costUsd: sumCost(readout.outcomes),
       latencyMs: readout.latencyMs,
       refId: input.photoId,
     });
@@ -334,7 +338,9 @@ export async function saveScannedProducts(input: {
     const res = await repo.upsertFromScan({
       canonicalName: p.canonicalName.trim(),
       nameZh: aliases.nameZh,
-      category: p.category ?? null,
+      // Prefer the client's value if the UI ever supplies one, else the
+      // category derived alongside the aliases from the canonical name.
+      category: p.category ?? aliases.category ?? null,
       searchText,
       embedding,
       thumbnailKey,

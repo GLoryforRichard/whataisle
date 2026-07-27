@@ -1,0 +1,1 @@
+ALTER TABLE "ai_usage_log" ADD COLUMN "cost_usd" numeric(14, 8);

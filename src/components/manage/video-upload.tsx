@@ -113,7 +113,7 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
           {t('receivedNote')}
         </p>
         <LocaleLink
-          href="/manage/shelves"
+          href="/dashboard"
           className="mt-2 inline-flex h-12 items-center gap-2 rounded-full bg-[var(--brand-lime)] px-6 font-bold text-[var(--brand-green)] transition-transform hover:bg-[var(--brand-lime-hover)] active:scale-[0.97]"
         >
           {t('startScanning')}

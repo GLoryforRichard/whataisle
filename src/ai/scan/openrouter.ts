@@ -81,7 +81,10 @@ async function callModelOnce(opts: CallModelOptions): Promise<CallOutcome> {
     prompt,
     schema,
     schemaName = 'scan_result',
-    timeoutMs = 240_000,
+    // Below every route budget that reaches this (staff scan 180s, save 120s,
+    // try-scan 60s), so a caller that forgets to pass one cannot outlive its
+    // own request. Every real call site sets this explicitly anyway.
+    timeoutMs = 60_000,
     reasoningEffort,
   } = opts;
   const content = [
@@ -98,6 +101,9 @@ async function callModelOnce(opts: CallModelOptions): Promise<CallOutcome> {
     messages: [{ role: 'user', content }],
     max_tokens: 16000,
     temperature: 0,
+    // OpenRouter currently returns usage.cost without being asked, but that is
+    // an undocumented default and ai_usage_log now depends on it. Ask for it.
+    usage: { include: true },
   };
   if (reasoningEffort === 'off') payload.reasoning = { max_tokens: 128 };
   else if (reasoningEffort) payload.reasoning = { effort: reasoningEffort };
@@ -219,6 +225,8 @@ async function callModelOnce(opts: CallModelOptions): Promise<CallOutcome> {
     clearTimeout(timer);
   }
 }
+
+export { sumCost } from './cost';
 
 /** Sum token usage across a set of call outcomes (for ai_usage_log rows). */
 export function sumTokens(outcomes: CallOutcome[]): {

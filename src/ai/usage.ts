@@ -100,6 +100,13 @@ export async function recordUsage(input: {
   kind: AiUsageKind;
   model: string;
   usage: Partial<UsageTotals>;
+  /**
+   * Real USD billed by the provider, when it reports one (OpenRouter). Omit
+   * for providers that only publish a price list — the back office falls back
+   * to estimateCostUsd for those rows. Not part of UsageTotals on purpose:
+   * that would churn every DashScope call site for a field they can't fill.
+   */
+  costUsd?: number | null;
   latencyMs: number;
   refId?: string;
 }): Promise<void> {
@@ -113,6 +120,7 @@ export async function recordUsage(input: {
       inputTokens: input.usage.inputTokens ?? 0,
       outputTokens: input.usage.outputTokens ?? 0,
       images: input.usage.images ?? 0,
+      costUsd: input.costUsd ?? null,
       latencyMs: input.latencyMs,
       refId: input.refId,
     });

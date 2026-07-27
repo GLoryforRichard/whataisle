@@ -74,16 +74,11 @@ export const createCheckoutAction = userActionClient
       // Create the checkout session with localized URLs
       // For Stripe: {CHECKOUT_SESSION_ID} is replaced by Stripe on redirect,
       //   then the Payment page polls by sessionId until the webhook writes the DB record.
-      // For Creem: Creem does NOT replace URL placeholders and has its own
-      //   payment confirmation page, so redirect straight to billing.
       const callback = callbackUrl ?? Routes.SettingsBilling;
-      const isCreem = websiteConfig.payment.provider === 'creem';
-      const successUrl = isCreem
-        ? getUrlWithLocale(callback, locale)
-        : getUrlWithLocale(
-            `${Routes.Payment}?session_id={CHECKOUT_SESSION_ID}&callback=${callback}`,
-            locale
-          );
+      const successUrl = getUrlWithLocale(
+        `${Routes.Payment}?session_id={CHECKOUT_SESSION_ID}&callback=${callback}`,
+        locale
+      );
       const cancelUrl = getUrlWithLocale(Routes.SettingsBilling, locale);
       const params: CreateCheckoutParams = {
         planId,

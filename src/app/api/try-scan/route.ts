@@ -3,7 +3,12 @@ import { extractJson } from '@/ai/scan/box-parser';
 import { ScanFailedError, detectBoxes, detectRowBands } from '@/ai/scan/detect';
 import { prepareScanImages } from '@/ai/scan/image';
 import { extractEntries } from '@/ai/scan/names';
-import { type CallOutcome, callModel, sumTokens } from '@/ai/scan/openrouter';
+import {
+  type CallOutcome,
+  callModel,
+  sumCost,
+  sumTokens,
+} from '@/ai/scan/openrouter';
 import { PRECHECK_PROMPT, PRECHECK_SCHEMA } from '@/ai/scan/prompts';
 import type { NormalizedBox } from '@/ai/scan/types';
 import { stubScanBoxes } from '@/ai/stub';
@@ -48,6 +53,9 @@ async function meterTryDetect(
       outputTokens: t.completion,
       images: outcomes.length,
     },
+    // Provider-reported dollars are correct regardless of the `model` label,
+    // which is a half-truth here: row detection may run a different model.
+    costUsd: sumCost(outcomes),
     latencyMs,
     refId,
   });
@@ -129,6 +137,7 @@ export async function POST(req: NextRequest) {
         outputTokens: t?.completion ?? 0,
         images: 1,
       },
+      costUsd: gate.costUsd,
       latencyMs: gate.latencyMs,
       refId: ipHash,
     });
@@ -163,20 +172,25 @@ export async function POST(req: NextRequest) {
     // rows-hd-fast: HD band detection with low reasoning, no readout stage —
     // the latency/cost point picked for the free try-out.
     const started = Date.now();
+    // Hoisted out of the try: when band detection throws, the row-detect call
+    // has already been billed and must still be metered.
+    let rowsOutcome: CallOutcome | null = null;
     try {
       const rows = await detectRowBands(images.processed);
+      rowsOutcome = rows.outcome;
       const det = await detectBoxes(images.full, rows.bands, {
         reasoningEffort: 'low',
       });
-      const outcomes = rows.outcome
-        ? [rows.outcome, ...det.outcomes]
+      const outcomes = rowsOutcome
+        ? [rowsOutcome, ...det.outcomes]
         : det.outcomes;
       await meterTryDetect(outcomes, Date.now() - started, ipHash);
       boxes = det.boxes;
     } catch (err) {
-      if (err instanceof ScanFailedError) {
-        await meterTryDetect(err.outcomes, Date.now() - started, ipHash);
-      } else {
+      const failed = err instanceof ScanFailedError ? err.outcomes : [];
+      const outcomes = rowsOutcome ? [rowsOutcome, ...failed] : failed;
+      await meterTryDetect(outcomes, Date.now() - started, ipHash);
+      if (!(err instanceof ScanFailedError)) {
         console.error('[try-scan] detection failed:', err);
       }
       // The visitor got nothing — give the lifetime unit back.

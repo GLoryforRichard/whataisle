@@ -3,6 +3,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgTable,
   text,
   timestamp,
@@ -23,12 +24,42 @@ export const EMBEDDING_DIM = 768;
  * is enforced in one place.
  */
 
+/**
+ * Store lifecycle (requirements §6).
+ *
+ *   onboarding   handle picked; may or may not have paid; no video yet
+ *   awaiting_map video received, waiting on us to draw the floor map
+ *   live         we published the map — scanning and shopper search are open
+ *
+ * `live` is the single gate: getRequestStore() and the store layout both
+ * refuse anything else, so a store that is not live has no shopper or staff
+ * surface at all. The transition to live is OURS to make (publishFloorMap),
+ * not the owner's — they confirm the map afterwards as a correctness check,
+ * which can send it back for redrawing but never re-locks the store.
+ *
+ * suspended/closing/closed are declared but unreachable: nothing writes them
+ * (closure hard-deletes instead, §7). Left in place for a future
+ * suspend/reactivate control rather than pretending the states exist.
+ */
 export type StoreStatus =
   | 'onboarding'
+  | 'awaiting_map'
   | 'live'
   | 'suspended'
   | 'closing'
   | 'closed';
+/**
+ * Statuses in which the owner may still operate their store's back office.
+ * Excludes the terminal/suspended states — and note it deliberately includes
+ * awaiting_map, or an owner would be locked out of their own settings during
+ * the exact window when they are waiting on us.
+ */
+export const ACTIVE_STORE_STATUSES: StoreStatus[] = [
+  'onboarding',
+  'awaiting_map',
+  'live',
+];
+
 export type FloorMapStatus = 'none' | 'draft' | 'awaiting_confirm' | 'published';
 export type ShelfStatus = 'active' | 'deleted';
 
@@ -241,39 +272,6 @@ export const salesLead = pgTable(
       table.createdAt
     ),
     salesLeadEmailIdx: index('sales_lead_email_idx').on(table.email),
-  })
-);
-
-export type StoreInviteStatus = 'pending' | 'accepted' | 'revoked';
-
-export const storeInvite = pgTable(
-  'store_invite',
-  {
-    id: text('id').primaryKey(),
-    email: text('email').notNull(),
-    tokenHash: text('token_hash').notNull(),
-    status: text('status')
-      .notNull()
-      .default('pending')
-      .$type<StoreInviteStatus>(),
-    createdByUserId: text('created_by_user_id')
-      .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    acceptedByUserId: text('accepted_by_user_id').references(() => user.id, {
-      onDelete: 'set null',
-    }),
-    expiresAt: timestamp('expires_at').notNull(),
-    acceptedAt: timestamp('accepted_at'),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-  },
-  (table) => ({
-    storeInviteTokenHashIdx: uniqueIndex('store_invite_token_hash_idx').on(
-      table.tokenHash
-    ),
-    storeInviteEmailStatusIdx: index('store_invite_email_status_idx').on(
-      table.email,
-      table.status
-    ),
   })
 );
 
@@ -551,6 +549,14 @@ export const aiUsageLog = pgTable(
     inputTokens: integer('input_tokens').notNull().default(0),
     outputTokens: integer('output_tokens').notNull().default(0),
     images: integer('images').notNull().default(0),
+    /**
+     * Real USD billed by the provider for this call, when it reports one
+     * (OpenRouter returns `usage.cost`). NULL means no cost was reported —
+     * a network failure, or a provider we only have a price list for — and is
+     * deliberately distinct from a real 0. Scale 8 because single cheap calls
+     * bill as little as $0.0000028, which scale 6 would round away.
+     */
+    costUsd: numeric('cost_usd', { precision: 14, scale: 8, mode: 'number' }),
     latencyMs: integer('latency_ms').notNull().default(0),
     refId: text('ref_id'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
