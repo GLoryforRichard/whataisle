@@ -6,7 +6,6 @@ import {
   fontNotoSerif,
   fontQuicksand,
 } from '@/assets/fonts';
-import { PalettePicker } from '@/components/dev/palette-picker';
 import { StoreHeader } from '@/components/store/store-header';
 import { StoreNotFound } from '@/components/store/store-not-found';
 import { websiteConfig } from '@/config/website';
@@ -89,12 +88,6 @@ export default async function StoreLayout({
             <StoreNotFound />
           )}
           <Toaster richColors position="top-center" />
-          {/* Palette try-on: dev-only, same gate as the [locale] layout. */}
-          {((process.env.NODE_ENV === 'development' &&
-            process.env.NEXT_PUBLIC_E2E_TEST_MODE !== 'true') ||
-            process.env.NEXT_PUBLIC_PALETTE_PREVIEW === 'true') && (
-            <PalettePicker />
-          )}
         </NextIntlClientProvider>
       </body>
     </html>

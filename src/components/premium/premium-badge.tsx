@@ -35,7 +35,7 @@ export function PremiumBadge({
       variant={variant}
       className={cn(
         'inline-flex items-center gap-1 font-medium',
-        'bg-orange-400 text-white border-0',
+        'border-0 bg-[var(--brand)] text-white',
         sizeClasses[size],
         className
       )}

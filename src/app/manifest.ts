@@ -27,8 +27,9 @@ export default function manifest(): MetadataRoute.Manifest {
     description: defaultMessages.Metadata.description,
     start_url: '/',
     display: 'standalone',
+    // Keep in sync with --brand / --background in src/styles/globals.css.
     background_color: '#ffffff',
-    theme_color: '#ffffff',
+    theme_color: '#2765a8',
     icons: [
       {
         src: '/android-chrome-192x192.png',

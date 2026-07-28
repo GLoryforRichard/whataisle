@@ -331,6 +331,13 @@ Present in the tree but **not live** — do not treat these as working features:
 - Filenames: kebab-case (`dashboard-sidebar.tsx`); hooks prefixed `use-`
 - Named exports preferred; default exports only for pages/layouts
 - Server-only modules start with `import 'server-only'`
+- Colors flow through the tokens in `src/styles/globals.css` (brand palette:
+  湖蓝净白 lake blue, pure-white page background — owner decisions 2026-07-28).
+  Never hex-hardcode brand-family colors in components. Conventions the
+  palette depends on: text on brand fills is white; text on accent fills is
+  `--brand-accent-foreground`; the shopper map pin is `--map-target` and must
+  never be reused for brand or error colors. `pnpm tsx
+  scripts/check-contrast.mts` verifies every relied-upon pairing.
 - Tailwind CSS v4 with tokens in `src/styles/`
 - UI primitives from Radix UI; icons from `lucide-react`
 - Conventional Commits: `feat:`, `fix:`, `chore:`, `docs:`, `test:`

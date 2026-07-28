@@ -39,7 +39,7 @@ export const websiteConfig: WebsiteConfig = {
   },
   metadata: {
     images: {
-      ogImage: '/og.png',
+      ogImage: '/og.png?v=2',
       logoLight: '/logo.png',
       logoDark: '/logo-dark.png',
     },

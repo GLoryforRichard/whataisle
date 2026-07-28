@@ -7,7 +7,6 @@ import {
   fontNotoSerif,
   fontQuicksand,
 } from '@/assets/fonts';
-import { PalettePicker } from '@/components/dev/palette-picker';
 import { TailwindIndicator } from '@/components/layout/tailwind-indicator';
 import { routing } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
@@ -68,14 +67,6 @@ export default async function LocaleLayout({
 
               <Toaster richColors position="top-right" offset={64} />
               <TailwindIndicator />
-              {/* Palette try-on: dev-only (never in E2E — a fixed overlay
-                  would flake bottom-anchored assertions); set
-                  NEXT_PUBLIC_PALETTE_PREVIEW=true to demo a prod build. */}
-              {((process.env.NODE_ENV === 'development' &&
-                process.env.NEXT_PUBLIC_E2E_TEST_MODE !== 'true') ||
-                process.env.NEXT_PUBLIC_PALETTE_PREVIEW === 'true') && (
-                <PalettePicker />
-              )}
               <Analytics />
             </Providers>
           </NextIntlClientProvider>

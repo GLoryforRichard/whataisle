@@ -86,6 +86,3 @@ logs/security/
 
 # Local file storage (dev)
 .storage/
-
-# Palette try-on screenshots (temporary tooling)
-/palette-shots

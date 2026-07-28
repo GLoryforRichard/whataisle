@@ -114,30 +114,30 @@
 }
 
 :root {
-  /* ── Fresh Green (5a) brand palette ──
+  /* ── 湖蓝净白 Lake Blue (all-blue, no yellow) brand palette ──
      Page background is deliberately PURE WHITE (owner decision: warm
      off-whites render dirty on cheap panels). --brand-paper doubles as
      "light text on brand surfaces", so it is white too; tinted color is
      reserved for small intentional accents, never page-sized fills. */
-  --brand: #0f4c3f;
-  --brand-hover: #17604f;
-  --brand-accent: #c6f24e;
-  --brand-accent-hover: #d3f76e;
+  --brand: #2765a8;
+  --brand-hover: #1e5290;
+  --brand-accent: #8fc1e8;
+  --brand-accent-hover: #a9d2f0;
   --brand-paper: #ffffff;
-  --brand-ink: #12352c;
-  --brand-accent-foreground: #12352c;
+  --brand-ink: #24344a;
+  --brand-accent-foreground: #24344a;
   /* The shopper map's "your product is HERE" pin. Deliberately its own token:
      it must stay distinguishable from --destructive AND from --brand under
      every palette (a red brand gets a blue pin). */
-  --map-target: #e5484d;
+  --map-target: #cf343a;
   /* Border shade paired with --accent tint fills (chips, drop zones). */
-  --accent-border: #d8ebb4;
+  --accent-border: #c8def2;
 
-  /* ── Style-axis role vars (marketing chrome) ──────────────────────────
-     The default "filled" style paints nav/footer/CTAs solid with the
-     brand; the "outline" style (html[data-style='outline']) turns them
-     into white surfaces with brand line-work. Marketing chrome consumes
-     ONLY these vars, so the style flips without touching components. */
+  /* ── Marketing-chrome role vars ──────────────────────────────────────
+     Nav, footer, CTAs, chips and the scan band consume these instead of
+     raw brand tokens, so a future restyle (e.g. an outline variant) is a
+     var-block edit, not a component sweep. The shipped design is the
+     "filled" treatment the owner picked (2026-07-28). */
   --nav-bg: var(--brand);
   --nav-fg: #ffffff;
   --nav-shadow: 0 6px 20px color-mix(in srgb, var(--brand-ink) 16%, transparent);
@@ -156,32 +156,32 @@
   --band-border: var(--accent-border);
 
   --card: #ffffff;
-  --card-foreground: #12352c;
+  --card-foreground: #24344a;
   --popover: #ffffff;
-  --popover-foreground: #12352c;
-  --primary: #0f4c3f;
+  --popover-foreground: #24344a;
+  --primary: #2765a8;
   --primary-foreground: #ffffff;
-  --secondary: #eef3e6;
-  --secondary-foreground: #0f4c3f;
+  --secondary: #e7eff7;
+  --secondary-foreground: #2765a8;
   --muted: #f5f5f4;
-  --muted-foreground: #566058;
-  --accent: #f1f7e8;
-  --accent-foreground: #0f4c3f;
+  --muted-foreground: #51617a;
+  --accent: #eaf2fa;
+  --accent-foreground: #2765a8;
   --destructive: #c1272d;
   --destructive-foreground: #ffffff;
-  --border: #e4decb;
-  --input: #d5dccb;
-  --ring: #0f4c3f;
+  --border: #dfe2e6;
+  --input: #cbd2da;
+  --ring: #2765a8;
   /* Light dashboard chrome — a calm warm surround (the inset content panel
-     floats on it), dark-green text, and a soft green active/hover pill. */
+     floats on it), ink-blue text, and a soft blue active/hover pill. */
   --sidebar: #f7f7f5;
-  --sidebar-foreground: #12352c;
-  --sidebar-primary: #0f4c3f;
+  --sidebar-foreground: #24344a;
+  --sidebar-primary: #2765a8;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e6f0ce;
-  --sidebar-accent-foreground: #0f4c3f;
-  --sidebar-border: #e0dccf;
-  --sidebar-ring: #0f4c3f;
+  --sidebar-accent: #e3ecf5;
+  --sidebar-accent-foreground: #2765a8;
+  --sidebar-border: #dfe2e6;
+  --sidebar-ring: #2765a8;
   --font-sans:
     var(--font-quicksand), var(--font-noto-sans-sc), var(--font-noto-sans),
     ui-sans-serif, system-ui, sans-serif;
@@ -202,386 +202,13 @@
     0px 4px 8px 0px hsl(0 0% 0% / 0.05), 0px 8px 10px -1px hsl(0 0% 0% / 0.05);
   --shadow-2xl: 0px 4px 8px 0px hsl(0 0% 0% / 0.13);
   --background: #ffffff;
-  --foreground: #12352c;
+  --foreground: #24344a;
 }
 
 /* NOTE: the product is light-only (forcedTheme="light", enableSwitch:false),
    so there is deliberately no `.dark` token block. The @custom-variant dark
    line at the top stays so template components' `dark:` utilities keep
    compiling — they just never activate. */
-
-/* ── Palette try-on (TEMPORARY, until the owner picks) ──────────────────
-   Four candidate palettes as full token overrides, toggled by the dev-only
-   PalettePicker (html[data-palette=…]). No attribute = the current green.
-   Page background stays pure white in every candidate (owner decision).
-   All values are AA-tuned: white on primary >=4.5, ink/muted on white
-   >=5.9, ink on accent chips >=5.3. Jujube's map pin is BLUE because a red
-   pin inside a red-brand UI is indistinguishable from buttons and errors
-   (#9C3D2E vs #C1272D = 1.15:1). After the owner picks, the winner's values
-   move into :root and these blocks plus the picker are deleted. */
-
-/* 甲 枣红暖金 — jujube red + warm gold */
-html[data-palette="jujube"] {
-  --brand: #9c3d2e;
-  --brand-hover: #7e2f23;
-  --brand-accent: #d9a441;
-  --brand-accent-hover: #e3b45c;
-  --brand-ink: #40302a;
-  --brand-accent-foreground: #40302a;
-  --foreground: #40302a;
-  --card-foreground: #40302a;
-  --popover-foreground: #40302a;
-  --primary: #9c3d2e;
-  --secondary: #f6e7de;
-  --secondary-foreground: #7e2f23;
-  --muted-foreground: #66564a;
-  --accent: #f8ecd6;
-  --accent-foreground: #9c3d2e;
-  --accent-border: #ebd9b8;
-  --border: #e7daca;
-  --input: #decbb2;
-  --ring: #9c3d2e;
-  --sidebar-foreground: #40302a;
-  --sidebar-primary: #9c3d2e;
-  --sidebar-accent: #f4e0d5;
-  --sidebar-accent-foreground: #7e2f23;
-  --sidebar-border: #e7daca;
-  --sidebar-ring: #9c3d2e;
-  --map-target: #2456a6;
-}
-
-/* 乙 柿子暖橙 — persimmon orange (one shade deeper than the mockup so
-   white text passes AA: #C75B28 was 4.24:1, #B04E1F is 5.31:1) */
-html[data-palette="persimmon"] {
-  --brand: #b04e1f;
-  --brand-hover: #96421a;
-  --brand-accent: #e8a25c;
-  --brand-accent-hover: #edb273;
-  --brand-ink: #4a3527;
-  --brand-accent-foreground: #4a3527;
-  --foreground: #4a3527;
-  --card-foreground: #4a3527;
-  --popover-foreground: #4a3527;
-  --primary: #b04e1f;
-  --secondary: #f9e9db;
-  --secondary-foreground: #96421a;
-  --muted-foreground: #6e5a48;
-  --accent: #fbeedd;
-  --accent-foreground: #b04e1f;
-  --accent-border: #f0d9bc;
-  --border: #e9decd;
-  --input: #e0cfb6;
-  --ring: #b04e1f;
-  --sidebar-foreground: #4a3527;
-  --sidebar-primary: #b04e1f;
-  --sidebar-accent: #f8e4cf;
-  --sidebar-accent-foreground: #96421a;
-  --sidebar-border: #e9decd;
-  --sidebar-ring: #b04e1f;
-  --map-target: #cf343a;
-}
-
-/* 丙 藏蓝米金 — steady navy + warm gold */
-html[data-palette="navy"] {
-  --brand: #24406b;
-  --brand-hover: #1b3253;
-  --brand-accent: #d9a441;
-  --brand-accent-hover: #e3b45c;
-  --brand-ink: #22314a;
-  --brand-accent-foreground: #22314a;
-  --foreground: #22314a;
-  --card-foreground: #22314a;
-  --popover-foreground: #22314a;
-  --primary: #24406b;
-  --secondary: #e8ecf3;
-  --secondary-foreground: #24406b;
-  --muted-foreground: #4e5a72;
-  --accent: #f6ecd7;
-  --accent-foreground: #24406b;
-  --accent-border: #e9d6ac;
-  --border: #e2dece;
-  --input: #d9d2bd;
-  --ring: #24406b;
-  --sidebar-foreground: #22314a;
-  --sidebar-primary: #24406b;
-  --sidebar-accent: #e5eaf2;
-  --sidebar-accent-foreground: #24406b;
-  --sidebar-border: #e2dece;
-  --sidebar-ring: #24406b;
-  --map-target: #cf343a;
-}
-
-/* 丁 茶叶绿米金 — traditional tea green + brass (no fluorescent lime) */
-html[data-palette="tea"] {
-  --brand: #1e5241;
-  --brand-hover: #174435;
-  --brand-accent: #d9b45b;
-  --brand-accent-hover: #e2c170;
-  --brand-ink: #26372f;
-  --brand-accent-foreground: #26372f;
-  --foreground: #26372f;
-  --card-foreground: #26372f;
-  --popover-foreground: #26372f;
-  --primary: #1e5241;
-  --secondary: #ebf1e5;
-  --secondary-foreground: #1e5241;
-  --muted-foreground: #566058;
-  --accent: #f6f0de;
-  --accent-foreground: #1e5241;
-  --accent-border: #e5d6a9;
-  --border: #e0decf;
-  --input: #d5dccb;
-  --ring: #1e5241;
-  --sidebar-foreground: #26372f;
-  --sidebar-primary: #1e5241;
-  --sidebar-accent: #e4edda;
-  --sidebar-accent-foreground: #1e5241;
-  --sidebar-border: #e0decf;
-  --sidebar-ring: #1e5241;
-  --map-target: #cf343a;
-}
-
-/* 戊 湖蓝清爽 — a lighter, brighter blue than navy (owner asked) */
-html[data-palette="lake"] {
-  --brand: #2765a8;
-  --brand-hover: #1e5290;
-  --brand-accent: #e5ae53;
-  --brand-accent-hover: #ecbe70;
-  --brand-ink: #24344a;
-  --brand-accent-foreground: #24344a;
-  --foreground: #24344a;
-  --card-foreground: #24344a;
-  --popover-foreground: #24344a;
-  --primary: #2765a8;
-  --secondary: #e7eff7;
-  --secondary-foreground: #2765a8;
-  --muted-foreground: #51617a;
-  --accent: #f9eed9;
-  --accent-foreground: #2765a8;
-  --accent-border: #eddaae;
-  --border: #dfe2e6;
-  --input: #cbd2da;
-  --ring: #2765a8;
-  --sidebar-foreground: #24344a;
-  --sidebar-primary: #2765a8;
-  --sidebar-accent: #e3ecf5;
-  --sidebar-accent-foreground: #2765a8;
-  --sidebar-border: #dfe2e6;
-  --sidebar-ring: #2765a8;
-  --map-target: #cf343a;
-}
-
-/* 己 青碧市集 — market-fresh teal + mango gold */
-html[data-palette="teal"] {
-  --brand: #14796b;
-  --brand-hover: #0f6357;
-  --brand-accent: #e7b54a;
-  --brand-accent-hover: #edc466;
-  --brand-ink: #1f3833;
-  --brand-accent-foreground: #1f3833;
-  --foreground: #1f3833;
-  --card-foreground: #1f3833;
-  --popover-foreground: #1f3833;
-  --primary: #14796b;
-  --secondary: #e4f1ee;
-  --secondary-foreground: #14796b;
-  --muted-foreground: #4e625d;
-  --accent: #f8efd7;
-  --accent-foreground: #14796b;
-  --accent-border: #ebd8a8;
-  --border: #dce4e1;
-  --input: #c9d6d1;
-  --ring: #14796b;
-  --sidebar-foreground: #1f3833;
-  --sidebar-primary: #14796b;
-  --sidebar-accent: #dfeeea;
-  --sidebar-accent-foreground: #14796b;
-  --sidebar-border: #dce4e1;
-  --sidebar-ring: #14796b;
-  --map-target: #cf343a;
-}
-
-/* 庚 咖啡暖棕 — old-school dry-goods shop brown + caramel */
-html[data-palette="coffee"] {
-  --brand: #6e4b2a;
-  --brand-hover: #593c21;
-  --brand-accent: #d8a159;
-  --brand-accent-hover: #e0b172;
-  --brand-ink: #33251a;
-  --brand-accent-foreground: #33251a;
-  --foreground: #33251a;
-  --card-foreground: #33251a;
-  --popover-foreground: #33251a;
-  --primary: #6e4b2a;
-  --secondary: #f3eadf;
-  --secondary-foreground: #593c21;
-  --muted-foreground: #6a5b4c;
-  --accent: #f7eddd;
-  --accent-foreground: #6e4b2a;
-  --accent-border: #e7d3b4;
-  --border: #e6dcce;
-  --input: #d8c9b4;
-  --ring: #6e4b2a;
-  --sidebar-foreground: #33251a;
-  --sidebar-primary: #6e4b2a;
-  --sidebar-accent: #f0e3d3;
-  --sidebar-accent-foreground: #593c21;
-  --sidebar-border: #e6dcce;
-  --sidebar-ring: #6e4b2a;
-  --map-target: #cf343a;
-}
-
-/* 辛 酒红香槟 — deep wine + champagne gold (red family, so the map pin
-   goes blue for the same reason as jujube) */
-html[data-palette="burgundy"] {
-  --brand: #7e2d40;
-  --brand-hover: #672433;
-  --brand-accent: #d3ac5c;
-  --brand-accent-hover: #ddba74;
-  --brand-ink: #3b222a;
-  --brand-accent-foreground: #3b222a;
-  --foreground: #3b222a;
-  --card-foreground: #3b222a;
-  --popover-foreground: #3b222a;
-  --primary: #7e2d40;
-  --secondary: #f6e6ea;
-  --secondary-foreground: #672433;
-  --muted-foreground: #6b5560;
-  --accent: #f7edd8;
-  --accent-foreground: #7e2d40;
-  --accent-border: #e8d6ac;
-  --border: #e9d9d4;
-  --input: #dcc6c4;
-  --ring: #7e2d40;
-  --sidebar-foreground: #3b222a;
-  --sidebar-primary: #7e2d40;
-  --sidebar-accent: #f3e0e4;
-  --sidebar-accent-foreground: #672433;
-  --sidebar-border: #e9d9d4;
-  --sidebar-ring: #7e2d40;
-  --map-target: #2456a6;
-}
-
-/* 壬 墨黑描金 — traditional shop-sign black + gold (老字号牌匾) */
-html[data-palette="inkgold"] {
-  --brand: #2e2a25;
-  --brand-hover: #1e1b17;
-  --brand-accent: #c9a34e;
-  --brand-accent-hover: #d5b168;
-  --brand-ink: #262220;
-  --brand-accent-foreground: #262220;
-  --foreground: #262220;
-  --card-foreground: #262220;
-  --popover-foreground: #262220;
-  --primary: #2e2a25;
-  --secondary: #efede8;
-  --secondary-foreground: #2e2a25;
-  --muted-foreground: #5c574f;
-  --accent: #f6efdc;
-  --accent-foreground: #2e2a25;
-  --accent-border: #e4d3a6;
-  --border: #e2dfd8;
-  --input: #cfcbc1;
-  --ring: #2e2a25;
-  --sidebar-foreground: #262220;
-  --sidebar-primary: #2e2a25;
-  --sidebar-accent: #ece8df;
-  --sidebar-accent-foreground: #2e2a25;
-  --sidebar-border: #e2dfd8;
-  --sidebar-ring: #2e2a25;
-  --map-target: #cf343a;
-}
-
-/* 戊² 湖蓝净白 — lake blue, all-blue accents (owner: no yellow) */
-html[data-palette="lakemono"] {
-  --brand: #2765a8;
-  --brand-hover: #1e5290;
-  --brand-accent: #8fc1e8;
-  --brand-accent-hover: #a9d2f0;
-  --brand-ink: #24344a;
-  --brand-accent-foreground: #24344a;
-  --foreground: #24344a;
-  --card-foreground: #24344a;
-  --popover-foreground: #24344a;
-  --primary: #2765a8;
-  --secondary: #e7eff7;
-  --secondary-foreground: #2765a8;
-  --muted-foreground: #51617a;
-  --accent: #eaf2fa;
-  --accent-foreground: #2765a8;
-  --accent-border: #c8def2;
-  --border: #dfe2e6;
-  --input: #cbd2da;
-  --ring: #2765a8;
-  --sidebar-foreground: #24344a;
-  --sidebar-primary: #2765a8;
-  --sidebar-accent: #e3ecf5;
-  --sidebar-accent-foreground: #2765a8;
-  --sidebar-border: #dfe2e6;
-  --sidebar-ring: #2765a8;
-  --map-target: #cf343a;
-}
-
-/* 戊³ 湖蓝映红 — lake blue + Chinese red accent (Costco-familiar combo;
-   accent is dark, so accent-foreground flips to white). Note the accent
-   sits near --destructive by design — flagged to the owner. */
-html[data-palette="lakered"] {
-  --brand: #2765a8;
-  --brand-hover: #1e5290;
-  --brand-accent: #c8433c;
-  --brand-accent-hover: #b03931;
-  --brand-ink: #24344a;
-  --brand-accent-foreground: #ffffff;
-  --foreground: #24344a;
-  --card-foreground: #24344a;
-  --popover-foreground: #24344a;
-  --primary: #2765a8;
-  --secondary: #e7eff7;
-  --secondary-foreground: #2765a8;
-  --muted-foreground: #51617a;
-  --accent: #eaf2fa;
-  --accent-foreground: #2765a8;
-  --accent-border: #c8def2;
-  --border: #dfe2e6;
-  --input: #cbd2da;
-  --ring: #2765a8;
-  --sidebar-foreground: #24344a;
-  --sidebar-primary: #2765a8;
-  --sidebar-accent: #e3ecf5;
-  --sidebar-accent-foreground: #2765a8;
-  --sidebar-border: #dfe2e6;
-  --sidebar-ring: #2765a8;
-  --map-target: #cf343a;
-}
-
-/* ── Style try-on: 线条 (outline / line-work) variant ──────────────────
-   White chrome with brand line-work instead of solid fills. Combines
-   freely with every palette above. Deleted with the picker after the
-   owner's decision. */
-html[data-style="outline"] {
-  --nav-bg: #ffffff;
-  --nav-fg: var(--brand-ink);
-  --nav-shadow: 0 1px 0 var(--border);
-  --footer-bg: #ffffff;
-  --footer-fg: var(--brand-ink);
-  --cta-bg: transparent;
-  --cta-fg: var(--brand);
-  --cta-border: var(--brand);
-  --cta-hover-bg: var(--brand);
-  --cta-hover-fg: #ffffff;
-  --cta-shadow: none;
-  --chip-bg: transparent;
-  --chip-border: var(--brand);
-  --chip-fg: var(--brand);
-  --band-bg: #ffffff;
-  --band-border: var(--brand);
-}
-html[data-style="outline"] .wa-nav {
-  border-bottom: 1.5px solid var(--border);
-}
-html[data-style="outline"] .wa-footer {
-  border-top: 1.5px solid var(--border);
-}
 
 /* Chinese-first font stack: Quicksand has no CJK glyphs, so on Chinese pages
    Noto Sans SC must lead — otherwise every mixed-script line renders in two

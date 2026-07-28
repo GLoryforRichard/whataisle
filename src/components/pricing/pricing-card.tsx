@@ -111,8 +111,7 @@ export function PricingCard({
       className={cn(
         'flex flex-col h-full overflow-visible',
         plan.popular && 'relative',
-        isCurrentPlan &&
-          'border-blue-500 shadow-lg shadow-blue-100 dark:shadow-blue-900/20',
+        isCurrentPlan && 'border-primary shadow-lg shadow-primary/10',
         className
       )}
     >
@@ -133,7 +132,7 @@ export function PricingCard({
         <div className="absolute -top-3.5 left-1/2 transform -translate-x-1/2">
           <Badge
             variant="default"
-            className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 border-blue-200 dark:border-blue-800"
+            className="border-[var(--accent-border)] bg-secondary text-secondary-foreground"
           >
             {t('currentPlan')}
           </Badge>
@@ -178,8 +177,7 @@ export function PricingCard({
         ) : isCurrentPlan ? (
           <Button
             disabled
-            className="mt-4 w-full bg-blue-100 dark:bg-blue-800
-          text-blue-700 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-800 border border-blue-200 dark:border-blue-700"
+            className="mt-4 w-full border border-[var(--accent-border)] bg-secondary text-secondary-foreground hover:bg-secondary"
           >
             {t('yourCurrentPlan')}
           </Button>
@@ -214,10 +212,7 @@ export function PricingCard({
         {/* show trial period if it exists */}
         {hasTrialPeriod && (
           <div className="my-4">
-            <span
-              className="inline-block px-2.5 py-1.5 text-xs font-medium rounded-md
-            bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-800 shadow-sm"
-            >
+            <span className="inline-block rounded-md border border-[var(--accent-border)] bg-accent px-2.5 py-1.5 font-medium text-accent-foreground text-xs shadow-sm">
               {t('daysTrial', { days: price.trialPeriodDays as number })}
             </span>
           </div>

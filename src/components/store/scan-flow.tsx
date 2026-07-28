@@ -601,8 +601,11 @@ export function ScanFlow({
               <span className="absolute right-4 bottom-4 size-8 rounded-br-xl border-white/80 border-r-2 border-b-2" />
               <div className="wa-scanline">
                 <div
-                  className="h-0.5 rounded-full bg-emerald-300/90"
-                  style={{ boxShadow: '0 0 12px 3px rgba(110,231,183,0.7)' }}
+                  className="h-0.5 rounded-full bg-[var(--brand-accent)]/90"
+                  style={{
+                    boxShadow:
+                      '0 0 12px 3px color-mix(in srgb, var(--brand-accent) 70%, transparent)',
+                  }}
                 />
               </div>
               <div
