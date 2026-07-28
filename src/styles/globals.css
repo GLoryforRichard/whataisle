@@ -125,6 +125,7 @@
   --brand-accent-hover: #d3f76e;
   --brand-paper: #ffffff;
   --brand-ink: #12352c;
+  --brand-accent-foreground: #12352c;
   /* The shopper map's "your product is HERE" pin. Deliberately its own token:
      it must stay distinguishable from --destructive AND from --brand under
      every palette (a red brand gets a blue pin). */
@@ -226,6 +227,7 @@ html[data-palette="jujube"] {
   --brand-accent: #d9a441;
   --brand-accent-hover: #e3b45c;
   --brand-ink: #40302a;
+  --brand-accent-foreground: #40302a;
   --foreground: #40302a;
   --card-foreground: #40302a;
   --popover-foreground: #40302a;
@@ -256,6 +258,7 @@ html[data-palette="persimmon"] {
   --brand-accent: #e8a25c;
   --brand-accent-hover: #edb273;
   --brand-ink: #4a3527;
+  --brand-accent-foreground: #4a3527;
   --foreground: #4a3527;
   --card-foreground: #4a3527;
   --popover-foreground: #4a3527;
@@ -285,6 +288,7 @@ html[data-palette="navy"] {
   --brand-accent: #d9a441;
   --brand-accent-hover: #e3b45c;
   --brand-ink: #22314a;
+  --brand-accent-foreground: #22314a;
   --foreground: #22314a;
   --card-foreground: #22314a;
   --popover-foreground: #22314a;
@@ -314,6 +318,7 @@ html[data-palette="tea"] {
   --brand-accent: #d9b45b;
   --brand-accent-hover: #e2c170;
   --brand-ink: #26372f;
+  --brand-accent-foreground: #26372f;
   --foreground: #26372f;
   --card-foreground: #26372f;
   --popover-foreground: #26372f;
@@ -343,6 +348,7 @@ html[data-palette="lake"] {
   --brand-accent: #e5ae53;
   --brand-accent-hover: #ecbe70;
   --brand-ink: #24344a;
+  --brand-accent-foreground: #24344a;
   --foreground: #24344a;
   --card-foreground: #24344a;
   --popover-foreground: #24344a;
@@ -372,6 +378,7 @@ html[data-palette="teal"] {
   --brand-accent: #e7b54a;
   --brand-accent-hover: #edc466;
   --brand-ink: #1f3833;
+  --brand-accent-foreground: #1f3833;
   --foreground: #1f3833;
   --card-foreground: #1f3833;
   --popover-foreground: #1f3833;
@@ -401,6 +408,7 @@ html[data-palette="coffee"] {
   --brand-accent: #d8a159;
   --brand-accent-hover: #e0b172;
   --brand-ink: #33251a;
+  --brand-accent-foreground: #33251a;
   --foreground: #33251a;
   --card-foreground: #33251a;
   --popover-foreground: #33251a;
@@ -431,6 +439,7 @@ html[data-palette="burgundy"] {
   --brand-accent: #d3ac5c;
   --brand-accent-hover: #ddba74;
   --brand-ink: #3b222a;
+  --brand-accent-foreground: #3b222a;
   --foreground: #3b222a;
   --card-foreground: #3b222a;
   --popover-foreground: #3b222a;
@@ -460,6 +469,7 @@ html[data-palette="inkgold"] {
   --brand-accent: #c9a34e;
   --brand-accent-hover: #d5b168;
   --brand-ink: #262220;
+  --brand-accent-foreground: #262220;
   --foreground: #262220;
   --card-foreground: #262220;
   --popover-foreground: #262220;
@@ -479,6 +489,68 @@ html[data-palette="inkgold"] {
   --sidebar-accent-foreground: #2e2a25;
   --sidebar-border: #e2dfd8;
   --sidebar-ring: #2e2a25;
+  --map-target: #cf343a;
+}
+
+/* 戊² 湖蓝净白 — lake blue, all-blue accents (owner: no yellow) */
+html[data-palette="lakemono"] {
+  --brand: #2765a8;
+  --brand-hover: #1e5290;
+  --brand-accent: #8fc1e8;
+  --brand-accent-hover: #a9d2f0;
+  --brand-ink: #24344a;
+  --brand-accent-foreground: #24344a;
+  --foreground: #24344a;
+  --card-foreground: #24344a;
+  --popover-foreground: #24344a;
+  --primary: #2765a8;
+  --secondary: #e7eff7;
+  --secondary-foreground: #2765a8;
+  --muted-foreground: #51617a;
+  --accent: #eaf2fa;
+  --accent-foreground: #2765a8;
+  --accent-border: #c8def2;
+  --border: #dfe2e6;
+  --input: #cbd2da;
+  --ring: #2765a8;
+  --sidebar-foreground: #24344a;
+  --sidebar-primary: #2765a8;
+  --sidebar-accent: #e3ecf5;
+  --sidebar-accent-foreground: #2765a8;
+  --sidebar-border: #dfe2e6;
+  --sidebar-ring: #2765a8;
+  --map-target: #cf343a;
+}
+
+/* 戊³ 湖蓝映红 — lake blue + Chinese red accent (Costco-familiar combo;
+   accent is dark, so accent-foreground flips to white). Note the accent
+   sits near --destructive by design — flagged to the owner. */
+html[data-palette="lakered"] {
+  --brand: #2765a8;
+  --brand-hover: #1e5290;
+  --brand-accent: #c8433c;
+  --brand-accent-hover: #b03931;
+  --brand-ink: #24344a;
+  --brand-accent-foreground: #ffffff;
+  --foreground: #24344a;
+  --card-foreground: #24344a;
+  --popover-foreground: #24344a;
+  --primary: #2765a8;
+  --secondary: #e7eff7;
+  --secondary-foreground: #2765a8;
+  --muted-foreground: #51617a;
+  --accent: #eaf2fa;
+  --accent-foreground: #2765a8;
+  --accent-border: #c8def2;
+  --border: #dfe2e6;
+  --input: #cbd2da;
+  --ring: #2765a8;
+  --sidebar-foreground: #24344a;
+  --sidebar-primary: #2765a8;
+  --sidebar-accent: #e3ecf5;
+  --sidebar-accent-foreground: #2765a8;
+  --sidebar-border: #dfe2e6;
+  --sidebar-ring: #2765a8;
   --map-target: #cf343a;
 }
 

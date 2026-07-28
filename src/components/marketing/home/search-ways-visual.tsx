@@ -85,7 +85,7 @@ export function SearchWaysVisual({
             className="flex items-center gap-3 rounded-2xl border border-[var(--accent-border)] bg-accent px-3 py-2.5"
           >
             <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand-accent)]">
-              <MicIcon className="size-4 text-[var(--brand-ink)]" />
+              <MicIcon className="size-4 text-[var(--brand-accent-foreground)]" />
             </span>
             <span className="flex h-7 items-center gap-[3px]">
               {WAVE_HEIGHTS.map((height, i) => (

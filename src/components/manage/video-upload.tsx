@@ -111,7 +111,7 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
         </p>
         <LocaleLink
           href="/dashboard"
-          className="mt-2 inline-flex h-12 items-center gap-2 rounded-full bg-[var(--brand-accent)] px-6 font-bold text-[var(--brand-ink)] transition-transform hover:bg-[var(--brand-accent-hover)] active:scale-[0.97]"
+          className="mt-2 inline-flex h-12 items-center gap-2 rounded-full bg-[var(--brand-accent)] px-6 font-bold text-[var(--brand-accent-foreground)] transition-transform hover:bg-[var(--brand-accent-hover)] active:scale-[0.97]"
         >
           {t('startScanning')}
           <ArrowRightIcon className="size-[18px]" aria-hidden />
@@ -135,7 +135,7 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
         <ol className="flex flex-col gap-3">
           {[t('guide1'), t('guide2'), t('guide3')].map((step, i) => (
             <li key={step} className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-accent)] font-bold text-[13px] text-[var(--brand-ink)]">
+              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-accent)] font-bold text-[13px] text-[var(--brand-accent-foreground)]">
                 {i + 1}
               </span>
               <span className="text-muted-foreground leading-relaxed">

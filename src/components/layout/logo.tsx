@@ -19,7 +19,7 @@ export function Logo({ className }: { className?: string }) {
       <svg
         viewBox="0 0 24 24"
         fill="none"
-        stroke="var(--brand-ink)"
+        stroke="var(--brand-accent-foreground)"
         strokeWidth={2.2}
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -203,7 +203,7 @@ export function Navbar({ scroll = true }: NavBarProps) {
                     </LoginWrapper>
                     <LocaleLink
                       href={Routes.Register}
-                      className="inline-flex h-9 items-center rounded-full bg-[var(--brand-accent)] px-4 font-bold text-[var(--brand-ink)] text-base transition-colors hover:bg-[var(--brand-accent-hover)]"
+                      className="inline-flex h-9 items-center rounded-full bg-[var(--brand-accent)] px-4 font-bold text-[var(--brand-accent-foreground)] text-base transition-colors hover:bg-[var(--brand-accent-hover)]"
                     >
                       {t('Common.signUp')}
                     </LocaleLink>

@@ -106,7 +106,7 @@ export function AnswerMapVisual({
         variants={answerVariant}
         className="flex items-center gap-2.5 self-start rounded-2xl rounded-bl-md border border-[var(--accent-border)] bg-accent p-2.5 pr-4"
       >
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--brand-accent)] font-bold text-[var(--brand-ink)] text-xl">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--brand-accent)] font-bold text-[var(--brand-accent-foreground)] text-xl">
           B4
         </span>
         <span className="font-semibold text-[var(--brand-ink)] text-xs leading-snug">

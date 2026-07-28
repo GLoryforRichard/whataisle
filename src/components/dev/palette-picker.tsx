@@ -25,6 +25,8 @@ const PALETTES: Array<{ value: string; label: string; dot: string }> = [
   { value: 'navy', label: '丙 藏蓝', dot: '#24406b' },
   { value: 'tea', label: '丁 茶绿', dot: '#1e5241' },
   { value: 'lake', label: '戊 湖蓝', dot: '#2765a8' },
+  { value: 'lakemono', label: '戊² 湖蓝净白', dot: '#8fc1e8' },
+  { value: 'lakered', label: '戊³ 湖蓝映红', dot: '#c8433c' },
   { value: 'teal', label: '己 青碧', dot: '#14796b' },
   { value: 'coffee', label: '庚 咖啡', dot: '#6e4b2a' },
   { value: 'burgundy', label: '辛 酒红', dot: '#7e2d40' },

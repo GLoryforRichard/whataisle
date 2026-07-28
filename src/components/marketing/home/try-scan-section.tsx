@@ -275,7 +275,7 @@ export function HeroTryScan() {
                   }}
                 >
                   {b.w > 0.16 && (
-                    <span className="absolute top-0 left-0 max-w-full truncate rounded-br-[3px] bg-[var(--brand-accent)] px-1 py-px font-semibold text-[10px] text-[var(--brand-ink)] leading-tight">
+                    <span className="absolute top-0 left-0 max-w-full truncate rounded-br-[3px] bg-[var(--brand-accent)] px-1 py-px font-semibold text-[10px] text-[var(--brand-accent-foreground)] leading-tight">
                       {b.label}
                     </span>
                   )}
