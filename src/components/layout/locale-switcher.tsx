@@ -69,7 +69,7 @@ export function LocaleSwitcher({ variant = 'dark' }: LocaleSwitcherProps) {
     <div
       className={cn(
         'flex h-9 shrink-0 items-center gap-0.5 rounded-full border p-0.5',
-        variant === 'dark' ? 'border-[var(--brand-paper)]/30' : 'border-border'
+        variant === 'dark' ? 'border-[var(--nav-fg)]/30' : 'border-border'
       )}
     >
       {locales.map((localeOption) => {
@@ -84,8 +84,8 @@ export function LocaleSwitcher({ variant = 'dark' }: LocaleSwitcherProps) {
               'h-full cursor-pointer rounded-full px-3 font-semibold text-base transition-colors',
               variant === 'dark' &&
                 (isActive
-                  ? 'bg-white text-[var(--brand)]'
-                  : 'text-[var(--brand-paper)]/85 hover:text-white'),
+                  ? 'bg-[var(--nav-fg)] text-[var(--nav-bg)]'
+                  : 'text-[var(--nav-fg)]/85 hover:text-[var(--nav-fg)]'),
               variant === 'light' &&
                 (isActive
                   ? 'bg-[var(--brand)] text-primary-foreground'

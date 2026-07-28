@@ -198,7 +198,7 @@ export function HeroTryScan() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--brand)] px-5 font-bold text-white transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
+                className="inline-flex h-11 items-center gap-2 rounded-full border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-5 font-bold text-[var(--cta-fg)] transition-colors hover:bg-[var(--cta-hover-bg)] hover:text-[var(--cta-hover-fg)] active:scale-[0.97]"
               >
                 <ImageUpIcon className="size-4" aria-hidden />
                 {t('upload')}
@@ -311,7 +311,7 @@ export function HeroTryScan() {
             {errorCode === 'limit_reached' ? (
               <LocaleLink
                 href="/auth/register"
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--brand)] px-5 font-bold text-white transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
+                className="inline-flex h-11 items-center gap-2 rounded-full border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-5 font-bold text-[var(--cta-fg)] transition-colors hover:bg-[var(--cta-hover-bg)] hover:text-[var(--cta-hover-fg)] active:scale-[0.97]"
               >
                 {t('cta')}
                 <ArrowRightIcon className="size-4" aria-hidden />

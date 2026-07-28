@@ -82,7 +82,7 @@ export default async function HomePage({ params }: HomePageProps) {
         <Container className="px-3 sm:px-4">
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="wa-fade-up flex flex-col items-start gap-6">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-accent px-3.5 py-1.5 font-semibold text-[var(--brand)] text-sm">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--chip-border)] bg-[var(--chip-bg)] px-3.5 py-1.5 font-semibold text-[var(--chip-fg)] text-sm">
                 <MapPinIcon className="size-3.5" aria-hidden />
                 {t('hero.badge')}
               </span>
@@ -95,7 +95,7 @@ export default async function HomePage({ params }: HomePageProps) {
               <div className="mt-1 flex flex-wrap items-center gap-3.5">
                 <LocaleLink
                   href="/auth/register"
-                  className="inline-flex h-14 items-center gap-2 rounded-full bg-primary px-7 font-bold text-lg text-primary-foreground shadow-[0_10px_26px_color-mix(in_srgb,var(--brand)_25%,transparent)] transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
+                  className="inline-flex h-14 items-center gap-2 rounded-full border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-7 font-bold text-[var(--cta-fg)] text-lg shadow-[var(--cta-shadow)] transition-colors hover:bg-[var(--cta-hover-bg)] hover:text-[var(--cta-hover-fg)] active:scale-[0.97]"
                 >
                   {t('hero.primaryCta')}
                   <ArrowRightIcon className="size-5" aria-hidden />
@@ -196,9 +196,9 @@ export default async function HomePage({ params }: HomePageProps) {
       {/* ── Scan band — one of the page's few intentional tint blocks ── */}
       <section className="pb-24">
         <Container className="px-3 sm:px-4">
-          <div className="grid grid-cols-1 overflow-hidden rounded-3xl border border-[var(--accent-border)] bg-accent md:grid-cols-[1.2fr_0.8fr]">
+          <div className="grid grid-cols-1 overflow-hidden rounded-3xl border-2 border-[var(--band-border)] bg-[var(--band-bg)] md:grid-cols-[1.2fr_0.8fr]">
             <div className="flex flex-col items-start gap-4 p-8 md:p-10">
-              <span className="rounded-full bg-primary/10 px-3 py-1 font-bold text-[var(--brand)] text-sm">
+              <span className="rounded-full border border-[var(--chip-border)] bg-[var(--chip-bg)] px-3 py-1 font-bold text-[var(--chip-fg)] text-sm">
                 {t('scan.tag')}
               </span>
               <h2 className="text-balance font-bold text-3xl text-foreground leading-tight">
@@ -209,7 +209,7 @@ export default async function HomePage({ params }: HomePageProps) {
               </p>
               <LocaleLink
                 href="/auth/register"
-                className="mt-1 inline-flex h-13 items-center gap-2 rounded-full bg-[var(--brand)] px-6 py-3.5 font-bold text-white transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
+                className="mt-1 inline-flex h-13 items-center gap-2 rounded-full border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-6 py-3.5 font-bold text-[var(--cta-fg)] shadow-[var(--cta-shadow)] transition-colors hover:bg-[var(--cta-hover-bg)] hover:text-[var(--cta-hover-fg)] active:scale-[0.97]"
               >
                 <QrCodeIcon className="size-[18px]" aria-hidden />
                 {t('scan.cta')}

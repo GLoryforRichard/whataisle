@@ -17,7 +17,10 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
 
   return (
     <footer
-      className={cn('bg-[var(--brand)] text-[var(--brand-paper)]', className)}
+      className={cn(
+        'wa-footer bg-[var(--footer-bg)] text-[var(--footer-fg)]',
+        className
+      )}
     >
       <Container className="px-4">
         <div className="grid grid-cols-2 gap-8 py-16 md:grid-cols-6">
@@ -32,7 +35,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
               </div>
 
               {/* tagline */}
-              <p className="text-[var(--brand-paper)]/70 text-base py-2 md:pr-12">
+              <p className="text-[var(--footer-fg)]/70 text-base py-2 md:pr-12">
                 {t('Marketing.footer.tagline')}
               </p>
 
@@ -49,8 +52,8 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                       target="_blank"
                       rel="noreferrer"
                       aria-label={link.title}
-                      className="border border-[var(--brand-paper)]/20 inline-flex size-8 items-center
-                          justify-center rounded-full text-[var(--brand-paper)]/80 transition-all duration-200 hover:border-white hover:text-white"
+                      className="border border-[var(--footer-fg)]/20 inline-flex size-8 items-center
+                          justify-center rounded-full text-[var(--footer-fg)]/80 transition-all duration-200 hover:border-[var(--footer-fg)] hover:text-[var(--footer-fg)]"
                     >
                       {link.icon ? link.icon : null}
                     </a>
@@ -66,7 +69,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
               key={section.title}
               className="col-span-1 md:col-span-1 items-start"
             >
-              <span className="text-sm font-bold uppercase tracking-[0.04em] text-white">
+              <span className="text-sm font-bold uppercase tracking-[0.04em] text-[var(--footer-fg)]">
                 {section.title}
               </span>
               <ul className="mt-4 list-inside space-y-3">
@@ -80,7 +83,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                       <li key={item.title}>
                         <a
                           href={item.href}
-                          className="text-base text-[var(--brand-paper)]/70 transition-colors duration-150 hover:text-white"
+                          className="text-base text-[var(--footer-fg)]/70 transition-colors duration-150 hover:text-[var(--footer-fg)]"
                         >
                           {item.title}
                         </a>
@@ -90,12 +93,12 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                         <LocaleLink
                           href={item.href || '#'}
                           className={cn(
-                            'text-base text-[var(--brand-paper)]/70 transition-colors duration-150 hover:text-white',
+                            'text-base text-[var(--footer-fg)]/70 transition-colors duration-150 hover:text-[var(--footer-fg)]',
                             !item.href.includes('#') &&
                               (item.href === '/'
                                 ? localePathname === '/'
                                 : localePathname.startsWith(item.href)) &&
-                              'font-semibold text-white'
+                              'font-semibold text-[var(--footer-fg)]'
                           )}
                         >
                           {item.title}
@@ -109,9 +112,9 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
         </div>
       </Container>
 
-      <div className="border-t border-[var(--brand-paper)]/15 py-8">
+      <div className="border-t border-[var(--footer-fg)]/15 py-8">
         <Container className="px-4">
-          <span className="text-[var(--brand-paper)]/70 text-sm">
+          <span className="text-[var(--footer-fg)]/70 text-sm">
             &copy; {new Date().getFullYear()} {t('Metadata.name')}. All Rights
             Reserved.
           </span>

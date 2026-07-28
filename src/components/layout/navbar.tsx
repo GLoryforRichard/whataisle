@@ -53,9 +53,8 @@ export function Navbar({ scroll = true }: NavBarProps) {
     <header className="sticky inset-x-0 top-0 z-40">
       <div
         className={cn(
-          'bg-[var(--brand)] text-[var(--brand-paper)] transition-shadow duration-300',
-          showBarBg &&
-            'shadow-[0_6px_20px_color-mix(in_srgb,var(--brand-ink)_16%,transparent)]'
+          'wa-nav bg-[var(--nav-bg)] text-[var(--nav-fg)] transition-shadow duration-300',
+          showBarBg && 'shadow-[var(--nav-shadow)]'
         )}
       >
         <Container className="px-3 sm:px-6">
@@ -160,14 +159,14 @@ export function Navbar({ scroll = true }: NavBarProps) {
                             // Brand strip: white text throughout (accent as
                             // text fails contrast on warm palettes); the
                             // active page gets an accent underline instead.
-                            'bg-transparent text-base text-[var(--brand-paper)]/85',
-                            'hover:bg-white/10 hover:text-white',
-                            'focus:bg-white/10 focus:text-white',
+                            'bg-transparent text-base text-[var(--nav-fg)]/85',
+                            'hover:bg-[var(--nav-fg)]/10 hover:text-[var(--nav-fg)]',
+                            'focus:bg-[var(--nav-fg)]/10 focus:text-[var(--nav-fg)]',
                             item.href &&
                               (item.href === '/'
                                 ? localePathname === '/'
                                 : localePathname.startsWith(item.href)) &&
-                              'font-semibold text-white underline decoration-2 decoration-[var(--brand-accent)] underline-offset-8'
+                              'font-semibold text-[var(--nav-fg)] underline decoration-2 decoration-[var(--brand-accent)] underline-offset-8'
                           )}
                         >
                           <LocaleLink
@@ -186,10 +185,10 @@ export function Navbar({ scroll = true }: NavBarProps) {
                 </NavigationMenuList>
               </NavigationMenu>
 
-              <div className="flex shrink-0 items-center gap-3 text-[var(--brand-paper)]">
+              <div className="flex shrink-0 items-center gap-3 text-[var(--nav-fg)]">
                 <LocaleSwitcher />
                 {!mounted || isPending ? (
-                  <Skeleton className="size-8 rounded-full bg-white/15" />
+                  <Skeleton className="size-8 rounded-full bg-[var(--nav-fg)]/15" />
                 ) : currentUser ? (
                   <UserButton user={currentUser} />
                 ) : (
@@ -197,7 +196,7 @@ export function Navbar({ scroll = true }: NavBarProps) {
                     <LoginWrapper mode="modal" asChild>
                       <button
                         type="button"
-                        className="inline-flex h-9 cursor-pointer items-center rounded-full border border-[var(--brand-paper)]/30 bg-transparent px-4 font-semibold text-[var(--brand-paper)] text-base transition-colors hover:border-white hover:text-white"
+                        className="inline-flex h-9 cursor-pointer items-center rounded-full border border-[var(--nav-fg)]/30 bg-transparent px-4 font-semibold text-[var(--nav-fg)] text-base transition-colors hover:border-[var(--nav-fg)] hover:text-[var(--nav-fg)]"
                       >
                         {t('Common.login')}
                       </button>

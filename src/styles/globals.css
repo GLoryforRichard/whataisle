@@ -132,6 +132,28 @@
   /* Border shade paired with --accent tint fills (chips, drop zones). */
   --accent-border: #d8ebb4;
 
+  /* ── Style-axis role vars (marketing chrome) ──────────────────────────
+     The default "filled" style paints nav/footer/CTAs solid with the
+     brand; the "outline" style (html[data-style='outline']) turns them
+     into white surfaces with brand line-work. Marketing chrome consumes
+     ONLY these vars, so the style flips without touching components. */
+  --nav-bg: var(--brand);
+  --nav-fg: #ffffff;
+  --nav-shadow: 0 6px 20px color-mix(in srgb, var(--brand-ink) 16%, transparent);
+  --footer-bg: var(--brand);
+  --footer-fg: #ffffff;
+  --cta-bg: var(--brand);
+  --cta-fg: #ffffff;
+  --cta-border: transparent;
+  --cta-hover-bg: var(--brand-hover);
+  --cta-hover-fg: #ffffff;
+  --cta-shadow: 0 10px 26px color-mix(in srgb, var(--brand) 25%, transparent);
+  --chip-bg: var(--accent);
+  --chip-border: var(--accent-border);
+  --chip-fg: var(--brand);
+  --band-bg: var(--accent);
+  --band-border: var(--accent-border);
+
   --card: #ffffff;
   --card-foreground: #12352c;
   --popover: #ffffff;
@@ -312,6 +334,181 @@ html[data-palette="tea"] {
   --sidebar-border: #e0decf;
   --sidebar-ring: #1e5241;
   --map-target: #cf343a;
+}
+
+/* 戊 湖蓝清爽 — a lighter, brighter blue than navy (owner asked) */
+html[data-palette="lake"] {
+  --brand: #2765a8;
+  --brand-hover: #1e5290;
+  --brand-accent: #e5ae53;
+  --brand-accent-hover: #ecbe70;
+  --brand-ink: #24344a;
+  --foreground: #24344a;
+  --card-foreground: #24344a;
+  --popover-foreground: #24344a;
+  --primary: #2765a8;
+  --secondary: #e7eff7;
+  --secondary-foreground: #2765a8;
+  --muted-foreground: #51617a;
+  --accent: #f9eed9;
+  --accent-foreground: #2765a8;
+  --accent-border: #eddaae;
+  --border: #dfe2e6;
+  --input: #cbd2da;
+  --ring: #2765a8;
+  --sidebar-foreground: #24344a;
+  --sidebar-primary: #2765a8;
+  --sidebar-accent: #e3ecf5;
+  --sidebar-accent-foreground: #2765a8;
+  --sidebar-border: #dfe2e6;
+  --sidebar-ring: #2765a8;
+  --map-target: #cf343a;
+}
+
+/* 己 青碧市集 — market-fresh teal + mango gold */
+html[data-palette="teal"] {
+  --brand: #14796b;
+  --brand-hover: #0f6357;
+  --brand-accent: #e7b54a;
+  --brand-accent-hover: #edc466;
+  --brand-ink: #1f3833;
+  --foreground: #1f3833;
+  --card-foreground: #1f3833;
+  --popover-foreground: #1f3833;
+  --primary: #14796b;
+  --secondary: #e4f1ee;
+  --secondary-foreground: #14796b;
+  --muted-foreground: #4e625d;
+  --accent: #f8efd7;
+  --accent-foreground: #14796b;
+  --accent-border: #ebd8a8;
+  --border: #dce4e1;
+  --input: #c9d6d1;
+  --ring: #14796b;
+  --sidebar-foreground: #1f3833;
+  --sidebar-primary: #14796b;
+  --sidebar-accent: #dfeeea;
+  --sidebar-accent-foreground: #14796b;
+  --sidebar-border: #dce4e1;
+  --sidebar-ring: #14796b;
+  --map-target: #cf343a;
+}
+
+/* 庚 咖啡暖棕 — old-school dry-goods shop brown + caramel */
+html[data-palette="coffee"] {
+  --brand: #6e4b2a;
+  --brand-hover: #593c21;
+  --brand-accent: #d8a159;
+  --brand-accent-hover: #e0b172;
+  --brand-ink: #33251a;
+  --foreground: #33251a;
+  --card-foreground: #33251a;
+  --popover-foreground: #33251a;
+  --primary: #6e4b2a;
+  --secondary: #f3eadf;
+  --secondary-foreground: #593c21;
+  --muted-foreground: #6a5b4c;
+  --accent: #f7eddd;
+  --accent-foreground: #6e4b2a;
+  --accent-border: #e7d3b4;
+  --border: #e6dcce;
+  --input: #d8c9b4;
+  --ring: #6e4b2a;
+  --sidebar-foreground: #33251a;
+  --sidebar-primary: #6e4b2a;
+  --sidebar-accent: #f0e3d3;
+  --sidebar-accent-foreground: #593c21;
+  --sidebar-border: #e6dcce;
+  --sidebar-ring: #6e4b2a;
+  --map-target: #cf343a;
+}
+
+/* 辛 酒红香槟 — deep wine + champagne gold (red family, so the map pin
+   goes blue for the same reason as jujube) */
+html[data-palette="burgundy"] {
+  --brand: #7e2d40;
+  --brand-hover: #672433;
+  --brand-accent: #d3ac5c;
+  --brand-accent-hover: #ddba74;
+  --brand-ink: #3b222a;
+  --foreground: #3b222a;
+  --card-foreground: #3b222a;
+  --popover-foreground: #3b222a;
+  --primary: #7e2d40;
+  --secondary: #f6e6ea;
+  --secondary-foreground: #672433;
+  --muted-foreground: #6b5560;
+  --accent: #f7edd8;
+  --accent-foreground: #7e2d40;
+  --accent-border: #e8d6ac;
+  --border: #e9d9d4;
+  --input: #dcc6c4;
+  --ring: #7e2d40;
+  --sidebar-foreground: #3b222a;
+  --sidebar-primary: #7e2d40;
+  --sidebar-accent: #f3e0e4;
+  --sidebar-accent-foreground: #672433;
+  --sidebar-border: #e9d9d4;
+  --sidebar-ring: #7e2d40;
+  --map-target: #2456a6;
+}
+
+/* 壬 墨黑描金 — traditional shop-sign black + gold (老字号牌匾) */
+html[data-palette="inkgold"] {
+  --brand: #2e2a25;
+  --brand-hover: #1e1b17;
+  --brand-accent: #c9a34e;
+  --brand-accent-hover: #d5b168;
+  --brand-ink: #262220;
+  --foreground: #262220;
+  --card-foreground: #262220;
+  --popover-foreground: #262220;
+  --primary: #2e2a25;
+  --secondary: #efede8;
+  --secondary-foreground: #2e2a25;
+  --muted-foreground: #5c574f;
+  --accent: #f6efdc;
+  --accent-foreground: #2e2a25;
+  --accent-border: #e4d3a6;
+  --border: #e2dfd8;
+  --input: #cfcbc1;
+  --ring: #2e2a25;
+  --sidebar-foreground: #262220;
+  --sidebar-primary: #2e2a25;
+  --sidebar-accent: #ece8df;
+  --sidebar-accent-foreground: #2e2a25;
+  --sidebar-border: #e2dfd8;
+  --sidebar-ring: #2e2a25;
+  --map-target: #cf343a;
+}
+
+/* ── Style try-on: 线条 (outline / line-work) variant ──────────────────
+   White chrome with brand line-work instead of solid fills. Combines
+   freely with every palette above. Deleted with the picker after the
+   owner's decision. */
+html[data-style="outline"] {
+  --nav-bg: #ffffff;
+  --nav-fg: var(--brand-ink);
+  --nav-shadow: 0 1px 0 var(--border);
+  --footer-bg: #ffffff;
+  --footer-fg: var(--brand-ink);
+  --cta-bg: transparent;
+  --cta-fg: var(--brand);
+  --cta-border: var(--brand);
+  --cta-hover-bg: var(--brand);
+  --cta-hover-fg: #ffffff;
+  --cta-shadow: none;
+  --chip-bg: transparent;
+  --chip-border: var(--brand);
+  --chip-fg: var(--brand);
+  --band-bg: #ffffff;
+  --band-border: var(--brand);
+}
+html[data-style="outline"] .wa-nav {
+  border-bottom: 1.5px solid var(--border);
+}
+html[data-style="outline"] .wa-footer {
+  border-top: 1.5px solid var(--border);
 }
 
 /* Chinese-first font stack: Quicksand has no CJK glyphs, so on Chinese pages
