@@ -10,7 +10,7 @@ import type { Variants } from 'motion/react';
  * once when scrolled into view.
  */
 
-const HIGHLIGHT = '#e5484d';
+const HIGHLIGHT = 'var(--map-target)';
 
 const SHELVES: Array<{
   code: string;
@@ -93,23 +93,23 @@ export function AnswerMapVisual({
       whileInView="visible"
       viewport={{ once: true, amount: 0.4 }}
       aria-hidden="true"
-      className="flex w-full max-w-[380px] flex-col gap-3 rounded-[20px] border border-[#EAE3D2] bg-white p-4 shadow-[0_1px_2px_rgba(15,53,44,0.04),0_14px_30px_rgba(15,53,44,0.06)]"
+      className="flex w-full max-w-[380px] flex-col gap-3 rounded-[20px] border border-border bg-white p-4 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent),0_14px_30px_color-mix(in_srgb,var(--brand-ink)_06%,transparent)]"
     >
       <motion.div
         variants={askedVariant}
-        className="self-end rounded-2xl rounded-br-md bg-[#EEF0EA] px-3.5 py-2 text-[13px] text-[#40483F]"
+        className="self-end rounded-2xl rounded-br-md bg-muted px-3.5 py-2 text-[13px] text-foreground"
       >
         {demoAsked}
       </motion.div>
 
       <motion.div
         variants={answerVariant}
-        className="flex items-center gap-2.5 self-start rounded-2xl rounded-bl-md border border-[#D8EBB4] bg-[#F1F7E8] p-2.5 pr-4"
+        className="flex items-center gap-2.5 self-start rounded-2xl rounded-bl-md border border-[var(--accent-border)] bg-accent p-2.5 pr-4"
       >
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--brand-lime)] font-bold text-[var(--brand-green)] text-xl">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--brand-accent)] font-bold text-[var(--brand)] text-xl">
           B4
         </span>
-        <span className="font-semibold text-[#12352C] text-xs leading-snug">
+        <span className="font-semibold text-[var(--brand-ink)] text-xs leading-snug">
           {demoAnswer}
         </span>
       </motion.div>
@@ -117,7 +117,7 @@ export function AnswerMapVisual({
       <motion.div variants={mapVariant}>
         <svg
           viewBox="0 0 176 128"
-          className="h-auto w-full rounded-2xl border border-[#EAE3D2] bg-[#FAF8F2]"
+          className="h-auto w-full rounded-2xl border border-border bg-[var(--background)]"
           role="presentation"
         >
           {SHELVES.map((shelf, i) => (
@@ -128,8 +128,8 @@ export function AnswerMapVisual({
                 width={shelf.w}
                 height={shelf.h}
                 rx="2"
-                fill={shelf.target ? HIGHLIGHT : '#E9F0E5'}
-                stroke={shelf.target ? HIGHLIGHT : '#CBD9C6'}
+                fill={shelf.target ? HIGHLIGHT : 'var(--secondary)'}
+                stroke={shelf.target ? HIGHLIGHT : 'var(--input)'}
                 strokeWidth={shelf.target ? 1 : 0.5}
                 style={
                   shelf.target
@@ -144,7 +144,7 @@ export function AnswerMapVisual({
                 y={shelf.y + shelf.h / 2}
                 fontSize="8"
                 fontWeight="bold"
-                fill={shelf.target ? '#fff' : '#4A5E50'}
+                fill={shelf.target ? '#fff' : 'var(--muted-foreground)'}
                 textAnchor="middle"
                 dominantBaseline="central"
               >
@@ -158,22 +158,29 @@ export function AnswerMapVisual({
             variants={pathVariant}
             d="M 100 120 V 96 H 88 V 82"
             fill="none"
-            stroke="var(--brand-green)"
+            stroke="var(--brand)"
             strokeWidth="2"
             strokeDasharray="4 3"
             strokeLinecap="round"
           />
           {/* entrance marker */}
           <motion.g custom={SHELVES.length} variants={shelfVariant}>
-            <rect x="88" y="118" width="24" height="4" rx="2" fill="#C9B892" />
-            <circle cx="100" cy="120" r="3.5" fill="var(--brand-green)" />
+            <rect
+              x="88"
+              y="118"
+              width="24"
+              height="4"
+              rx="2"
+              fill="var(--border)"
+            />
+            <circle cx="100" cy="120" r="3.5" fill="var(--brand)" />
           </motion.g>
         </svg>
       </motion.div>
 
       <motion.span
         variants={captionVariant}
-        className="text-center text-[#566058] text-sm"
+        className="text-center text-muted-foreground text-sm"
       >
         {mapCaption}
       </motion.span>

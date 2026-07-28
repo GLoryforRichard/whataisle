@@ -101,20 +101,17 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
   // ── Done: celebratory confirmation ──
   if (phase === 'done') {
     return (
-      <div className="wa-pop flex flex-col items-center gap-4 rounded-[22px] bg-[var(--brand-green)] p-8 text-center text-[var(--brand-cream)] shadow-[0_18px_44px_rgba(15,53,44,0.16)] sm:p-10">
-        <div className="flex size-16 items-center justify-center rounded-full bg-[var(--brand-lime)]">
-          <CheckIcon
-            className="size-9 text-[var(--brand-green)]"
-            strokeWidth={2.6}
-          />
+      <div className="wa-pop flex flex-col items-center gap-4 rounded-[22px] bg-[var(--brand)] p-8 text-center text-[var(--brand-paper)] shadow-[0_18px_44px_color-mix(in_srgb,var(--brand-ink)_16%,transparent)] sm:p-10">
+        <div className="flex size-16 items-center justify-center rounded-full bg-[var(--brand-accent)]">
+          <CheckIcon className="size-9 text-[var(--brand)]" strokeWidth={2.6} />
         </div>
         <p className="font-bold text-2xl">{t('received')}</p>
-        <p className="max-w-md text-[var(--brand-cream)]/75 leading-relaxed">
+        <p className="max-w-md text-[var(--brand-paper)]/75 leading-relaxed">
           {t('receivedNote')}
         </p>
         <LocaleLink
           href="/dashboard"
-          className="mt-2 inline-flex h-12 items-center gap-2 rounded-full bg-[var(--brand-lime)] px-6 font-bold text-[var(--brand-green)] transition-transform hover:bg-[var(--brand-lime-hover)] active:scale-[0.97]"
+          className="mt-2 inline-flex h-12 items-center gap-2 rounded-full bg-[var(--brand-accent)] px-6 font-bold text-[var(--brand)] transition-transform hover:bg-[var(--brand-accent-hover)] active:scale-[0.97]"
         >
           {t('startScanning')}
           <ArrowRightIcon className="size-[18px]" aria-hidden />
@@ -126,13 +123,10 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
   return (
     <div className="flex flex-col gap-5">
       {/* Filming guide */}
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(15,53,44,0.04)]">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent)]">
         <div className="mb-4 flex items-center gap-2.5">
-          <div className="flex size-9 items-center justify-center rounded-full bg-[#F1F7E8]">
-            <FilmIcon
-              className="size-[18px] text-[var(--brand-green)]"
-              aria-hidden
-            />
+          <div className="flex size-9 items-center justify-center rounded-full bg-accent">
+            <FilmIcon className="size-[18px] text-[var(--brand)]" aria-hidden />
           </div>
           <h2 className="font-bold text-foreground text-lg">
             {t('guideTitle')}
@@ -141,7 +135,7 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
         <ol className="flex flex-col gap-3">
           {[t('guide1'), t('guide2'), t('guide3')].map((step, i) => (
             <li key={step} className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-lime)] font-bold text-[13px] text-[var(--brand-green)]">
+              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-accent)] font-bold text-[13px] text-[var(--brand)]">
                 {i + 1}
               </span>
               <span className="text-muted-foreground leading-relaxed">
@@ -164,8 +158,8 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
         /* Upload progress */
         <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6">
           <div className="flex items-center gap-3">
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#F1F7E8]">
-              <Loader2Icon className="size-5 animate-spin text-[var(--brand-green)]" />
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent">
+              <Loader2Icon className="size-5 animate-spin text-[var(--brand)]" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold text-foreground">
@@ -177,17 +171,17 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
                 </p>
               ) : null}
             </div>
-            <span className="font-bold text-[var(--brand-green)] text-xl tabular-nums">
+            <span className="font-bold text-[var(--brand)] text-xl tabular-nums">
               {percent}%
             </span>
           </div>
-          <div className="h-2.5 overflow-hidden rounded-full bg-[#EEF0EA]">
+          <div className="h-2.5 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-[var(--brand-green)] transition-all duration-300"
+              className="h-full rounded-full bg-[var(--brand)] transition-all duration-300"
               style={{ width: `${percent}%` }}
             />
           </div>
-          <p className="text-[#7B8479] text-xs">{t('keepOpen')}</p>
+          <p className="text-muted-foreground text-xs">{t('keepOpen')}</p>
         </div>
       ) : (
         /* Dropzone */
@@ -206,15 +200,12 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
           }}
           className={`flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed p-8 text-center transition-colors sm:p-10 ${
             dragging
-              ? 'border-[var(--brand-green)] bg-[#F1F7E8]'
-              : 'border-[#CBD9C6] bg-card hover:border-[var(--brand-green)] hover:bg-[#F7FBEF]'
+              ? 'border-[var(--brand)] bg-accent'
+              : 'border-input bg-card hover:border-[var(--brand)] hover:bg-accent'
           }`}
         >
-          <div className="flex size-16 items-center justify-center rounded-2xl bg-[#F1F7E8]">
-            <VideoIcon
-              className="size-8 text-[var(--brand-green)]"
-              aria-hidden
-            />
+          <div className="flex size-16 items-center justify-center rounded-2xl bg-accent">
+            <VideoIcon className="size-8 text-[var(--brand)]" aria-hidden />
           </div>
           <div className="flex flex-col gap-1">
             <p className="font-semibold text-foreground text-lg">
@@ -222,7 +213,7 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
             </p>
             <p className="text-muted-foreground text-sm">{t('formats')}</p>
           </div>
-          <span className="inline-flex h-12 items-center gap-2 rounded-full bg-[var(--brand-green)] px-6 font-bold text-[var(--brand-lime)] transition-transform active:scale-[0.97]">
+          <span className="inline-flex h-12 items-center gap-2 rounded-full bg-[var(--brand)] px-6 font-bold text-[var(--brand-accent)] transition-transform active:scale-[0.97]">
             <FilmIcon className="size-[18px]" aria-hidden />
             {t('pick')}
           </span>

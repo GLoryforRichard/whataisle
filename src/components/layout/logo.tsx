@@ -12,14 +12,14 @@ export function Logo({ className }: { className?: string }) {
       aria-label="WhatAisle logo"
       className={cn(
         'inline-flex size-8 shrink-0 items-center justify-center rounded-[0.55rem]',
-        'bg-[var(--brand-lime)]',
+        'bg-[var(--brand-accent)]',
         className
       )}
     >
       <svg
         viewBox="0 0 24 24"
         fill="none"
-        stroke="#0F4C3F"
+        stroke="var(--brand-ink)"
         strokeWidth={2.2}
         strokeLinecap="round"
         strokeLinejoin="round"

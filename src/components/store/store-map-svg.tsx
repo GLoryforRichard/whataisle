@@ -5,17 +5,19 @@ import type { FloorMapJson } from '@/db/store.schema';
 /**
  * Data-driven floor-map renderer (requirements §4.1 section 5).
  *
- * Draws the shapes from the store's mapJson. The target shelf is highlighted in
- * red; neighbours render normally for orientation. Supports the "main shelf +
- * left/right side" structure and tapping a shelf to switch the highlight (used
- * when candidates span multiple shelves).
+ * Draws the shapes from the store's mapJson. The target shelf is highlighted
+ * with --map-target (its own token so it can never collide with the brand or
+ * the error color under any palette); neighbours render normally for
+ * orientation. Supports the "main shelf + left/right side" structure and
+ * tapping a shelf to switch the highlight (used when candidates span multiple
+ * shelves).
  */
 
-const HIGHLIGHT = '#e5484d';
+const HIGHLIGHT = 'var(--map-target)';
 
 interface StoreMapSvgProps {
   mapJson: FloorMapJson;
-  /** Shelf code to highlight in red. */
+  /** Shelf code to highlight as the target. */
   highlight?: string | null;
   /** Optional: highlighted side (L/R) within the shelf. */
   highlightSide?: 'L' | 'R' | null;
@@ -33,15 +35,15 @@ export function StoreMapSvg({
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      className="h-auto w-full rounded-2xl border border-[#EAE3D2] bg-white"
+      className="h-auto w-full rounded-2xl border border-border bg-white"
       role="img"
       aria-label="Store floor map"
     >
       {mapJson.shapes.map((shape) => {
         const isTarget = highlight && shape.shelfCode === highlight;
-        const fill = isTarget ? HIGHLIGHT : '#E9F0E5';
-        const stroke = isTarget ? HIGHLIGHT : '#CBD9C6';
-        const textFill = isTarget ? '#fff' : '#4A5E50';
+        const fill = isTarget ? HIGHLIGHT : 'var(--secondary)';
+        const stroke = isTarget ? HIGHLIGHT : 'var(--input)';
+        const textFill = isTarget ? '#fff' : 'var(--muted-foreground)';
         const clickable = !!onSelectShelf;
         const targetStyle = isTarget
           ? { animation: 'wa-target 1.6s ease-in-out infinite' }

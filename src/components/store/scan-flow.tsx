@@ -707,7 +707,7 @@ export function ScanFlow({
                   </span>
                 ) : null}
                 {p.status === 'failed' ? (
-                  <span className="absolute inset-0 flex items-center justify-center rounded-lg bg-red-500/35 font-bold text-lg text-white">
+                  <span className="absolute inset-0 flex items-center justify-center rounded-lg bg-destructive/40 font-bold text-lg text-white">
                     !
                   </span>
                 ) : null}

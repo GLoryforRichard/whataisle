@@ -29,15 +29,12 @@ export async function FilmingChecklist() {
       <ol className="mt-4 space-y-3">
         {STEPS.map((step, index) => (
           <li key={step.key} className="flex items-start gap-3">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--brand-green)]/10 font-semibold text-[var(--brand-green)] text-sm">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--brand)]/10 font-semibold text-[var(--brand)] text-sm">
               {index + 1}
             </span>
             <div className="min-w-0">
               <p className="flex items-center gap-1.5 font-medium text-sm">
-                <step.icon
-                  className="size-4 text-[var(--brand-green)]"
-                  aria-hidden
-                />
+                <step.icon className="size-4 text-[var(--brand)]" aria-hidden />
                 {t(`${step.key}.title`)}
               </p>
               <p className="mt-0.5 text-muted-foreground text-sm">

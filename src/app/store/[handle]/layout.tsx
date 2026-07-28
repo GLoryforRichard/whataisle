@@ -97,7 +97,7 @@ export default async function StoreLayout({
 async function DemoBanner() {
   const t = await getTranslations('Store');
   return (
-    <div className="bg-[var(--brand-lime)] px-4 py-2 text-center font-semibold text-[var(--brand-green)] text-sm">
+    <div className="bg-[var(--brand-accent)] px-4 py-2 text-center font-semibold text-[var(--brand)] text-sm">
       {t('demoBanner')}
     </div>
   );

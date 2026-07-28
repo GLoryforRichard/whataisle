@@ -87,7 +87,7 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
     <div className="flex flex-col gap-6">
       {/* Add shelf */}
       <form
-        className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(15,53,44,0.04)]"
+        className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent)]"
         onSubmit={(e) => {
           e.preventDefault();
           addShelf();
@@ -125,7 +125,7 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
         <button
           type="submit"
           disabled={busy || !newCode.trim()}
-          className="inline-flex h-11 items-center gap-1.5 rounded-full bg-[var(--brand-green)] px-5 font-bold text-[var(--brand-lime)] transition-transform active:scale-[0.97] disabled:opacity-50"
+          className="inline-flex h-11 items-center gap-1.5 rounded-full bg-[var(--brand)] px-5 font-bold text-[var(--brand-accent)] transition-transform active:scale-[0.97] disabled:opacity-50"
         >
           <PlusIcon className="size-[18px]" aria-hidden />
           {t('add')}
@@ -134,10 +134,10 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
 
       {shelves.length === 0 ? (
         /* Empty state */
-        <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-[#CBD9C6] border-dashed bg-card p-10 text-center">
-          <div className="flex size-16 items-center justify-center rounded-2xl bg-[#F1F7E8]">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-input border-dashed bg-card p-10 text-center">
+          <div className="flex size-16 items-center justify-center rounded-2xl bg-accent">
             <PackageOpenIcon
-              className="size-8 text-[var(--brand-green)]"
+              className="size-8 text-[var(--brand)]"
               aria-hidden
             />
           </div>
@@ -150,11 +150,11 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
           {shelves.map((shelf) => (
             <div
               key={shelf.id}
-              className="rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(15,53,44,0.04)]"
+              className="rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent)]"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center justify-center rounded-xl border border-[#D8EBB4] bg-[#F1F7E8] px-3 py-1.5 font-bold text-[var(--brand-green)] text-lg leading-none">
+                  <span className="inline-flex items-center justify-center rounded-xl border border-[var(--accent-border)] bg-accent px-3 py-1.5 font-bold text-[var(--brand)] text-lg leading-none">
                     {shelf.code}
                   </span>
                   <div className="min-w-0">
@@ -188,7 +188,7 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
                   {shelf.products.map((p) => (
                     <li
                       key={p.id}
-                      className="group flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-[#F7FBEF]"
+                      className="group flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-accent"
                     >
                       <span className="min-w-0 truncate">
                         <span className="font-medium text-foreground">
@@ -204,7 +204,7 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
                         type="button"
                         onClick={() => deleteProduct(p.id)}
                         aria-label={t('delete')}
-                        className="flex size-8 shrink-0 items-center justify-center rounded-full text-[#7B8479] transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                       >
                         <Trash2Icon className="size-4" />
                       </button>

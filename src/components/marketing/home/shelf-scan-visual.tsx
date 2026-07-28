@@ -106,7 +106,7 @@ export function ShelfScanVisual({ labels, foundChip }: ShelfScanVisualProps) {
       viewport={{ once: true, amount: 0.4 }}
       variants={cardVariant}
       aria-hidden="true"
-      className="w-full max-w-[380px] rounded-[20px] border border-[#EAE3D2] bg-white p-4 shadow-[0_1px_2px_rgba(15,53,44,0.04),0_14px_30px_rgba(15,53,44,0.06)]"
+      className="w-full max-w-[380px] rounded-[20px] border border-border bg-white p-4 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent),0_14px_30px_color-mix(in_srgb,var(--brand-ink)_06%,transparent)]"
     >
       <div className="relative overflow-hidden rounded-[14px]">
         {/* Shelf "photo" */}
@@ -164,7 +164,7 @@ export function ShelfScanVisual({ labels, foundChip }: ShelfScanVisualProps) {
               height={box.h}
               rx="6"
               fill="none"
-              stroke="var(--brand-lime)"
+              stroke="var(--brand-accent)"
               strokeWidth="3"
             />
           ))}
@@ -176,7 +176,7 @@ export function ShelfScanVisual({ labels, foundChip }: ShelfScanVisualProps) {
             key={label}
             custom={i}
             variants={labelVariant}
-            className="absolute rounded-full bg-white px-2.5 py-1 font-semibold text-[11px] text-[var(--brand-ink)] shadow-[0_4px_12px_rgba(15,53,44,0.18)]"
+            className="absolute rounded-full bg-white px-2.5 py-1 font-semibold text-[11px] text-[var(--brand-ink)] shadow-[0_4px_12px_color-mix(in_srgb,var(--brand-ink)_18%,transparent)]"
             style={LABEL_POS[i]}
           >
             {label}
@@ -185,8 +185,8 @@ export function ShelfScanVisual({ labels, foundChip }: ShelfScanVisualProps) {
       </div>
 
       <motion.div variants={chipVariant} className="mt-3 flex justify-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-green)] px-3 py-1.5 font-semibold text-[var(--brand-lime)] text-xs">
-          <span className="size-1.5 rounded-full bg-[var(--brand-lime)]" />
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand)] px-3 py-1.5 font-semibold text-[var(--brand-accent)] text-xs">
+          <span className="size-1.5 rounded-full bg-[var(--brand-accent)]" />
           {foundChip}
         </span>
       </motion.div>

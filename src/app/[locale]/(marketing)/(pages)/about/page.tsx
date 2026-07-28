@@ -54,7 +54,7 @@ export default async function AboutPage() {
         </div>
 
         {supportEmail && (
-          <div className="flex flex-col items-start gap-3 rounded-[20px] border border-[#EAE3D2] bg-white p-6">
+          <div className="flex flex-col items-start gap-3 rounded-[20px] border border-border bg-white p-6">
             <h2 className="font-bold text-foreground text-xl">
               {t('contactTitle')}
             </h2>

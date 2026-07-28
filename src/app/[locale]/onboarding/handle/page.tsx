@@ -41,20 +41,20 @@ export default async function OnboardingHandlePage({
   return (
     <div className="wa-dotted flex min-h-screen flex-col">
       {/* dark-green brand bar */}
-      <div className="flex items-center gap-2.5 bg-[var(--brand-green)] px-6 py-3.5">
+      <div className="flex items-center gap-2.5 bg-[var(--brand)] px-6 py-3.5">
         <Logo className="size-8" />
-        <span className="font-bold text-[var(--brand-cream)] text-lg">
+        <span className="font-bold text-[var(--brand-paper)] text-lg">
           {tMeta('name')}
         </span>
       </div>
 
       <div className="flex flex-1 items-center justify-center p-5 sm:p-8">
-        <div className="wa-fade-up w-full max-w-lg rounded-[20px] border border-[#EAE3D2] bg-white p-6 text-[var(--brand-ink)] shadow-[0_14px_34px_rgba(15,53,44,0.07)] sm:p-8">
+        <div className="wa-fade-up w-full max-w-lg rounded-[20px] border border-border bg-white p-6 text-[var(--brand-ink)] shadow-[0_14px_34px_color-mix(in_srgb,var(--brand-ink)_07%,transparent)] sm:p-8">
           <div className="text-center">
             <h1 className="font-bold text-2xl text-[var(--brand-ink)]">
               {t('title')}
             </h1>
-            <p className="mt-2 text-[#566058]">{t('subtitle')}</p>
+            <p className="mt-2 text-muted-foreground">{t('subtitle')}</p>
           </div>
           <div className="mt-6">
             <HandleForm />

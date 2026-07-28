@@ -53,20 +53,20 @@ export default async function OnboardingPaymentPage({
 
   return (
     <div className="wa-dotted flex min-h-screen flex-col">
-      <div className="flex items-center gap-2.5 bg-[var(--brand-green)] px-6 py-3.5">
+      <div className="flex items-center gap-2.5 bg-[var(--brand)] px-6 py-3.5">
         <Logo className="size-8" />
-        <span className="font-bold text-[var(--brand-cream)] text-lg">
+        <span className="font-bold text-[var(--brand-paper)] text-lg">
           {tMeta('name')}
         </span>
       </div>
 
       <div className="flex flex-1 items-center justify-center p-5 sm:p-8">
-        <div className="wa-fade-up w-full max-w-lg rounded-[20px] border border-[#EAE3D2] bg-white p-6 text-[var(--brand-ink)] shadow-[0_14px_34px_rgba(15,53,44,0.07)] sm:p-8">
+        <div className="wa-fade-up w-full max-w-lg rounded-[20px] border border-border bg-white p-6 text-[var(--brand-ink)] shadow-[0_14px_34px_color-mix(in_srgb,var(--brand-ink)_07%,transparent)] sm:p-8">
           <div className="text-center">
             <h1 className="font-bold text-2xl text-[var(--brand-ink)]">
               {t('title')}
             </h1>
-            <p className="mt-2 text-[#566058]">
+            <p className="mt-2 text-muted-foreground">
               {t('subtitle', { store: store.displayName })}
             </p>
           </div>
@@ -75,14 +75,14 @@ export default async function OnboardingPaymentPage({
             <span className="font-bold text-5xl text-[var(--brand-ink)]">
               {displayPrice}
             </span>
-            <span className="text-[#566058]">{t('oneTime')}</span>
+            <span className="text-muted-foreground">{t('oneTime')}</span>
           </div>
 
           <ul className="mt-6 space-y-3">
             {features.map((feature) => (
               <li key={feature} className="flex items-start gap-2.5">
-                <CheckIcon className="mt-0.5 size-5 shrink-0 text-[var(--brand-green)]" />
-                <span className="text-[#3d463f] text-sm">{feature}</span>
+                <CheckIcon className="mt-0.5 size-5 shrink-0 text-[var(--brand)]" />
+                <span className="text-foreground text-sm">{feature}</span>
               </li>
             ))}
           </ul>
@@ -93,12 +93,12 @@ export default async function OnboardingPaymentPage({
               planId={plan.id}
               priceId={price.priceId}
               callbackUrl={Routes.ManageVideo}
-              className="w-full bg-[var(--brand-green)] text-[var(--brand-cream)] hover:bg-[var(--brand-green)]/90"
+              className="w-full bg-[var(--brand)] text-[var(--brand-paper)] hover:bg-[var(--brand)]/90"
               size="lg"
             >
               {t('cta', { price: displayPrice })}
             </CheckoutButton>
-            <p className="mt-3 text-center text-[#8a938c] text-xs">
+            <p className="mt-3 text-center text-muted-foreground text-xs">
               {t('note')}
             </p>
           </div>

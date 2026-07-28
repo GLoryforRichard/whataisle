@@ -75,7 +75,7 @@ export function MemoryGridVisual({
       viewport={{ once: true, amount: 0.4 }}
       variants={container}
       aria-hidden="true"
-      className="w-full max-w-[380px] rounded-[20px] border border-[#EAE3D2] bg-white p-5 shadow-[0_1px_2px_rgba(15,53,44,0.04),0_14px_30px_rgba(15,53,44,0.06)]"
+      className="w-full max-w-[380px] rounded-[20px] border border-border bg-white p-5 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent),0_14px_30px_color-mix(in_srgb,var(--brand-ink)_06%,transparent)]"
     >
       <motion.div
         variants={headerVariant}
@@ -84,9 +84,9 @@ export function MemoryGridVisual({
         <AnimatedCounter
           to={count}
           delay={0.3}
-          className="font-bold text-4xl text-[var(--brand-green)] tabular-nums"
+          className="font-bold text-4xl text-[var(--brand)] tabular-nums"
         />
-        <span className="font-medium text-[#566058] text-sm">
+        <span className="font-medium text-muted-foreground text-sm">
           {counterLabel}
         </span>
       </motion.div>
@@ -96,10 +96,10 @@ export function MemoryGridVisual({
           <motion.div
             key={`${tile.emoji}-${tile.shelf}`}
             variants={tileVariant}
-            className="flex flex-col items-center gap-1 rounded-xl bg-[#F7F4EC] px-1 py-2.5"
+            className="flex flex-col items-center gap-1 rounded-xl bg-muted px-1 py-2.5"
           >
             <span className="text-xl leading-none">{tile.emoji}</span>
-            <span className="rounded bg-white px-1.5 font-bold font-mono text-[9px] text-[#4A5E50]">
+            <span className="rounded bg-white px-1.5 font-bold font-mono text-[9px] text-muted-foreground">
               {tile.shelf}
             </span>
           </motion.div>
@@ -108,20 +108,20 @@ export function MemoryGridVisual({
         {/* Newest arrival — lime flash sells "the memory grows" */}
         <motion.div
           variants={tileVariant}
-          className="relative flex flex-col items-center gap-1 rounded-xl bg-[#F1F7E8] px-1 py-2.5"
+          className="relative flex flex-col items-center gap-1 rounded-xl bg-accent px-1 py-2.5"
         >
           <motion.span
             variants={ringVariant}
-            className="pointer-events-none absolute inset-0 rounded-xl border-2 border-[var(--brand-lime)]"
+            className="pointer-events-none absolute inset-0 rounded-xl border-2 border-[var(--brand-accent)]"
           />
           <motion.span
             variants={ringVariant}
-            className="-top-2 -right-2 absolute whitespace-nowrap rounded-full bg-[var(--brand-lime)] px-1.5 py-0.5 font-bold text-[9px] text-[var(--brand-green)] shadow-sm"
+            className="-top-2 -right-2 absolute whitespace-nowrap rounded-full bg-[var(--brand-accent)] px-1.5 py-0.5 font-bold text-[9px] text-[var(--brand)] shadow-sm"
           >
             {newBadge}
           </motion.span>
           <span className="text-xl leading-none">{NEW_TILE.emoji}</span>
-          <span className="rounded bg-white px-1.5 font-bold font-mono text-[9px] text-[#4A5E50]">
+          <span className="rounded bg-white px-1.5 font-bold font-mono text-[9px] text-muted-foreground">
             {NEW_TILE.shelf}
           </span>
         </motion.div>

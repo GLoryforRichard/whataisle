@@ -93,9 +93,9 @@ export default async function DashboardPage() {
         {!hasPaid && (
           <LocaleLink
             href={Routes.OnboardingPayment}
-            className="flex items-center gap-3 rounded-xl border border-[var(--brand-green)] bg-[var(--brand-green)]/5 p-4 hover:bg-[var(--brand-green)]/10"
+            className="flex items-center gap-3 rounded-xl border border-[var(--brand)] bg-[var(--brand)]/5 p-4 hover:bg-[var(--brand)]/10"
           >
-            <LockIcon className="size-5 shrink-0 text-[var(--brand-green)]" />
+            <LockIcon className="size-5 shrink-0 text-[var(--brand)]" />
             <div>
               <p className="font-semibold">{t('payBannerTitle')}</p>
               <p className="text-muted-foreground text-sm">

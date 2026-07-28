@@ -61,10 +61,10 @@ export function Navbar({ scroll = true }: NavBarProps) {
           />
           <div
             className={cn(
-              'relative rounded-[22px] bg-[var(--brand-green)] px-4 py-3 text-[var(--brand-cream)] transition-shadow duration-300 sm:px-6',
+              'relative rounded-[22px] bg-[var(--brand)] px-4 py-3 text-[var(--brand-paper)] transition-shadow duration-300 sm:px-6',
               showBarBg
-                ? 'shadow-[0_14px_34px_rgba(15,53,44,0.28)]'
-                : 'shadow-[0_6px_20px_rgba(15,53,44,0.16)]'
+                ? 'shadow-[0_14px_34px_color-mix(in_srgb,var(--brand-ink)_28%,transparent)]'
+                : 'shadow-[0_6px_20px_color-mix(in_srgb,var(--brand-ink)_16%,transparent)]'
             )}
           >
             {/* desktop navbar */}
@@ -167,14 +167,14 @@ export function Navbar({ scroll = true }: NavBarProps) {
                             // Dark-green nav: keep the light accent pill from
                             // washing out the label — use a subtle translucent
                             // highlight with bright lime text on hover/focus.
-                            'bg-transparent text-base text-[var(--brand-cream)]/85',
-                            'hover:bg-white/10 hover:text-[var(--brand-lime)]',
-                            'focus:bg-white/10 focus:text-[var(--brand-lime)]',
+                            'bg-transparent text-base text-[var(--brand-paper)]/85',
+                            'hover:bg-white/10 hover:text-[var(--brand-accent)]',
+                            'focus:bg-white/10 focus:text-[var(--brand-accent)]',
                             item.href &&
                               (item.href === '/'
                                 ? localePathname === '/'
                                 : localePathname.startsWith(item.href)) &&
-                              'font-semibold text-[var(--brand-lime)]'
+                              'font-semibold text-[var(--brand-accent)]'
                           )}
                         >
                           <LocaleLink
@@ -193,7 +193,7 @@ export function Navbar({ scroll = true }: NavBarProps) {
                 </NavigationMenuList>
               </NavigationMenu>
 
-              <div className="flex shrink-0 items-center gap-3 text-[var(--brand-cream)]">
+              <div className="flex shrink-0 items-center gap-3 text-[var(--brand-paper)]">
                 <LocaleSwitcher />
                 {!mounted || isPending ? (
                   <Skeleton className="size-8 rounded-full bg-white/15" />
@@ -204,14 +204,14 @@ export function Navbar({ scroll = true }: NavBarProps) {
                     <LoginWrapper mode="modal" asChild>
                       <button
                         type="button"
-                        className="inline-flex h-9 cursor-pointer items-center rounded-full border border-[var(--brand-cream)]/30 bg-transparent px-4 font-semibold text-[var(--brand-cream)] text-base transition-colors hover:border-[var(--brand-lime)] hover:text-[var(--brand-lime)]"
+                        className="inline-flex h-9 cursor-pointer items-center rounded-full border border-[var(--brand-paper)]/30 bg-transparent px-4 font-semibold text-[var(--brand-paper)] text-base transition-colors hover:border-[var(--brand-accent)] hover:text-[var(--brand-accent)]"
                       >
                         {t('Common.login')}
                       </button>
                     </LoginWrapper>
                     <LocaleLink
                       href={Routes.Register}
-                      className="inline-flex h-9 items-center rounded-full bg-[var(--brand-lime)] px-4 font-bold text-[var(--brand-green)] text-base transition-colors hover:bg-[var(--brand-lime-hover)]"
+                      className="inline-flex h-9 items-center rounded-full bg-[var(--brand-accent)] px-4 font-bold text-[var(--brand)] text-base transition-colors hover:bg-[var(--brand-accent-hover)]"
                     >
                       {t('Common.signUp')}
                     </LocaleLink>

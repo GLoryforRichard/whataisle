@@ -119,21 +119,21 @@ export function ShopperSearch() {
   if (confirm) {
     return (
       <div className="wa-fade-up flex flex-col gap-4">
-        <p className="text-[#566058]">
+        <p className="text-muted-foreground">
           {confirm.kind === 'voice' ? t('confirmHeard') : t('confirmSaw')}
         </p>
-        <p className="rounded-2xl border border-[#D8EBB4] bg-[#F1F7E8] p-4 text-center font-bold text-[var(--brand-ink)] text-xl">
+        <p className="rounded-2xl border border-[var(--accent-border)] bg-accent p-4 text-center font-bold text-[var(--brand-ink)] text-xl">
           {confirm.text}
         </p>
         {confirm.kind === 'voice' && confirm.candidates.length > 0 ? (
           <div className="flex flex-col gap-2">
-            <p className="text-[#566058] text-sm">{t('didYouMean')}</p>
+            <p className="text-muted-foreground text-sm">{t('didYouMean')}</p>
             {confirm.candidates.map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => goSearch(c, 'voice')}
-                className="h-12 rounded-xl border border-[#D5DCCB] bg-white px-4 font-semibold text-[var(--brand-ink)] transition-colors hover:border-[var(--brand-green)] active:scale-[0.98]"
+                className="h-12 rounded-xl border border-input bg-white px-4 font-semibold text-[var(--brand-ink)] transition-colors hover:border-[var(--brand)] active:scale-[0.98]"
               >
                 {c}
               </button>
@@ -143,14 +143,14 @@ export function ShopperSearch() {
         <div className="flex gap-3">
           <button
             type="button"
-            className="h-13 flex-1 rounded-xl border border-[#D5DCCB] bg-white font-semibold text-[var(--brand-ink)] transition-transform active:scale-[0.98]"
+            className="h-13 flex-1 rounded-xl border border-input bg-white font-semibold text-[var(--brand-ink)] transition-transform active:scale-[0.98]"
             onClick={() => setConfirm(null)}
           >
             {t('confirmRetry')}
           </button>
           <button
             type="button"
-            className="h-13 flex-1 rounded-xl bg-[var(--brand-green)] font-bold text-[var(--brand-lime)] transition-transform active:scale-[0.98] disabled:opacity-50"
+            className="h-13 flex-1 rounded-xl bg-[var(--brand)] font-bold text-[var(--brand-accent)] transition-transform active:scale-[0.98] disabled:opacity-50"
             disabled={!confirm.text}
             onClick={() =>
               goSearch(
@@ -188,7 +188,7 @@ export function ShopperSearch() {
         />
         <button
           type="submit"
-          className="flex size-15 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand-green)] text-[var(--brand-lime)] shadow-[0_6px_18px_rgba(15,76,63,0.3)] transition-transform active:scale-95"
+          className="flex size-15 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand)] text-[var(--brand-accent)] shadow-[0_6px_18px_color-mix(in_srgb,var(--brand)_30%,transparent)] transition-transform active:scale-95"
           aria-label={t('searchButton')}
         >
           <SearchIcon className="size-6" />
@@ -198,7 +198,7 @@ export function ShopperSearch() {
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
-          className="flex h-19 flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-[#D5DCCB] bg-white font-semibold text-[var(--brand-ink)] transition-transform active:scale-[0.98] disabled:opacity-50"
+          className="flex h-19 flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-input bg-white font-semibold text-[var(--brand-ink)] transition-transform active:scale-[0.98] disabled:opacity-50"
           onPointerDown={startRecording}
           onPointerUp={stopRecording}
           onPointerLeave={stopRecording}
@@ -214,7 +214,7 @@ export function ShopperSearch() {
 
         <button
           type="button"
-          className="flex h-19 flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-[#D5DCCB] bg-white font-semibold text-[var(--brand-ink)] transition-transform active:scale-[0.98] disabled:opacity-50"
+          className="flex h-19 flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-input bg-white font-semibold text-[var(--brand-ink)] transition-transform active:scale-[0.98] disabled:opacity-50"
           onClick={() => photoInputRef.current?.click()}
           disabled={busy !== null}
         >
@@ -239,7 +239,9 @@ export function ShopperSearch() {
         }}
       />
 
-      <p className="text-center text-[#566058] text-xs">{t('photoNotKept')}</p>
+      <p className="text-center text-muted-foreground text-xs">
+        {t('photoNotKept')}
+      </p>
 
       {permError ? (
         <p role="alert" className="text-center text-destructive text-sm">

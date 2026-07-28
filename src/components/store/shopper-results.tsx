@@ -129,10 +129,10 @@ export function ShopperResults({
 
   const isDarkAnswer = result?.tone === 'confident' || result?.tone === 'multi';
   const answerClass = isDarkAnswer
-    ? 'bg-[var(--brand-green)] text-[var(--brand-cream)] border-transparent'
+    ? 'bg-[var(--brand)] text-[var(--brand-paper)] border-transparent'
     : result?.tone === 'category'
       ? 'bg-[#FDF6E3] border-[#E7C86F] text-[#7A5B18]'
-      : 'bg-white border-[#EAE3D2] text-[var(--brand-ink)]';
+      : 'bg-white border-border text-[var(--brand-ink)]';
 
   const shown = result
     ? result.candidates.length > 0
@@ -153,14 +153,14 @@ export function ShopperResults({
         onClick={() => {
           window.location.href = '/';
         }}
-        className="inline-flex h-10 items-center gap-1.5 self-start rounded-full border border-[#D5DCCB] bg-white px-4 font-semibold text-[var(--brand-ink)] text-sm transition-transform active:scale-[0.97]"
+        className="inline-flex h-10 items-center gap-1.5 self-start rounded-full border border-input bg-white px-4 font-semibold text-[var(--brand-ink)] text-sm transition-transform active:scale-[0.97]"
       >
         ← {t('back')}
       </button>
 
       {/* Echo of the query */}
       <div className="flex items-baseline gap-2">
-        <span className="text-[#566058] text-sm">{t('youAsked')}:</span>
+        <span className="text-muted-foreground text-sm">{t('youAsked')}:</span>
         <span className="font-bold text-[var(--brand-ink)] text-xl">
           {query}
         </span>
@@ -168,9 +168,9 @@ export function ShopperResults({
 
       {/* Live "searching…" card */}
       {loading ? (
-        <div className="flex flex-col items-center gap-2.5 rounded-2xl border border-[#EAE3D2] bg-white p-7">
-          <Loader2Icon className="size-6 animate-spin text-[var(--brand-green)]" />
-          <span className="text-[#566058]">{t('thinkingLive')}</span>
+        <div className="flex flex-col items-center gap-2.5 rounded-2xl border border-border bg-white p-7">
+          <Loader2Icon className="size-6 animate-spin text-[var(--brand)]" />
+          <span className="text-muted-foreground">{t('thinkingLive')}</span>
         </div>
       ) : null}
 
@@ -180,7 +180,7 @@ export function ShopperResults({
           <button
             type="button"
             onClick={() => setThinkingOpen((v) => !v)}
-            className="flex items-center gap-2 self-start rounded-full border border-[#D5DCCB] bg-white px-3 py-1.5 font-mono text-[#566058] text-xs uppercase tracking-wide"
+            className="flex items-center gap-2 self-start rounded-full border border-input bg-white px-3 py-1.5 font-mono text-muted-foreground text-xs uppercase tracking-wide"
           >
             {thinkingOpen ? (
               <ChevronDownIcon className="size-3.5" />
@@ -192,13 +192,13 @@ export function ShopperResults({
               : t('thinking', { count: result?.stepCount ?? steps.length })}
           </button>
           {thinkingOpen || loading ? (
-            <ol className="flex flex-col gap-1 border-[#D8EBB4] border-l-2 pl-4 text-[#566058] text-sm">
+            <ol className="flex flex-col gap-1 border-[var(--accent-border)] border-l-2 pl-4 text-muted-foreground text-sm">
               {steps.map((s, i) => (
                 <li key={s.key} className="flex items-center gap-2">
                   {loading && i === steps.length - 1 ? (
                     <Loader2Icon className="size-3.5 animate-spin" />
                   ) : (
-                    <CheckCircle2Icon className="size-3.5 text-[var(--brand-green)]" />
+                    <CheckCircle2Icon className="size-3.5 text-[var(--brand)]" />
                   )}
                   {locale === 'zh' ? s.labelZh : s.labelEn}
                 </li>
@@ -210,7 +210,7 @@ export function ShopperResults({
 
       {/* Deflection (content safety) */}
       {deflected ? (
-        <div className="rounded-2xl border border-[#EAE3D2] bg-white p-4 text-center text-[var(--brand-ink)]">
+        <div className="rounded-2xl border border-border bg-white p-4 text-center text-[var(--brand-ink)]">
           {locale === 'zh' ? deflected.zh : deflected.en}
         </div>
       ) : null}
@@ -218,10 +218,10 @@ export function ShopperResults({
       {/* Answer card */}
       {result ? (
         <div
-          className={`wa-pop flex items-center gap-4 rounded-2xl border p-4 shadow-[0_10px_26px_rgba(15,53,44,0.12)] ${answerClass}`}
+          className={`wa-pop flex items-center gap-4 rounded-2xl border p-4 shadow-[0_10px_26px_color-mix(in_srgb,var(--brand-ink)_12%,transparent)] ${answerClass}`}
         >
           {isDarkAnswer && answerShelf ? (
-            <div className="shrink-0 rounded-xl bg-[var(--brand-lime)] px-4 py-3 font-bold text-2xl text-[var(--brand-green)] leading-none">
+            <div className="shrink-0 rounded-xl bg-[var(--brand-accent)] px-4 py-3 font-bold text-2xl text-[var(--brand)] leading-none">
               {answerShelf}
             </div>
           ) : null}
@@ -230,13 +230,13 @@ export function ShopperResults({
       ) : null}
 
       {result?.degraded ? (
-        <p className="text-[#566058] text-sm">{t('degraded')}</p>
+        <p className="text-muted-foreground text-sm">{t('degraded')}</p>
       ) : null}
 
       {/* Candidate list */}
       {shown.length > 0 ? (
         <div className="flex flex-col gap-2.5">
-          <p className="font-semibold text-[#566058] text-sm">
+          <p className="font-semibold text-muted-foreground text-sm">
             {t('possibleItems', { count: shown.length })}
           </p>
           {shown.map((c) => {
@@ -245,7 +245,7 @@ export function ShopperResults({
             return (
               <div
                 key={c.productId}
-                className={`rounded-2xl border bg-white p-3.5 ${isActive && mapJson ? 'border-[var(--brand-green)]' : 'border-[#EAE3D2]'}`}
+                className={`rounded-2xl border bg-white p-3.5 ${isActive && mapJson ? 'border-[var(--brand)]' : 'border-border'}`}
                 onClick={() =>
                   loc && mapJson ? setActiveShelf(loc.shelfCode) : undefined
                 }
@@ -260,8 +260,8 @@ export function ShopperResults({
                       className="size-14 shrink-0 rounded-[10px] object-cover"
                     />
                   ) : (
-                    <div className="flex size-14 shrink-0 items-center justify-center rounded-[10px] bg-[#F1F7E8]">
-                      <ImageIcon className="size-6 text-[#566058]" />
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-[10px] bg-accent">
+                      <ImageIcon className="size-6 text-muted-foreground" />
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
@@ -270,7 +270,7 @@ export function ShopperResults({
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
                       {loc ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--brand-lime)] px-3 py-0.5 font-bold text-[var(--brand-green)] text-sm">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--brand-accent)] px-3 py-0.5 font-bold text-[var(--brand)] text-sm">
                           <MapPinIcon className="size-3.5" />
                           {t('shelfBadge', {
                             code: loc.side
@@ -279,7 +279,7 @@ export function ShopperResults({
                           })}
                         </span>
                       ) : null}
-                      <span className="text-[#566058] text-xs">
+                      <span className="text-muted-foreground text-xs">
                         {c.evidenceCount === 1
                           ? t('seenOne')
                           : t('seen', { count: c.evidenceCount })}
@@ -295,7 +295,7 @@ export function ShopperResults({
 
                 {/* Where to find it — text directions (also shown with the map) */}
                 {loc && !mapJson ? (
-                  <p className="mt-2 text-[#566058] text-sm">
+                  <p className="mt-2 text-muted-foreground text-sm">
                     {t('whereToFind')}:{' '}
                     {t('mapComingSoon', { code: loc.shelfCode })}
                   </p>
@@ -304,7 +304,7 @@ export function ShopperResults({
                 {/* "I looked — it's not there" feedback */}
                 <div className="mt-2">
                   {reported.has(c.productId) ? (
-                    <span className="font-semibold text-[var(--brand-green)] text-sm">
+                    <span className="font-semibold text-[var(--brand)] text-sm">
                       {t('notThereThanks')}
                     </span>
                   ) : (
@@ -314,7 +314,7 @@ export function ShopperResults({
                         e.stopPropagation();
                         reportNotThere(c.productId);
                       }}
-                      className="text-[#566058] text-sm underline underline-offset-2"
+                      className="text-muted-foreground text-sm underline underline-offset-2"
                     >
                       {t('notThere')}
                     </button>
@@ -329,7 +329,7 @@ export function ShopperResults({
       {/* WHERE TO FIND IT — floor map with the target shelf highlighted (§4.1) */}
       {mapJson && shown.length > 0 && activeShelf ? (
         <div className="flex flex-col gap-2">
-          <p className="font-semibold text-[#566058] text-sm">
+          <p className="font-semibold text-muted-foreground text-sm">
             {t('whereToFind')}
           </p>
           <StoreMapSvg
@@ -346,11 +346,11 @@ export function ShopperResults({
 
       {/* No results */}
       {result && result.tone === 'none' && shown.length === 0 ? (
-        <div className="rounded-2xl border border-[#EAE3D2] bg-white p-4 text-center">
+        <div className="rounded-2xl border border-border bg-white p-4 text-center">
           <p className="font-semibold text-[var(--brand-ink)]">
             {t('noResults')}
           </p>
-          <p className="mt-1 text-[#566058] text-sm">{t('rephrase')}</p>
+          <p className="mt-1 text-muted-foreground text-sm">{t('rephrase')}</p>
         </div>
       ) : null}
     </div>

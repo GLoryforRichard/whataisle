@@ -166,7 +166,7 @@ export function HeroTryScan() {
 
   return (
     <div className="wa-fade-up mx-auto w-full max-w-[420px]">
-      <div className="relative overflow-hidden rounded-[28px] bg-[var(--brand-cream)] p-4 shadow-[0_26px_60px_rgba(0,0,0,0.32)]">
+      <div className="relative overflow-hidden rounded-[28px] bg-[var(--brand-paper)] p-4 shadow-[0_26px_60px_rgba(0,0,0,0.32)]">
         {/* Idle: drop zone + upload/camera buttons */}
         {phase === 'idle' && (
           <div
@@ -178,30 +178,27 @@ export function HeroTryScan() {
             onDragLeave={() => setDragOver(false)}
             className={`flex min-h-[340px] flex-col items-center justify-center gap-4 rounded-[18px] border-2 border-dashed p-6 text-center transition-colors ${
               dragOver
-                ? 'border-[var(--brand-green)] bg-[#EDF4DE]'
-                : 'border-[#CBD8B8] bg-white/60'
+                ? 'border-[var(--brand)] bg-accent'
+                : 'border-[var(--accent-border)] bg-white/60'
             }`}
           >
-            <span className="rounded-full bg-[var(--brand-green)] px-3 py-1 font-bold text-[var(--brand-lime)] text-xs">
+            <span className="rounded-full bg-[var(--brand)] px-3 py-1 font-bold text-[var(--brand-accent)] text-xs">
               {t('tag')}
             </span>
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-[var(--brand-lime)]/25">
-              <ImageUpIcon
-                className="size-7 text-[var(--brand-green)]"
-                aria-hidden
-              />
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-[var(--brand-accent)]/25">
+              <ImageUpIcon className="size-7 text-[var(--brand)]" aria-hidden />
             </div>
-            <p className="font-bold text-[#12352C] text-lg leading-snug">
+            <p className="font-bold text-[var(--brand-ink)] text-lg leading-snug">
               {t('dropHint')}
             </p>
-            <p className="-mt-1 max-w-[16rem] text-[#566058] text-sm leading-relaxed">
+            <p className="-mt-1 max-w-[16rem] text-muted-foreground text-sm leading-relaxed">
               {t('subtitle')}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--brand-green)] px-5 font-bold text-[var(--brand-lime)] transition-transform hover:bg-[var(--brand-green-hover)] active:scale-[0.97]"
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--brand)] px-5 font-bold text-[var(--brand-accent)] transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
               >
                 <ImageUpIcon className="size-4" aria-hidden />
                 {t('upload')}
@@ -209,13 +206,13 @@ export function HeroTryScan() {
               <button
                 type="button"
                 onClick={() => cameraInputRef.current?.click()}
-                className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] border-[#BFCDAB] px-5 font-semibold text-[var(--brand-green)] transition-colors hover:border-[var(--brand-green)] sm:hidden"
+                className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] border-[var(--accent-border)] px-5 font-semibold text-[var(--brand)] transition-colors hover:border-[var(--brand)] sm:hidden"
               >
                 <CameraIcon className="size-4" aria-hidden />
                 {t('takePhoto')}
               </button>
             </div>
-            <p className="text-[#7A8478] text-sm">{t('fileHint')}</p>
+            <p className="text-muted-foreground text-sm">{t('fileHint')}</p>
             <input
               ref={fileInputRef}
               type="file"
@@ -243,9 +240,9 @@ export function HeroTryScan() {
               alt=""
               className="h-full max-h-[460px] w-full object-cover opacity-45"
             />
-            <div className="wa-scanline h-[3px] rounded-full bg-[var(--brand-lime)] shadow-[0_0_16px_var(--brand-lime)]" />
+            <div className="wa-scanline h-[3px] rounded-full bg-[var(--brand-accent)] shadow-[0_0_16px_var(--brand-accent)]" />
             <div className="absolute inset-x-0 bottom-0 flex items-center gap-2.5 bg-gradient-to-t from-black/70 to-transparent p-4">
-              <span className="size-2 animate-pulse rounded-full bg-[var(--brand-lime)]" />
+              <span className="size-2 animate-pulse rounded-full bg-[var(--brand-accent)]" />
               <span className="font-semibold text-sm text-white">
                 {t(STAGES[stageIndex])}
               </span>
@@ -269,7 +266,7 @@ export function HeroTryScan() {
               {result.boxes.map((b, i) => (
                 <div
                   key={`${b.x}-${b.y}-${i}`}
-                  className="absolute rounded-[3px] border-2 border-[var(--brand-lime)] shadow-[0_0_0_1px_rgba(0,0,0,0.25)]"
+                  className="absolute rounded-[3px] border-2 border-[var(--brand-accent)] shadow-[0_0_0_1px_rgba(0,0,0,0.25)]"
                   style={{
                     left: `${b.x * 100}%`,
                     top: `${b.y * 100}%`,
@@ -278,25 +275,25 @@ export function HeroTryScan() {
                   }}
                 >
                   {b.w > 0.16 && (
-                    <span className="absolute top-0 left-0 max-w-full truncate rounded-br-[3px] bg-[var(--brand-lime)] px-1 py-px font-semibold text-[10px] text-[var(--brand-green)] leading-tight">
+                    <span className="absolute top-0 left-0 max-w-full truncate rounded-br-[3px] bg-[var(--brand-accent)] px-1 py-px font-semibold text-[10px] text-[var(--brand)] leading-tight">
                       {b.label}
                     </span>
                   )}
                 </div>
               ))}
-              <span className="absolute top-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-green)] px-3 py-1.5 font-bold text-[var(--brand-lime)] text-xs shadow-[0_6px_16px_rgba(0,0,0,0.25)]">
-                <span className="size-1.5 rounded-full bg-[var(--brand-lime)]" />
+              <span className="absolute top-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-[var(--brand)] px-3 py-1.5 font-bold text-[var(--brand-accent)] text-xs shadow-[0_6px_16px_rgba(0,0,0,0.25)]">
+                <span className="size-1.5 rounded-full bg-[var(--brand-accent)]" />
                 {t('resultTitle', { count: result.count })}
               </span>
             </div>
             <div className="flex items-center justify-between px-1">
-              <span className="text-[#7A8478] text-sm">
+              <span className="text-muted-foreground text-sm">
                 {t('remaining', { count: result.remaining })}
               </span>
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex items-center gap-1.5 font-semibold text-[var(--brand-green)] text-sm transition-opacity hover:opacity-70"
+                className="inline-flex items-center gap-1.5 font-semibold text-[var(--brand)] text-sm transition-opacity hover:opacity-70"
               >
                 <RotateCcwIcon className="size-3.5" aria-hidden />
                 {t('tryAnother')}
@@ -308,13 +305,13 @@ export function HeroTryScan() {
         {/* Error: compact friendly card */}
         {phase === 'error' && (
           <div className="flex min-h-[340px] flex-col items-center justify-center gap-4 rounded-[18px] bg-white/60 p-6 text-center">
-            <p className="max-w-[18rem] font-semibold text-[#12352C]">
+            <p className="max-w-[18rem] font-semibold text-[var(--brand-ink)]">
               {t(`err.${errorCode}`)}
             </p>
             {errorCode === 'limit_reached' ? (
               <LocaleLink
                 href="/auth/register"
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--brand-green)] px-5 font-bold text-[var(--brand-lime)] transition-transform hover:bg-[var(--brand-green-hover)] active:scale-[0.97]"
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--brand)] px-5 font-bold text-[var(--brand-accent)] transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
               >
                 {t('cta')}
                 <ArrowRightIcon className="size-4" aria-hidden />
@@ -323,7 +320,7 @@ export function HeroTryScan() {
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] border-[#BFCDAB] px-5 font-semibold text-[var(--brand-green)] transition-colors hover:border-[var(--brand-green)]"
+                className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] border-[var(--accent-border)] px-5 font-semibold text-[var(--brand)] transition-colors hover:border-[var(--brand)]"
               >
                 <RotateCcwIcon className="size-4" aria-hidden />
                 {t('tryAnother')}

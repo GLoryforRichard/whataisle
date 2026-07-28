@@ -42,11 +42,16 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+  /* Brand tokens registered as real utilities (bg-brand, text-brand-accent…)
+     for new code; existing [var(--brand*)] arbitrary values keep working. */
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-hover: var(--brand-accent-hover);
+  --color-brand-paper: var(--brand-paper);
+  --color-brand-ink: var(--brand-ink);
+  --color-map-target: var(--map-target);
+  --color-accent-border: var(--accent-border);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -110,12 +115,18 @@
 
 :root {
   /* ── Fresh Green (5a) brand palette ── */
-  --brand-green: #0f4c3f;
-  --brand-green-hover: #17604f;
-  --brand-lime: #c6f24e;
-  --brand-lime-hover: #d3f76e;
-  --brand-cream: #f7f4ec;
+  --brand: #0f4c3f;
+  --brand-hover: #17604f;
+  --brand-accent: #c6f24e;
+  --brand-accent-hover: #d3f76e;
+  --brand-paper: #f7f4ec;
   --brand-ink: #12352c;
+  /* The shopper map's "your product is HERE" pin. Deliberately its own token:
+     it must stay distinguishable from --destructive AND from --brand under
+     every palette (a red brand gets a blue pin). */
+  --map-target: #e5484d;
+  /* Border shade paired with --accent tint fills (chips, drop zones). */
+  --accent-border: #d8ebb4;
 
   --card: #ffffff;
   --card-foreground: #12352c;
@@ -134,11 +145,6 @@
   --border: #e4decb;
   --input: #d5dccb;
   --ring: #0f4c3f;
-  --chart-1: #0f4c3f;
-  --chart-2: #17604f;
-  --chart-3: #3f7d5f;
-  --chart-4: #8fbf4d;
-  --chart-5: #c6f24e;
   /* Light dashboard chrome — a calm warm surround (the inset content panel
      floats on it), dark-green text, and a soft green active/hover pill. */
   --sidebar: #edeae1;
@@ -172,67 +178,10 @@
   --foreground: #12352c;
 }
 
-.dark {
-  /* ── Fresh Green (5a) — deep-green dark variant ── */
-  --brand-green: #0f4c3f;
-  --brand-green-hover: #17604f;
-  --brand-lime: #c6f24e;
-  --brand-lime-hover: #d3f76e;
-  --brand-cream: #f7f4ec;
-  --brand-ink: #12352c;
-
-  --background: #0b241d;
-  --foreground: #f1f5ee;
-  --card: #12352c;
-  --card-foreground: #f1f5ee;
-  --popover: #12352c;
-  --popover-foreground: #f1f5ee;
-  --primary: #c6f24e;
-  --primary-foreground: #0f2e25;
-  --secondary: #1b4034;
-  --secondary-foreground: #f1f5ee;
-  --muted: #1b3a30;
-  --muted-foreground: #a9bdb0;
-  --accent: #17604f;
-  --accent-foreground: #f1f5ee;
-  --destructive: #ff6b6b;
-  --destructive-foreground: #2a0f0f;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.14);
-  --ring: #c6f24e;
-  --chart-1: #c6f24e;
-  --chart-2: #8fbf4d;
-  --chart-3: #3f7d5f;
-  --chart-4: #17604f;
-  --chart-5: #0f4c3f;
-  --sidebar: #082019;
-  --sidebar-foreground: #f1f5ee;
-  --sidebar-primary: #c6f24e;
-  --sidebar-primary-foreground: #0f2e25;
-  --sidebar-accent: #17604f;
-  --sidebar-accent-foreground: #f1f5ee;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #c6f24e;
-  --font-sans:
-    var(--font-quicksand), var(--font-noto-sans-sc), var(--font-noto-sans),
-    ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-noto-serif);
-  --font-mono: var(--font-noto-sans-mono);
-  --radius: 0.875rem;
-  --shadow-2xs: 0px 4px 8px 0px hsl(0 0% 0% / 0.05);
-  --shadow-xs: 0px 4px 8px 0px hsl(0 0% 0% / 0.05);
-  --shadow-sm:
-    0px 4px 8px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow:
-    0px 4px 8px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow-md:
-    0px 4px 8px 0px hsl(0 0% 0% / 0.1), 0px 2px 4px -1px hsl(0 0% 0% / 0.1);
-  --shadow-lg:
-    0px 4px 8px 0px hsl(0 0% 0% / 0.1), 0px 4px 6px -1px hsl(0 0% 0% / 0.1);
-  --shadow-xl:
-    0px 4px 8px 0px hsl(0 0% 0% / 0.1), 0px 8px 10px -1px hsl(0 0% 0% / 0.1);
-  --shadow-2xl: 0px 4px 8px 0px hsl(0 0% 0% / 0.25);
-}
+/* NOTE: the product is light-only (forcedTheme="light", enableSwitch:false),
+   so there is deliberately no `.dark` token block. The @custom-variant dark
+   line at the top stays so template components' `dark:` utilities keep
+   compiling — they just never activate. */
 
 /* Chinese-first font stack: Quicksand has no CJK glyphs, so on Chinese pages
    Noto Sans SC must lead — otherwise every mixed-script line renders in two
@@ -427,9 +376,9 @@ div[class*="border-t"][class*="bg-fd-secondary"]:not(:has(*)):not(
 
 /* Dotted "paper" background used on onboarding + shopper search. */
 .wa-dotted {
-  background-color: var(--brand-cream);
+  background-color: var(--background);
   background-image: radial-gradient(
-    rgba(15, 76, 63, 0.05) 1px,
+    color-mix(in srgb, var(--primary) 5%, transparent) 1px,
     transparent 1px
   );
   background-size: 22px 22px;

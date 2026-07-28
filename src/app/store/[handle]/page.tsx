@@ -28,15 +28,15 @@ export default async function ShopperPage({ params }: ShopperPageProps) {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-6">
       {announcement ? (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#EAE3D2] bg-white p-4 shadow-[0_1px_2px_rgba(15,53,44,0.04)]">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand-green)]">
+        <div className="flex items-start gap-3 rounded-2xl border border-border bg-white p-4 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent)]">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand)]">
             <MegaphoneIcon
-              className="size-[18px] text-[var(--brand-lime)]"
+              className="size-[18px] text-[var(--brand-accent)]"
               aria-hidden
             />
           </div>
           <div className="min-w-0">
-            <p className="font-semibold text-[#566058] text-[11px] uppercase tracking-[0.08em]">
+            <p className="font-semibold text-muted-foreground text-[11px] uppercase tracking-[0.08em]">
               {t('shopper.announcementLabel')}
             </p>
             <p className="mt-0.5 text-[var(--brand-ink)] leading-snug">
