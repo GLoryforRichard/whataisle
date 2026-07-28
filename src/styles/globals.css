@@ -187,6 +187,133 @@
    line at the top stays so template components' `dark:` utilities keep
    compiling — they just never activate. */
 
+/* ── Palette try-on (TEMPORARY, until the owner picks) ──────────────────
+   Four candidate palettes as full token overrides, toggled by the dev-only
+   PalettePicker (html[data-palette=…]). No attribute = the current green.
+   Page background stays pure white in every candidate (owner decision).
+   All values are AA-tuned: white on primary >=4.5, ink/muted on white
+   >=5.9, ink on accent chips >=5.3. Jujube's map pin is BLUE because a red
+   pin inside a red-brand UI is indistinguishable from buttons and errors
+   (#9C3D2E vs #C1272D = 1.15:1). After the owner picks, the winner's values
+   move into :root and these blocks plus the picker are deleted. */
+
+/* 甲 枣红暖金 — jujube red + warm gold */
+html[data-palette="jujube"] {
+  --brand: #9c3d2e;
+  --brand-hover: #7e2f23;
+  --brand-accent: #d9a441;
+  --brand-accent-hover: #e3b45c;
+  --brand-ink: #40302a;
+  --foreground: #40302a;
+  --card-foreground: #40302a;
+  --popover-foreground: #40302a;
+  --primary: #9c3d2e;
+  --secondary: #f6e7de;
+  --secondary-foreground: #7e2f23;
+  --muted-foreground: #66564a;
+  --accent: #f8ecd6;
+  --accent-foreground: #9c3d2e;
+  --accent-border: #ebd9b8;
+  --border: #e7daca;
+  --input: #decbb2;
+  --ring: #9c3d2e;
+  --sidebar-foreground: #40302a;
+  --sidebar-primary: #9c3d2e;
+  --sidebar-accent: #f4e0d5;
+  --sidebar-accent-foreground: #7e2f23;
+  --sidebar-border: #e7daca;
+  --sidebar-ring: #9c3d2e;
+  --map-target: #2456a6;
+}
+
+/* 乙 柿子暖橙 — persimmon orange (one shade deeper than the mockup so
+   white text passes AA: #C75B28 was 4.24:1, #B04E1F is 5.31:1) */
+html[data-palette="persimmon"] {
+  --brand: #b04e1f;
+  --brand-hover: #96421a;
+  --brand-accent: #e8a25c;
+  --brand-accent-hover: #edb273;
+  --brand-ink: #4a3527;
+  --foreground: #4a3527;
+  --card-foreground: #4a3527;
+  --popover-foreground: #4a3527;
+  --primary: #b04e1f;
+  --secondary: #f9e9db;
+  --secondary-foreground: #96421a;
+  --muted-foreground: #6e5a48;
+  --accent: #fbeedd;
+  --accent-foreground: #b04e1f;
+  --accent-border: #f0d9bc;
+  --border: #e9decd;
+  --input: #e0cfb6;
+  --ring: #b04e1f;
+  --sidebar-foreground: #4a3527;
+  --sidebar-primary: #b04e1f;
+  --sidebar-accent: #f8e4cf;
+  --sidebar-accent-foreground: #96421a;
+  --sidebar-border: #e9decd;
+  --sidebar-ring: #b04e1f;
+  --map-target: #cf343a;
+}
+
+/* 丙 藏蓝米金 — steady navy + warm gold */
+html[data-palette="navy"] {
+  --brand: #24406b;
+  --brand-hover: #1b3253;
+  --brand-accent: #d9a441;
+  --brand-accent-hover: #e3b45c;
+  --brand-ink: #22314a;
+  --foreground: #22314a;
+  --card-foreground: #22314a;
+  --popover-foreground: #22314a;
+  --primary: #24406b;
+  --secondary: #e8ecf3;
+  --secondary-foreground: #24406b;
+  --muted-foreground: #4e5a72;
+  --accent: #f6ecd7;
+  --accent-foreground: #24406b;
+  --accent-border: #e9d6ac;
+  --border: #e2dece;
+  --input: #d9d2bd;
+  --ring: #24406b;
+  --sidebar-foreground: #22314a;
+  --sidebar-primary: #24406b;
+  --sidebar-accent: #e5eaf2;
+  --sidebar-accent-foreground: #24406b;
+  --sidebar-border: #e2dece;
+  --sidebar-ring: #24406b;
+  --map-target: #cf343a;
+}
+
+/* 丁 茶叶绿米金 — traditional tea green + brass (no fluorescent lime) */
+html[data-palette="tea"] {
+  --brand: #1e5241;
+  --brand-hover: #174435;
+  --brand-accent: #d9b45b;
+  --brand-accent-hover: #e2c170;
+  --brand-ink: #26372f;
+  --foreground: #26372f;
+  --card-foreground: #26372f;
+  --popover-foreground: #26372f;
+  --primary: #1e5241;
+  --secondary: #ebf1e5;
+  --secondary-foreground: #1e5241;
+  --muted-foreground: #566058;
+  --accent: #f6f0de;
+  --accent-foreground: #1e5241;
+  --accent-border: #e5d6a9;
+  --border: #e0decf;
+  --input: #d5dccb;
+  --ring: #1e5241;
+  --sidebar-foreground: #26372f;
+  --sidebar-primary: #1e5241;
+  --sidebar-accent: #e4edda;
+  --sidebar-accent-foreground: #1e5241;
+  --sidebar-border: #e0decf;
+  --sidebar-ring: #1e5241;
+  --map-target: #cf343a;
+}
+
 /* Chinese-first font stack: Quicksand has no CJK glyphs, so on Chinese pages
    Noto Sans SC must lead — otherwise every mixed-script line renders in two
    typefaces (rounded Quicksand latin next to fallback hanzi). While Noto's
