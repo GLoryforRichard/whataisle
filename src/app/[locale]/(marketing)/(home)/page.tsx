@@ -5,13 +5,16 @@ import { SearchWaysVisual } from '@/components/marketing/home/search-ways-visual
 import { ShelfScanVisual } from '@/components/marketing/home/shelf-scan-visual';
 import { HeroTryScan } from '@/components/marketing/home/try-scan-section';
 import { ScrollReveal } from '@/components/shared/scroll-reveal';
+import { websiteConfig } from '@/config/website';
 import { LocaleLink } from '@/i18n/navigation';
 import { constructMetadata } from '@/lib/metadata';
+import { getStoreUrl } from '@/lib/urls';
 import { cn } from '@/lib/utils';
 import { ArrowRightIcon, MapPinIcon, QrCodeIcon } from 'lucide-react';
 import type { Metadata } from 'next';
 import type { Locale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
+import QRCode from 'qrcode';
 
 /**
  * https://next-intl.dev/docs/environments/actions-metadata-route-handlers#metadata-api
@@ -39,6 +42,18 @@ interface HomePageProps {
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'HomePage' });
+
+  // Demo store: the "see it before you pay" surface. All three link sites
+  // (hero CTA, scan-band QR, footer) disappear when the handle is unset.
+  const demoStoreHandle = websiteConfig.demoStoreHandle;
+  const demoStoreUrl = demoStoreHandle ? getStoreUrl(demoStoreHandle) : null;
+  const demoQrDataUrl = demoStoreUrl
+    ? await QRCode.toDataURL(demoStoreUrl, {
+        width: 264,
+        margin: 1,
+        errorCorrectionLevel: 'M',
+      })
+    : null;
 
   const faqItems = ([1, 2, 3, 4, 5, 6, 7] as const).map((n) => ({
     question: t(`seo.faq.q${n}`),
@@ -85,13 +100,27 @@ export default async function HomePage({ params }: HomePageProps) {
                     {t('hero.primaryCta')}
                     <ArrowRightIcon className="size-5" aria-hidden />
                   </LocaleLink>
-                  <LocaleLink
-                    href="#how-it-works"
-                    className="inline-flex h-14 items-center rounded-full border-[1.5px] border-[var(--brand-cream)]/35 px-6 font-semibold text-[var(--brand-cream)] transition-colors hover:border-[var(--brand-lime)]"
-                  >
-                    {t('hero.secondaryCta')}
-                  </LocaleLink>
+                  {demoStoreUrl ? (
+                    <a
+                      href={demoStoreUrl}
+                      className="inline-flex h-14 items-center rounded-full border-[1.5px] border-[var(--brand-cream)]/35 px-6 font-semibold text-[var(--brand-cream)] text-lg transition-colors hover:border-[var(--brand-lime)]"
+                    >
+                      {t('hero.secondaryCta')}
+                    </a>
+                  ) : (
+                    <LocaleLink
+                      href="#how-it-works"
+                      className="inline-flex h-14 items-center rounded-full border-[1.5px] border-[var(--brand-cream)]/35 px-6 font-semibold text-[var(--brand-cream)] text-lg transition-colors hover:border-[var(--brand-lime)]"
+                    >
+                      {t('hero.howItWorksCta')}
+                    </LocaleLink>
+                  )}
                 </div>
+                {/* Price up front: this audience distrusts hidden pricing far
+                    more than a big number (requirements §〇: 选诚实). */}
+                <p className="text-[var(--brand-cream)]/70 text-base">
+                  {t('hero.priceNote')}
+                </p>
               </div>
 
               {/* Hero visual — live one-photo scan demo */}
@@ -104,16 +133,13 @@ export default async function HomePage({ params }: HomePageProps) {
       {/* ── How it works — story steps (static copy, animated visuals) ── */}
       <section id="how-it-works" className="pt-12 pb-12 sm:pt-16">
         <Container className="px-3 sm:px-4">
-          <div className="mb-10 flex items-baseline justify-between sm:mb-14">
-            <h2 className="font-bold text-3xl text-foreground">
-              {t('story.title')}
-            </h2>
-            <span className="font-mono text-muted-foreground text-xs">04</span>
-          </div>
+          <h2 className="mb-10 font-bold text-3xl text-foreground sm:mb-14">
+            {t('story.title')}
+          </h2>
 
           <div className="flex flex-col gap-16 sm:gap-24">
             <StoryStep
-              step="01"
+              step={t('story.step', { n: 1 })}
               title={t('story.snap.title')}
               description={t('story.snap.description')}
             >
@@ -128,7 +154,7 @@ export default async function HomePage({ params }: HomePageProps) {
             </StoryStep>
 
             <StoryStep
-              step="02"
+              step={t('story.step', { n: 2 })}
               title={t('story.memory.title')}
               description={t('story.memory.description')}
               reverse
@@ -141,7 +167,7 @@ export default async function HomePage({ params }: HomePageProps) {
             </StoryStep>
 
             <StoryStep
-              step="03"
+              step={t('story.step', { n: 3 })}
               title={t('story.ask.title')}
               description={t('story.ask.description')}
             >
@@ -153,7 +179,7 @@ export default async function HomePage({ params }: HomePageProps) {
             </StoryStep>
 
             <StoryStep
-              step="04"
+              step={t('story.step', { n: 4 })}
               title={t('story.answer.title')}
               description={t('story.answer.description')}
               reverse
@@ -173,13 +199,13 @@ export default async function HomePage({ params }: HomePageProps) {
         <Container className="px-3 sm:px-4">
           <div className="grid grid-cols-1 overflow-hidden rounded-3xl bg-[var(--brand-lime)] md:grid-cols-[1.2fr_0.8fr]">
             <div className="flex flex-col items-start gap-4 p-8 md:p-10">
-              <span className="rounded-full bg-[rgba(15,76,63,0.1)] px-3 py-1 font-mono font-bold text-[#2E5A2A] text-xs tracking-[0.1em]">
+              <span className="rounded-full bg-[rgba(15,76,63,0.1)] px-3 py-1 font-bold text-[#2E5A2A] text-sm">
                 {t('scan.tag')}
               </span>
               <h2 className="text-balance font-bold text-3xl text-[var(--brand-green)] leading-tight">
                 {t('scan.title')}
               </h2>
-              <p className="max-w-md text-[#2E4A3E] leading-relaxed">
+              <p className="max-w-md text-[#2E4A3E] text-lg leading-relaxed">
                 {t('scan.sub')}
               </p>
               <LocaleLink
@@ -191,17 +217,36 @@ export default async function HomePage({ params }: HomePageProps) {
               </LocaleLink>
             </div>
             <ScrollReveal className="flex items-center justify-center p-8">
-              <div className="flex rotate-2 flex-col items-center gap-3 rounded-2xl bg-white p-5 shadow-[0_16px_34px_rgba(15,53,44,0.18)]">
-                <div
-                  className="flex size-[132px] items-center justify-center rounded-xl bg-[var(--brand-green)] bg-[repeating-linear-gradient(45deg,rgba(198,242,78,0.28)_0,rgba(198,242,78,0.28)_7px,transparent_7px,transparent_14px)]"
-                  aria-hidden
+              {demoStoreUrl && demoQrDataUrl ? (
+                // A real, scannable QR into the demo store — proof beats
+                // decoration for this audience.
+                <a
+                  href={demoStoreUrl}
+                  className="flex flex-col items-center gap-3 rounded-2xl bg-white p-5 shadow-[0_16px_34px_rgba(15,53,44,0.18)] transition-transform hover:scale-[1.02]"
                 >
-                  <QrCodeIcon className="size-11 text-[var(--brand-lime)]" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={demoQrDataUrl}
+                    alt={t('scan.demoCaption')}
+                    className="size-[132px] rounded-xl"
+                  />
+                  <span className="text-[#566058] text-sm">
+                    {t('scan.demoCaption')}
+                  </span>
+                </a>
+              ) : (
+                <div className="flex flex-col items-center gap-3 rounded-2xl bg-white p-5 shadow-[0_16px_34px_rgba(15,53,44,0.18)]">
+                  <div
+                    className="flex size-[132px] items-center justify-center rounded-xl bg-[var(--brand-green)]"
+                    aria-hidden
+                  >
+                    <QrCodeIcon className="size-11 text-[var(--brand-lime)]" />
+                  </div>
+                  <span className="text-[#566058] text-sm">
+                    {t('scan.caption')}
+                  </span>
                 </div>
-                <span className="font-mono text-[#566058] text-xs">
-                  {t('scan.caption')}
-                </span>
-              </div>
+              )}
             </ScrollReveal>
           </div>
         </Container>
@@ -215,10 +260,10 @@ export default async function HomePage({ params }: HomePageProps) {
               <h2 className="text-balance font-bold text-3xl text-foreground">
                 {t('seo.title')}
               </h2>
-              <p className="text-[#566058] leading-relaxed">
+              <p className="text-[#566058] text-lg leading-relaxed">
                 {t('seo.intro1')}
               </p>
-              <p className="text-[#566058] leading-relaxed">
+              <p className="text-[#566058] text-lg leading-relaxed">
                 {t('seo.intro2')}
               </p>
             </div>
@@ -231,7 +276,7 @@ export default async function HomePage({ params }: HomePageProps) {
                 {exampleQuestions.map((question) => (
                   <li
                     key={question}
-                    className="rounded-full border border-[#EAE3D2] bg-white px-3.5 py-1.5 text-[#40483F] text-sm"
+                    className="rounded-full border border-[#EAE3D2] bg-white px-4 py-2 text-[#40483F] text-base"
                   >
                     {question}
                   </li>
@@ -244,13 +289,13 @@ export default async function HomePage({ params }: HomePageProps) {
                 <h3 className="font-bold text-[var(--brand-ink)] text-xl">
                   {t('seo.owners.title')}
                 </h3>
-                <p className="text-[#566058] leading-relaxed">
+                <p className="text-[#566058] text-lg leading-relaxed">
                   {t('seo.owners.p1')}
                 </p>
-                <p className="text-[#566058] leading-relaxed">
+                <p className="text-[#566058] text-lg leading-relaxed">
                   {t('seo.owners.p2')}
                 </p>
-                <p className="text-[#566058] leading-relaxed">
+                <p className="text-[#566058] text-lg leading-relaxed">
                   {t('seo.owners.p3')}
                 </p>
               </div>
@@ -258,7 +303,7 @@ export default async function HomePage({ params }: HomePageProps) {
                 <h3 className="font-bold text-[var(--brand-ink)] text-xl">
                   {t('seo.shoppers.title')}
                 </h3>
-                <p className="text-[#566058] leading-relaxed">
+                <p className="text-[#566058] text-lg leading-relaxed">
                   {t('seo.shoppers.p1')}
                 </p>
               </div>
@@ -266,7 +311,7 @@ export default async function HomePage({ params }: HomePageProps) {
                 <h3 className="font-bold text-[var(--brand-ink)] text-xl">
                   {t('seo.multilingual.title')}
                 </h3>
-                <p className="text-[#566058] leading-relaxed">
+                <p className="text-[#566058] text-lg leading-relaxed">
                   {t('seo.multilingual.p1')}
                 </p>
               </div>
@@ -282,10 +327,10 @@ export default async function HomePage({ params }: HomePageProps) {
                     key={item.question}
                     className="rounded-[20px] border border-[#EAE3D2] bg-white p-6 shadow-[0_1px_2px_rgba(15,53,44,0.04)]"
                   >
-                    <h3 className="mb-2 font-bold text-[var(--brand-ink)] text-base">
+                    <h3 className="mb-2 font-bold text-[var(--brand-ink)] text-lg">
                       {item.question}
                     </h3>
-                    <p className="text-[#566058] text-sm leading-relaxed">
+                    <p className="text-[#566058] text-base leading-relaxed">
                       {item.answer}
                     </p>
                   </div>
@@ -293,7 +338,9 @@ export default async function HomePage({ params }: HomePageProps) {
               </div>
             </div>
 
-            <p className="text-[#566058] leading-relaxed">{t('seo.outro')}</p>
+            <p className="text-[#566058] text-lg leading-relaxed">
+              {t('seo.outro')}
+            </p>
           </div>
         </Container>
         <script
@@ -331,13 +378,15 @@ function StoryStep({
           reverse && 'lg:order-2'
         )}
       >
-        <span className="rounded-full bg-[rgba(15,76,63,0.08)] px-3 py-1 font-bold font-mono text-[#2E5A2A] text-xs tracking-[0.1em]">
+        <span className="rounded-full bg-[rgba(15,76,63,0.08)] px-3 py-1 font-bold text-[#2E5A2A] text-sm">
           {step}
         </span>
         <h3 className="text-balance font-bold text-2xl text-[var(--brand-ink)] sm:text-3xl">
           {title}
         </h3>
-        <p className="max-w-md text-[#566058] leading-relaxed">{description}</p>
+        <p className="max-w-md text-[#566058] text-lg leading-relaxed">
+          {description}
+        </p>
       </div>
       <div
         className={cn(

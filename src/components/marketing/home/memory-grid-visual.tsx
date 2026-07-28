@@ -52,8 +52,8 @@ const tileVariant: Variants = {
 const ringVariant: Variants = {
   hidden: { opacity: 0 },
   visible: {
-    opacity: [0, 1, 0.4, 1],
-    transition: { delay: 1.4, duration: 1.2, times: [0, 0.3, 0.6, 1] },
+    opacity: 1,
+    transition: { delay: 1.2, duration: 0.3 },
   },
 };
 

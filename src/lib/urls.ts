@@ -13,6 +13,24 @@ export function getBaseUrl(): string {
 }
 
 /**
+ * Get the public URL of a store subdomain.
+ *
+ * Derives protocol and port from the main site's base URL so every
+ * environment gets a working link: production => https://demo.whataisle.com,
+ * dev => http://demo.localhost:3000, E2E => http://demo.localhost:3100
+ * (subdomains of localhost resolve to 127.0.0.1 in modern browsers, and the
+ * seeds create the `demo` tenant).
+ */
+export function getStoreUrl(handle: string): string {
+  const base = new URL(getBaseUrl());
+  const rootDomain = (
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'localhost'
+  ).toLowerCase();
+  const port = base.port ? `:${base.port}` : '';
+  return `${base.protocol}//${handle}.${rootDomain}${port}`;
+}
+
+/**
  * Check if the locale should be appended to the URL
  */
 export function shouldAppendLocale(locale?: Locale | null): boolean {

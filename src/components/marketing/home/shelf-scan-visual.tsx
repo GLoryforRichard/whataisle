@@ -4,9 +4,10 @@ import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 
 /**
- * Step 01 visual: a casual shelf photo gets a camera flash, then AI bounding
- * boxes draw around products and multilingual name labels pop in. Plays once
- * when scrolled into view.
+ * Step 01 visual: bounding boxes draw around products on a shelf photo and
+ * multilingual name labels pop in. Plays once when scrolled into view. The
+ * earlier white "camera flash" overlay was removed deliberately — a sudden
+ * full-card flash is startling rather than explanatory.
  */
 
 const PRODUCTS: Array<{
@@ -59,20 +60,12 @@ const cardVariant: Variants = {
   },
 };
 
-const flashVariant: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: [0, 0.75, 0],
-    transition: { delay: 0.5, duration: 0.5, times: [0, 0.3, 1] },
-  },
-};
-
 const boxVariant: Variants = {
   hidden: { pathLength: 0, opacity: 0 },
   visible: (i: number) => ({
     pathLength: 1,
     opacity: 1,
-    transition: { delay: 1 + i * 0.3, duration: 0.5, ease: 'easeOut' },
+    transition: { delay: 0.4 + i * 0.15, duration: 0.5, ease: 'easeOut' },
   }),
 };
 
@@ -83,7 +76,7 @@ const labelVariant: Variants = {
     scale: 1,
     y: 0,
     transition: {
-      delay: 1.4 + i * 0.3,
+      delay: 0.8 + i * 0.15,
       type: 'spring',
       stiffness: 300,
       damping: 20,
@@ -96,7 +89,7 @@ const chipVariant: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { delay: 2.4, duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+    transition: { delay: 1.4, duration: 0.4, ease: [0.22, 1, 0.36, 1] },
   },
 };
 
@@ -176,12 +169,6 @@ export function ShelfScanVisual({ labels, foundChip }: ShelfScanVisualProps) {
             />
           ))}
         </svg>
-
-        {/* camera flash */}
-        <motion.div
-          variants={flashVariant}
-          className="pointer-events-none absolute inset-0 bg-white"
-        />
 
         {/* product name labels */}
         {labels.map((label, i) => (

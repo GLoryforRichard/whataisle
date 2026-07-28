@@ -79,37 +79,12 @@
   --font-quicksand: var(--font-quicksand);
   --font-bricolage-grotesque: var(--font-bricolage-grotesque);
 
-  /* animate */
-  --animate-shiny-text: shiny-text 8s infinite;
-  --animate-rainbow: rainbow var(--speed, 2s) infinite linear;
+  /* animate — mksaas/magicui keyframes were removed with the components
+     that used them. NOTE: the template's --animate-pulse override (with an
+     unset var(--duration)) used to silently break Tailwind's stock
+     `animate-pulse`; deleting it restores the default skeleton pulse. */
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
-  --animate-marquee: marquee var(--duration) infinite linear;
-  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
-  --animate-ripple: ripple var(--duration, 2s) ease calc(var(--i, 0) * 0.2s)
-    infinite;
-  --animate-pulse: pulse var(--duration) ease-out infinite;
-  --animate-meteor: meteor 5s linear infinite;
-  --animate-gradient: gradient 8s linear infinite;
-  @keyframes shiny-text {
-    0%,
-    90%,
-    100% {
-      background-position: calc(-100% - var(--shiny-width)) 0;
-    }
-    30%,
-    60% {
-      background-position: calc(100% + var(--shiny-width)) 0;
-    }
-  }
-  @keyframes rainbow {
-    0% {
-      background-position: 0%;
-    }
-    100% {
-      background-position: 200%;
-    }
-  }
 
   @keyframes accordion-down {
     from {
@@ -126,108 +101,6 @@
     }
     to {
       height: 0;
-    }
-  }
-  @keyframes marquee {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(calc(-100% - var(--gap)));
-    }
-  }
-  @keyframes marquee-vertical {
-    from {
-      transform: translateY(0);
-    }
-    to {
-      transform: translateY(calc(-100% - var(--gap)));
-    }
-  }
-  @keyframes ripple {
-    0%,
-    100% {
-      transform: translate(-50%, -50%) scale(1);
-    }
-    50% {
-      transform: translate(-50%, -50%) scale(0.9);
-    }
-  }
-  @keyframes pulse {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 var(--pulse-color);
-    }
-    50% {
-      box-shadow: 0 0 0 8px var(--pulse-color);
-    }
-  }
-  @keyframes meteor {
-    0% {
-      transform: rotate(var(--angle)) translateX(0);
-      opacity: 1;
-    }
-    70% {
-      opacity: 1;
-    }
-    100% {
-      transform: rotate(var(--angle)) translateX(-500px);
-      opacity: 0;
-    }
-  }
-  @keyframes gradient {
-    to {
-      background-position: var(--bg-size, 300%) 0;
-    }
-  }
-  --animate-blink-cursor: blink-cursor 1.2s step-end infinite;
-  @keyframes blink-cursor {
-    0%,
-    49% {
-      opacity: 1;
-    }
-    50%,
-    100% {
-      opacity: 0;
-    }
-  }
-  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite
-    alternate;
-  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
-  --color-color-5: var(--color-5);
-  --color-color-4: var(--color-4);
-  --color-color-3: var(--color-3);
-  --color-color-2: var(--color-2);
-  --color-color-1: var(--color-1);
-  --animate-rippling: rippling var(--duration) ease-out;
-  @keyframes rippling {
-    0% {
-      opacity: 1;
-    }
-    100% {
-      transform: scale(2);
-      opacity: 0;
-    }
-  }
-  @keyframes shimmer-slide {
-    to {
-      transform: translate(calc(100cqw - 100%), 0);
-    }
-  }
-  @keyframes spin-around {
-    0% {
-      transform: translateZ(0) rotate(0);
-    }
-    15%,
-    35% {
-      transform: translateZ(0) rotate(90deg);
-    }
-    65%,
-    85% {
-      transform: translateZ(0) rotate(270deg);
-    }
-    100% {
-      transform: translateZ(0) rotate(360deg);
     }
   }
   --radius-2xl: calc(var(--radius) * 1.8);
@@ -295,11 +168,6 @@
   --shadow-xl:
     0px 4px 8px 0px hsl(0 0% 0% / 0.05), 0px 8px 10px -1px hsl(0 0% 0% / 0.05);
   --shadow-2xl: 0px 4px 8px 0px hsl(0 0% 0% / 0.13);
-  --color-1: oklch(66.2% 0.225 25.9);
-  --color-2: oklch(60.4% 0.26 302);
-  --color-3: oklch(69.6% 0.165 251);
-  --color-4: oklch(80.2% 0.134 225);
-  --color-5: oklch(90.7% 0.231 133);
   --background: #f7f4ec;
   --foreground: #12352c;
 }
@@ -364,11 +232,17 @@
   --shadow-xl:
     0px 4px 8px 0px hsl(0 0% 0% / 0.1), 0px 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0px 4px 8px 0px hsl(0 0% 0% / 0.25);
-  --color-1: oklch(66.2% 0.225 25.9);
-  --color-2: oklch(60.4% 0.26 302);
-  --color-3: oklch(69.6% 0.165 251);
-  --color-4: oklch(80.2% 0.134 225);
-  --color-5: oklch(90.7% 0.231 133);
+}
+
+/* Chinese-first font stack: Quicksand has no CJK glyphs, so on Chinese pages
+   Noto Sans SC must lead — otherwise every mixed-script line renders in two
+   typefaces (rounded Quicksand latin next to fallback hanzi). While Noto's
+   unicode-range slices lazy-load, PingFang/YaHei keep the fallback close, so
+   no preload is needed. Both root layouts set lang={locale} on <html>. */
+html[lang="zh"] {
+  --font-sans:
+    var(--font-noto-sans-sc), "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
 }
 
 /*
@@ -400,13 +274,6 @@
 
 body {
   @apply overscroll-none;
-}
-
-.text-gradient_indigo-purple {
-  background: linear-gradient(90deg, #6366f1 0%, rgb(168 85 247 / 0.8) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 /* https://github.com/shadcn-ui/ui/issues/4227#issuecomment-2438290165 */
@@ -482,16 +349,6 @@ div[class*="border-t"][class*="bg-fd-secondary"]:not(:has(*)):not(
 }
 
 /* ── Fresh Green (5a) motion + brand helpers ── */
-@keyframes wa-float {
-  0%,
-  100% {
-    transform: rotate(6deg) translateY(0);
-  }
-  50% {
-    transform: rotate(6deg) translateY(-8px);
-  }
-}
-
 @keyframes wa-pop {
   from {
     transform: scale(0.92) translateY(10px);
@@ -561,44 +418,11 @@ div[class*="border-t"][class*="bg-fd-secondary"]:not(:has(*)):not(
   animation: wa-shimmer 1.6s linear infinite;
 }
 
-.wa-float {
-  animation: wa-float 4s ease-in-out infinite;
-}
 .wa-pop {
   animation: wa-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .wa-fade-up {
   animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-/* Blinking caret for the landing-page typing demo. */
-@keyframes wa-caret {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-}
-
-.wa-caret {
-  animation: wa-caret 1s step-end infinite;
-}
-
-/* Voice waveform bars for the landing-page search demo. */
-@keyframes wa-wave {
-  0%,
-  100% {
-    transform: scaleY(0.35);
-  }
-  50% {
-    transform: scaleY(1);
-  }
-}
-
-.wa-wave {
-  animation: wa-wave 1.1s ease-in-out infinite;
 }
 
 /* Dotted "paper" background used on onboarding + shopper search. */

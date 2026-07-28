@@ -12,8 +12,7 @@ import { LocaleLink } from '@/i18n/navigation';
 import { isDemoWebsite } from '@/lib/demo';
 import React, { type ComponentProps, type ReactNode } from 'react';
 import { CreditsBalanceButton } from '../layout/credits-balance-button';
-import LocaleSwitcher from '../layout/locale-switcher';
-import { ModeSwitcher } from '../layout/mode-switcher';
+import { LocaleSwitcher } from '../layout/locale-switcher';
 
 interface DashboardBreadcrumbItem {
   label: string;
@@ -80,8 +79,7 @@ export function DashboardHeader({
           {actions}
 
           <CreditsBalanceButton />
-          <ModeSwitcher />
-          <LocaleSwitcher />
+          <LocaleSwitcher variant="light" />
         </div>
       </div>
     </header>

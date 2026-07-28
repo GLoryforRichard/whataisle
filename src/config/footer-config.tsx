@@ -1,5 +1,7 @@
 'use client';
 
+import { websiteConfig } from '@/config/website';
+import { getStoreUrl } from '@/lib/urls';
 import { Routes } from '@/routes';
 import type { NestedMenuItem } from '@/types';
 import { useTranslations } from 'next-intl';
@@ -13,6 +15,7 @@ import { useTranslations } from 'next-intl';
  */
 export function useFooterLinks(): NestedMenuItem[] {
   const t = useTranslations('Marketing.footer');
+  const demoStoreHandle = websiteConfig.demoStoreHandle;
 
   return [
     {
@@ -23,6 +26,15 @@ export function useFooterLinks(): NestedMenuItem[] {
           href: Routes.HowItWorks,
           external: false,
         },
+        ...(demoStoreHandle
+          ? [
+              {
+                title: t('product.items.demoStore'),
+                href: getStoreUrl(demoStoreHandle),
+                external: true,
+              },
+            ]
+          : []),
       ],
     },
     {

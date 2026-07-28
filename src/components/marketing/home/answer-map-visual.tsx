@@ -133,7 +133,9 @@ export function AnswerMapVisual({
                 strokeWidth={shelf.target ? 1 : 0.5}
                 style={
                   shelf.target
-                    ? { animation: 'wa-target 1.6s ease-in-out infinite' }
+                    ? // Pulse three times, then rest solid red — an endless
+                      // blink on a marketing page reads as noise.
+                      { animation: 'wa-target 1.6s ease-in-out 3' }
                     : undefined
                 }
               />
@@ -171,7 +173,7 @@ export function AnswerMapVisual({
 
       <motion.span
         variants={captionVariant}
-        className="text-center font-mono text-[#566058] text-xs"
+        className="text-center text-[#566058] text-sm"
       >
         {mapCaption}
       </motion.span>

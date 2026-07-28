@@ -46,19 +46,20 @@
   },
   "PricingPage": {
     "title": "Pricing",
-    "description": "Choose the plan that works best for you",
-    "subtitle": "Choose the plan that works best for you",
+    "description": "One price: $999. Pay once, use it forever — no monthly fees.",
+    "subtitle": "One price: $999. Pay once, use it forever — no monthly fees.",
     "monthly": "Monthly",
     "yearly": "Yearly",
     "PricingCard": {
       "freePrice": "$0",
       "perMonth": "/month",
       "perYear": "/year",
+      "oneTime": "one-time",
       "popular": "Popular",
       "currentPlan": "Current Plan",
       "yourCurrentPlan": "Your Current Plan",
       "getStartedForFree": "Get Started For Free",
-      "getLifetimeAccess": "Get Lifetime Access",
+      "getLifetimeAccess": "Pay once, open your store",
       "getStarted": "Get Started",
       "notAvailable": "Not Available",
       "daysTrial": "{days}-day free trial"
@@ -101,15 +102,15 @@
     },
     "lifetime": {
       "name": "Store Setup",
-      "description": "One-time payment, your store goes live",
+      "description": "Pay once and your store is live for good.",
       "features": {
-        "feature-1": "Full store walkthrough video mapping",
-        "feature-2": "Your own store subdomain and QR posters",
-        "feature-3": "Shopper search by text, voice, or photo",
-        "feature-4": "Bilingual storefront (English & Chinese)",
-        "feature-5": "Staff photo tools to keep shelves fresh",
-        "feature-6": "Search insights dashboard",
-        "feature-7": "Lifetime updates"
+        "feature-1": "Send us a store video — we draw your floor map",
+        "feature-2": "Your store's own web address + QR posters",
+        "feature-3": "Shoppers type, speak, or snap a photo to find items",
+        "feature-4": "Works in English and Chinese",
+        "feature-5": "Staff snap shelf photos to keep locations current",
+        "feature-6": "Search reports: what shoppers want, what's missing",
+        "feature-7": "All future updates included, forever"
       }
     }
   },
@@ -142,13 +143,13 @@
     "backToHome": "Back to home"
   },
   "AboutPage": {
-    "title": "About",
-    "description": "This is MkSaaS, an AI SaaS template built with modern technologies, helping you build your SaaS faster and better.",
-    "authorName": "MkSaaS",
-    "authorBio": "AI SaaS Boilerplate",
-    "introduction": "👋 Hi there! This is MkSaaS, an AI SaaS template built with modern technologies, helping you build your SaaS faster and better. If you have any questions, welcome to contact me.",
-    "talkWithMe": "Talk with me",
-    "followMe": "Follow me on X"
+    "title": "About us",
+    "description": "WhatAisle helps neighborhood grocery stores answer the question they hear most: “where is it?”",
+    "p1": "WhatAisle is a find-it service for neighborhood grocery stores. Shoppers scan a QR code in the store, ask where something is, and their phone shows the exact shelf — with a map.",
+    "p2": "The store's side is simple: staff photograph shelves now and then. No product entry, no data upkeep, no special training.",
+    "p3": "Our customers are mostly overseas Chinese supermarkets, along with neighborhood markets of every kind. We build only what's useful, and make it work without a manual.",
+    "contactTitle": "Questions?",
+    "contactBody": "Email us directly, or leave a message on the contact page — we answer both."
   },
   "ChangelogPage": {
     "title": "Changelog",
@@ -165,12 +166,12 @@
     "subtitle": "Explore our future plans and upcoming features"
   },
   "ContactPage": {
-    "title": "Contact",
-    "description": "We'll help you find the right plan for your business",
-    "subtitle": "We'll help you find the right plan for your business",
+    "title": "Contact us",
+    "description": "Questions? Leave us a message and we'll reply by email.",
+    "subtitle": "Questions? Leave us a message and we'll reply by email.",
     "form": {
-      "title": "Contact Us",
-      "description": "If you have any questions or feedback, please reach out to our team",
+      "title": "Contact us",
+      "description": "Leave your name, email, and your question.",
       "name": "Name",
       "email": "Email",
       "message": "Message",
@@ -329,61 +330,8 @@
   },
   "Marketing": {
     "navbar": {
-      "features": {
-        "title": "Features"
-      },
       "pricing": {
         "title": "Pricing"
-      },
-      "blog": {
-        "title": "Blog"
-      },
-      "docs": {
-        "title": "Docs"
-      },
-      "pages": {
-        "title": "Pages",
-        "items": {
-          "about": {
-            "title": "About",
-            "description": "Learn more about our company, mission, and values"
-          },
-          "contact": {
-            "title": "Contact",
-            "description": "Get in touch with our team for support or inquiries"
-          },
-          "waitlist": {
-            "title": "Waitlist",
-            "description": "Join our waitlist for latest news and updates"
-          },
-          "changelog": {
-            "title": "Changelog",
-            "description": "See the latest updates to our products"
-          },
-          "ai": {
-            "title": "AI Playground",
-            "description": "Try AI features with DeepSeek, and OpenAI GPT models"
-          },
-          "roadmap": {
-            "title": "Roadmap",
-            "description": "Explore our future plans and upcoming features"
-          },
-          "cookiePolicy": {
-            "title": "Cookie Policy",
-            "description": "How we use the cookies on our website"
-          },
-          "privacyPolicy": {
-            "title": "Privacy Policy",
-            "description": "How we protect and handle your data"
-          },
-          "termsOfService": {
-            "title": "Terms of Service",
-            "description": "The legal agreements between us"
-          }
-        }
-      },
-      "howItWorks": {
-        "title": "How it works"
       },
       "about": {
         "title": "About"
@@ -398,25 +346,14 @@
         "title": "Product",
         "items": {
           "features": "How it works",
-          "pricing": "Pricing",
-          "faq": "FAQ"
-        }
-      },
-      "resources": {
-        "title": "Resources",
-        "items": {
-          "blog": "Blog",
-          "docs": "Documentation",
-          "changelog": "Changelog",
-          "roadmap": "Roadmap"
+          "demoStore": "Visit the demo store"
         }
       },
       "company": {
         "title": "Company",
         "items": {
           "about": "About",
-          "contact": "Contact",
-          "waitlist": "Waitlist"
+          "contact": "Contact"
         }
       },
       "legal": {
@@ -766,82 +703,81 @@
     "description": "Every product, the right shelf",
     "hero": {
       "badge": "For neighborhood grocery stores",
-      "title": "Shoppers ask “what aisle?” Your store answers: “Shelf B4.”",
-      "description": "Staff snap casual photos of shelves and your store grows a memory of what's where. Shoppers scan a QR code and search by typing, speaking, or taking a photo — in English or Chinese.",
-      "primaryCta": "Get started",
-      "secondaryCta": "How it works",
-      "demoStore": "Demo Market",
-      "demoAsked": "You asked: chili sauce",
-      "demoAnswer": "Yes — we've seen it on shelf B4, left side."
+      "title": "Shoppers scan, ask, and see the exact shelf",
+      "description": "Staff snap photos of shelves with a phone, and the system remembers where every product sits. Shoppers scan your in-store QR code and ask by typing, speaking, or taking a photo — in English or Chinese.",
+      "primaryCta": "Open my store",
+      "priceNote": "$999 one-time · yours for life, no monthly fees",
+      "secondaryCta": "Visit the demo store",
+      "howItWorksCta": "See how it works"
     },
     "story": {
       "title": "How it works",
+      "step": "Step {n}",
       "snap": {
-        "title": "Snap shelves as you walk",
-        "description": "Staff photograph shelves in passing — no product database, no data entry, ever. AI finds every product in the photo, reads packaging in English, Chinese, Korean or Japanese, and blurs faces before anything is stored.",
+        "title": "Staff snap the shelves",
+        "description": "Staff take a few photos as they walk past a shelf. No product lists, no data entry. The system recognizes every product in the photo — packaging in English, Chinese, Korean, or Japanese — and blurs any faces automatically.",
         "label1": "辣椒酱 · Chili Sauce",
-        "label2": "김치 · Kimchi",
+        "label2": "泡菜 · Kimchi",
         "label3": "海苔 · Nori Snack",
         "foundChip": "3 products recognized"
       },
       "memory": {
-        "title": "The memory grows",
-        "description": "Every snap adds products to your store's memory — deduplicated, named in English, Chinese and pinyin, pinned to a shelf code. The more you snap, the better the search.",
+        "title": "Every spot, remembered",
+        "description": "The system remembers which shelf every product sits on. The more photos staff take, the more complete it gets — and the easier shoppers find things.",
         "counterLabel": "products remembered",
-        "newBadge": "new"
+        "newBadge": "just added"
       },
       "ask": {
-        "title": "Shoppers ask, any way",
-        "description": "Shoppers scan the in-store QR code — nothing to install. They type, hold to talk, or photograph a package, in English or Chinese.",
+        "title": "Shoppers scan and ask",
+        "description": "Shoppers scan the QR code in your store — nothing to download. They can type, hold to talk, or photograph a package, in English or Chinese.",
         "typedQuery": "chili sauce",
         "voiceLabel": "Hold to talk",
-        "photoLabel": "Snap the packaging"
+        "photoLabel": "Snap the package"
       },
       "answer": {
-        "title": "The answer, on the map",
-        "description": "They get the exact shelf — not just an aisle — with the floor map highlighted so they can walk straight to it.",
+        "title": "The answer comes with a map",
+        "description": "Shoppers see the exact shelf — not just “somewhere in aisle 3” — and the floor map marks it so they can walk straight there.",
         "demoAsked": "Where's the chili sauce?",
-        "demoAnswer": "It should be on shelf B4 — left side.",
-        "mapCaption": "shelf B4 · highlighted for the shopper"
+        "demoAnswer": "Yes — shelf B4, left side.",
+        "mapCaption": "Shelf B4, marked on the map"
       }
     },
     "tryScan": {
       "tag": "TRY IT NOW",
-      "title": "See what our AI reads on a shelf",
-      "subtitle": "Drop in one photo of a store shelf. We'll find every product on it — no sign-up needed.",
-      "dropHint": "Drag a shelf photo here",
+      "subtitle": "Upload one shelf photo and see how many products it recognizes. No sign-up.",
+      "dropHint": "Try it with a shelf photo",
       "upload": "Upload a photo",
       "takePhoto": "Take a photo",
-      "fileHint": "JPG, PNG or HEIC · up to 15 MB",
-      "stageChecking": "Checking your photo…",
-      "stageRows": "Finding shelf rows…",
-      "stageReading": "Detecting products…",
-      "resultTitle": "Found {count} products",
-      "resultHint": "Sign up to scan whole aisles, name every product and make them searchable by your shoppers.",
+      "fileHint": "A phone photo works fine · up to 15 MB",
+      "stageChecking": "Looking at your photo…",
+      "stageRows": "Looking at the shelves…",
+      "stageReading": "Recognizing products…",
+      "resultTitle": "Recognized {count} products",
       "remaining": "{count} free tries left",
       "tryAnother": "Try another photo",
-      "cta": "Set up my store",
+      "cta": "Open my store",
       "err": {
-        "not_shelf": "That doesn't look like a store shelf. Try a photo of stocked shelving.",
-        "not_legible": "The labels are too blurry or far away to read. Get closer and try again.",
+        "not_shelf": "That doesn't look like a store shelf. Try a photo of stocked shelves.",
+        "not_legible": "The products are hard to see. Get a little closer and try again.",
         "too_large": "That file is too big (max 15 MB).",
-        "invalid_image": "We couldn't read that file. Try a regular photo (JPG, PNG, or HEIC).",
-        "rate_limited": "Too many attempts — please try again tomorrow.",
-        "limit_reached": "You've used all 3 free scans. Create a free account to keep going.",
-        "scan_failed": "Something went wrong reading the shelf. Please try again."
+        "invalid_image": "We couldn't open that file. Try a regular phone photo.",
+        "rate_limited": "Too many tries today — please come back tomorrow.",
+        "limit_reached": "You've used all 3 free tries. Sign up to keep going.",
+        "scan_failed": "That one didn't work. Please try again."
       }
     },
     "scan": {
-      "tag": "IN-STORE",
-      "title": "One QR code. Every shelf, answered.",
-      "sub": "Print it, stick it up, done. Shoppers scan and ask — your store answers the aisle. No app to install.",
+      "tag": "IN-STORE POSTER",
+      "title": "One QR code in your store, and shoppers find things themselves",
+      "sub": "After you sign up, print your store's own QR poster. Put it at the door or the register — shoppers scan it and ask.",
       "cta": "Get your store poster",
-      "caption": "scan to find any product"
+      "caption": "scan to find any product",
+      "demoCaption": "Scan to visit the demo store"
     },
     "seo": {
-      "title": "“What aisle is it in?” — every what aisle question, answered",
-      "intro1": "Every grocery store hears the same “what aisle” questions all day long: “What aisle is the chili sauce in?” “What aisle is the rice vinegar in?” WhatAisle turns every “what aisle” question into a self-serve answer. Shoppers scan a QR code at the entrance or the checkout counter, ask in their own words — in English or Chinese — and get the exact shelf, not just an aisle number, together with a floor map that highlights exactly where to walk.",
-      "intro2": "Unlike inventory systems that demand barcode scanning and constant data entry, WhatAisle builds its knowledge from casual shelf photos your staff already have time to take. There is no product database to maintain, no spreadsheet to update, and nothing for shoppers to install. The store’s memory of what sits on which shelf grows a little every time someone walks past with a phone — so the next time a shopper wonders what aisle the noodles are in, the answer is already waiting.",
+      "title": "“What aisle is it in?” — answered for every product",
+      "intro1": "Shoppers ask the same questions all day: “What aisle is the soy sauce in?” “Which shelf has the rice vinegar?” With WhatAisle they scan a QR code and ask — and the shelf number plus a marked map comes back in seconds, without waiting for staff.",
+      "intro2": "You don't enter products or maintain spreadsheets, and shoppers don't install anything. Staff simply photograph shelves now and then, and the system remembers what sits where.",
       "examples": {
         "title": "The “what aisle” questions shoppers ask every day",
         "q1": "What aisle is soy sauce in?",
@@ -857,40 +793,41 @@
         "q11": "What aisle are rice cakes in?"
       },
       "owners": {
-        "title": "For grocery store owners",
-        "p1": "Staff walk the aisles and snap photos of shelves as part of their normal routine. Our vision AI detects every product in the photo, reads the packaging in English, Chinese, Korean or Japanese, and files each item under its shelf code. Faces are blurred automatically before anything is stored. The more photos your team takes, the more complete your store’s memory becomes — and the more often the next “what aisle is this in?” gets an instant answer.",
-        "p2": "The dashboard shows what shoppers searched for, which searches succeeded, and — most valuable of all — what people asked for that you don’t stock yet. When a shopper asks what aisle a product is in and the honest answer is “we don’t carry it”, that is a buying signal you would never hear about otherwise. WhatAisle collects those misses into a simple restock-and-source list you can act on every week.",
-        "p3": "Answering “what aisle?” by hand costs real staff time. Owners tell us the question interrupts stocking, checkout, and prep dozens of times a day — and every unanswered “what aisle” moment is a shopper one step closer to leaving empty-handed. Making the answer self-serve gives that time back."
+        "title": "For store owners",
+        "p1": "Staff snap shelf photos as they walk by. The system recognizes every product — packaging in English, Chinese, Korean, or Japanese — files it under the right shelf, and blurs faces automatically. The more photos, the better the answers.",
+        "p2": "Your dashboard shows what shoppers searched for and what they couldn't find. Products people want but you don't carry yet — that is your most direct buying signal.",
+        "p3": "“Where is it?” interrupts your staff dozens of times a day. When shoppers get the answer themselves, staff can stay on stocking and checkout."
       },
       "shoppers": {
         "title": "For shoppers",
-        "p1": "No app, no account, no learning curve. Scan the QR code, then type, speak, or photograph a package. Ask “what aisle is soy sauce in?” out loud, or paste a product name in Chinese — the answer comes back in seconds with the shelf code and a highlighted map. If the store hasn’t scanned that product yet, WhatAisle says so honestly instead of sending you down the wrong aisle. Every “what aisle” search gets a straight answer or an honest “not yet”."
+        "p1": "No app, no account. Scan, then type, speak, or take a photo. Ask “where's the soy sauce?” and the shelf number and map come back in seconds. If the store hasn't photographed a product yet, it says “not found yet” honestly instead of guessing."
       },
       "multilingual": {
         "title": "Built for multilingual neighborhood markets",
-        "p1": "Asian grocery stores and international markets field the “what aisle” question in more than one language. WhatAisle understands search queries in English and Chinese, matches pinyin and common misspellings, and reads packaging in four scripts. A shopper can ask the same “what aisle” question in Chinese about a product labeled in Korean and still get the right shelf — because the store’s memory keeps every name a product goes by."
+        "p1": "Neighborhood markets serve shoppers in many languages. WhatAisle understands English and Chinese, handles pinyin and typos, and reads packaging in four scripts. A shopper can ask in Chinese about a product labeled in Korean and still get the right shelf."
       },
       "faq": {
         "title": "Frequently asked questions",
-        "q1": "What aisle or which shelf — what does WhatAisle actually answer?",
-        "a1": "Both, but we aim for the shelf. A typical answer looks like “Shelf B4, left side”, with that shelf highlighted on your floor map. That is more precise than telling a shopper what aisle to wander down and hoping they spot the product.",
+        "q1": "Does WhatAisle answer the aisle or the shelf?",
+        "a1": "The shelf. A typical answer is “Shelf B4, left side”, with that shelf marked in red on the map — much more precise than an aisle number.",
         "q2": "How much work is it to set up?",
-        "a2": "Create your store, print the QR poster, and have staff photograph shelves aisle by aisle — most stores have a usable product memory within the first afternoon. A short walk-through video of your aisles is enough for us to draft your floor map, which you review and approve before it goes live.",
-        "q3": "Do shoppers need to download an app?",
-        "a3": "No. The QR code opens a web page in the phone’s browser. Shoppers ask what aisle something is in by typing, holding to talk, or snapping a photo of the packaging — nothing to install on either side.",
+        "a2": "Three steps: sign up, upload a walk-through video of your store (we draw the floor map for you), and have staff start photographing shelves. Most stores are up and running the same day.",
+        "q3": "Do shoppers need to download anything?",
+        "a3": "No. The QR code opens right in the phone's browser. Nothing to install, for shoppers or staff.",
         "q4": "What languages does it support?",
-        "a4": "Shoppers can search in English or Chinese, by text or voice. On the shelf side, the AI reads packaging text in English, Chinese, Korean and Japanese, so a multilingual store’s whole range stays searchable no matter what aisle it lives in.",
-        "q5": "What happens when a “what aisle” search finds nothing?",
-        "a5": "The shopper gets an honest “we haven’t seen it yet” plus close alternatives, and the miss lands in your insights — either as a reminder to scan that aisle, or as a signal that shoppers want something you don’t carry yet.",
+        "a4": "Shoppers can ask in English or Chinese, by typing or speaking. On the shelf side, the system reads packaging in English, Chinese, Korean, and Japanese.",
+        "q5": "What happens when a search finds nothing?",
+        "a5": "The shopper sees an honest “not found yet” plus close alternatives. You see the miss in your dashboard — either a reminder to photograph that shelf, or a product worth stocking.",
         "q6": "Is shopper data private?",
-        "a6": "Yes. Faces are blurred before shelf photos are stored, shopper photos are used only to identify the product and are not kept, and searches are aggregated for insights rather than tied to individuals.",
+        "a6": "Yes. Faces are blurred before shelf photos are saved, shopper photos are only used to recognize the product and are not kept, and searches are only viewed as totals, never tied to a person.",
         "q7": "How much does it cost?",
-        "a7": "You can start on the free plan: scan shelves, publish your QR code, and answer real “what aisle” searches without paying anything. As your scan and search volume grows, paid plans lift the limits — full details are on the pricing page."
+        "a7": "One price: $999, paid once, yours for life — no monthly fees. It includes floor-map drawing, your store's own web address, and QR posters. Details on the pricing page."
       },
-      "outro": "Whether shoppers ask “what aisle is it in?” at the entrance, at the checkout, or standing lost in the middle of the store, every “what aisle” moment should take seconds — not a staff hunt. Put your store’s shelves one scan away: print the QR poster, snap a few aisles this afternoon, and let WhatAisle answer the what aisle question for you."
+      "outro": "Don't let shoppers wander the store, and don't make staff walk them there every time. Print one QR poster and have staff start photographing shelves today."
     }
   },
   "Store": {
+    "demoBanner": "This is the WhatAisle demo store — feel free to try everything.",
     "notFound": {
       "title": "We couldn't find this store",
       "description": "The link may be mistyped, or the store may have closed.",

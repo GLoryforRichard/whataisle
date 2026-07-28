@@ -3,7 +3,6 @@
 import { LoginWrapper } from '@/components/auth/login-wrapper';
 import Container from '@/components/layout/container';
 import { Logo } from '@/components/layout/logo';
-import { ModeSwitcher } from '@/components/layout/mode-switcher';
 import { NavbarMobile } from '@/components/layout/navbar-mobile';
 import { UserButton } from '@/components/layout/user-button';
 import {
@@ -25,7 +24,7 @@ import { Routes } from '@/routes';
 import { ArrowUpRightIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
-import LocaleSwitcher from './locale-switcher';
+import { LocaleSwitcher } from './locale-switcher';
 
 interface NavBarProps {
   scroll?: boolean;
@@ -168,7 +167,7 @@ export function Navbar({ scroll = true }: NavBarProps) {
                             // Dark-green nav: keep the light accent pill from
                             // washing out the label — use a subtle translucent
                             // highlight with bright lime text on hover/focus.
-                            'bg-transparent text-[var(--brand-cream)]/85',
+                            'bg-transparent text-base text-[var(--brand-cream)]/85',
                             'hover:bg-white/10 hover:text-[var(--brand-lime)]',
                             'focus:bg-white/10 focus:text-[var(--brand-lime)]',
                             item.href &&
@@ -195,7 +194,6 @@ export function Navbar({ scroll = true }: NavBarProps) {
               </NavigationMenu>
 
               <div className="flex shrink-0 items-center gap-3 text-[var(--brand-cream)]">
-                <ModeSwitcher />
                 <LocaleSwitcher />
                 {!mounted || isPending ? (
                   <Skeleton className="size-8 rounded-full bg-white/15" />
@@ -206,14 +204,14 @@ export function Navbar({ scroll = true }: NavBarProps) {
                     <LoginWrapper mode="modal" asChild>
                       <button
                         type="button"
-                        className="inline-flex h-9 cursor-pointer items-center rounded-full border border-[var(--brand-cream)]/30 bg-transparent px-4 font-semibold text-[var(--brand-cream)] text-sm transition-colors hover:border-[var(--brand-lime)] hover:text-[var(--brand-lime)]"
+                        className="inline-flex h-9 cursor-pointer items-center rounded-full border border-[var(--brand-cream)]/30 bg-transparent px-4 font-semibold text-[var(--brand-cream)] text-base transition-colors hover:border-[var(--brand-lime)] hover:text-[var(--brand-lime)]"
                       >
                         {t('Common.login')}
                       </button>
                     </LoginWrapper>
                     <LocaleLink
                       href={Routes.Register}
-                      className="inline-flex h-9 items-center rounded-full bg-[var(--brand-lime)] px-4 font-bold text-[var(--brand-green)] text-sm transition-colors hover:bg-[var(--brand-lime-hover)]"
+                      className="inline-flex h-9 items-center rounded-full bg-[var(--brand-lime)] px-4 font-bold text-[var(--brand-green)] text-base transition-colors hover:bg-[var(--brand-lime-hover)]"
                     >
                       {t('Common.signUp')}
                     </LocaleLink>

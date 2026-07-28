@@ -1,8 +1,7 @@
 'use client';
 
-import LocaleSelector from '@/components/layout/locale-selector';
+import { LocaleSwitcher } from '@/components/layout/locale-switcher';
 import { Logo } from '@/components/layout/logo';
-import { ModeSwitcherHorizontal } from '@/components/layout/mode-switcher-horizontal';
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Collapsible,
@@ -62,7 +61,8 @@ export function NavbarMobile({ className, ...props }: NavbarMobileProps) {
           <span className="text-xl font-semibold">{t('Metadata.name')}</span>
         </LocaleLink>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <LocaleSwitcher />
           {isPending ? (
             <Skeleton className="size-8 rounded-full" />
           ) : currentUser ? (
@@ -198,11 +198,6 @@ export function NavbarMobile({ className, ...props }: NavbarMobileProps) {
                 );
               })}
             </ul>
-
-            <div className="mt-auto w-full border-t border-border/50 p-4 flex items-center justify-between">
-              <LocaleSelector />
-              <ModeSwitcherHorizontal />
-            </div>
           </div>
         </div>
       )}

@@ -182,7 +182,7 @@ export function HeroTryScan() {
                 : 'border-[#CBD8B8] bg-white/60'
             }`}
           >
-            <span className="rounded-full bg-[var(--brand-green)] px-3 py-1 font-bold font-mono text-[10px] text-[var(--brand-lime)] tracking-[0.12em]">
+            <span className="rounded-full bg-[var(--brand-green)] px-3 py-1 font-bold text-[var(--brand-lime)] text-xs">
               {t('tag')}
             </span>
             <div className="flex size-14 items-center justify-center rounded-2xl bg-[var(--brand-lime)]/25">
@@ -215,7 +215,7 @@ export function HeroTryScan() {
                 {t('takePhoto')}
               </button>
             </div>
-            <p className="text-[#7A8478] text-xs">{t('fileHint')}</p>
+            <p className="text-[#7A8478] text-sm">{t('fileHint')}</p>
             <input
               ref={fileInputRef}
               type="file"
@@ -290,7 +290,7 @@ export function HeroTryScan() {
               </span>
             </div>
             <div className="flex items-center justify-between px-1">
-              <span className="text-[#7A8478] text-xs">
+              <span className="text-[#7A8478] text-sm">
                 {t('remaining', { count: result.remaining })}
               </span>
               <button

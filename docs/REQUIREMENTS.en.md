@@ -55,6 +55,7 @@ A **"store memory that grows by itself"**:
 - A **subscription service sold online** to a range of different grocery stores: an owner signs up on our website and gets going on their own.
 - **One account maps to one store.** No multi-store/chain architecture (a chain owner who wants a second store simply registers a second account; we'll revisit if the need becomes real).
 - Pricing, billing, and any free-trial mechanics will be defined separately. They are out of scope for this document.
+- **[ADDED 2026-07-28] The marketing site links to a real demo store** (`demo.whataisle.com`, a platform-operated tenant): before paying, an owner can search products and see the map exactly as a shopper would. The homepage secondary CTA, the QR band, and the footer all point at it; configured via `websiteConfig.demoStoreHandle`, and every entry point hides when it is unset.
 - ~~We offer a **staffed full-store onboarding service** (our people walk the store's team through photographing the whole store in a few hours) as an optional paid add-on.~~ **[WITHDRAWN 2026-07-25: there is no on-site onboarding service]**
 
 ---
@@ -168,6 +169,7 @@ A **"store memory that grows by itself"**:
 ## 9. Language and the Physical Environment
 
 - **The interface ships in exactly two languages: English and Chinese**, with a one-tap toggle. No per-store language configuration. Sales materials, the help center, and legal terms also come in these two languages only.
+  **[ADDED 2026-07-28] The marketing site's default language follows the visitor's browser/system language** (Chinese-system visitors land on `/zh` automatically); a manual switch is remembered for a year via the `NEXT_LOCALE` cookie. Search-engine crawling is unaffected — the bare domain still serves the English page.
 - **The store's brand comes first**: the shopper page header shows the store's name and logo (store profile: name, logo, opening hours, announcements — owner-editable anytime); the footer keeps a consistent platform mark. The owner is buying "my own store's finder"; the shopper-facing page must look like the store's own service.
 - **Treat the physical store as a first-class environment**:
   - Weak or dropped in-store connectivity: photos are cached locally and auto-resume uploading; the upload queue is visible; locking the screen or switching apps loses nothing;

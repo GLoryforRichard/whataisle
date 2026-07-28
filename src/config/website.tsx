@@ -85,11 +85,20 @@ export const websiteConfig: WebsiteConfig = {
       },
     },
   },
+  // The production demo store shown to owners before they pay: hero CTA,
+  // scan-band QR and footer all link to <handle>.<root-domain>. The store
+  // must exist and be live in that environment, or visitors get the
+  // "store not found" page (local seeds create `demo`; production is
+  // registered manually — see the ops checklist in the redesign plan).
+  demoStoreHandle: 'demo',
   mail: {
     enable: true,
     provider: process.env.MAIL_PROVIDER === 'smtp' ? 'smtp' : 'resend',
     fromEmail: 'WhatAisle <noreply@whataisle.com>',
-    supportEmail: 'WhatAisle <support@whataisle.com>',
+    // Plain address only: this value is interpolated into mailto: links in the
+    // footer and about page, where a display-name form ("Name <addr>") breaks
+    // the link. Mail providers accept a bare address as "to" just as well.
+    supportEmail: 'support@whataisle.com',
   },
   newsletter: {
     enable: false,

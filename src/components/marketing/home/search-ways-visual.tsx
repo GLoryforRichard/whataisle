@@ -1,17 +1,17 @@
 'use client';
 
 import { CameraIcon, MicIcon, SearchIcon } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
+import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 
 /**
- * Step 03 visual: a phone mockup demos the three ways shoppers search —
- * typing (character by character), hold-to-talk voice, and a photo. Plays
- * once when scrolled into view.
+ * Step 03 visual: a phone mockup shows the three ways shoppers search —
+ * typing, hold-to-talk voice, and a photo. Static-first: the three rows
+ * fade in once when scrolled into view, then nothing moves. The earlier
+ * per-character typing animation and looping voice bars were dropped on
+ * purpose — endless motion reads as noise to the 45-60yo store owners
+ * this page sells to.
  */
-
-const CHAR_DELAY = 0.08;
-const TYPE_START = 0.7;
 
 const phoneVariant: Variants = {
   hidden: { opacity: 0, y: 16, scale: 0.97 },
@@ -32,14 +32,7 @@ const rowVariant: Variants = {
   }),
 };
 
-const charVariant: Variants = {
-  hidden: { opacity: 0 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    transition: { delay, duration: 0.05 },
-  }),
-};
-
+// Static waveform bar heights (px) — drawn once, never animated.
 const WAVE_HEIGHTS = [10, 18, 26, 16, 22, 12];
 
 interface SearchWaysVisualProps {
@@ -53,13 +46,6 @@ export function SearchWaysVisual({
   voiceLabel,
   photoLabel,
 }: SearchWaysVisualProps) {
-  const reducedMotion = useReducedMotion();
-  // Array.from keeps CJK characters intact (no surrogate-pair splitting).
-  const chars = Array.from(typedQuery);
-  const typeDuration = chars.length * CHAR_DELAY;
-  const voiceDelay = TYPE_START + typeDuration + 0.4;
-  const photoDelay = voiceDelay + 0.5;
-
   return (
     <motion.div
       initial="hidden"
@@ -82,34 +68,19 @@ export function SearchWaysVisual({
         <div className="flex flex-col gap-3 p-3.5">
           {/* 1 — type it */}
           <motion.div
-            custom={0.3}
+            custom={0.1}
             variants={rowVariant}
             className="flex items-center gap-2 rounded-full border border-[#E4DECB] bg-[#FAF8F2] px-3 py-2.5"
           >
             <SearchIcon className="size-4 shrink-0 text-[var(--brand-green)]" />
             <span className="font-medium text-[13px] text-[var(--brand-ink)]">
-              {reducedMotion ? (
-                typedQuery
-              ) : (
-                <>
-                  {chars.map((char, i) => (
-                    <motion.span
-                      key={i}
-                      custom={TYPE_START + i * CHAR_DELAY}
-                      variants={charVariant}
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                  <span className="wa-caret ml-px inline-block h-[14px] w-[1.5px] translate-y-[2px] bg-[var(--brand-green)]" />
-                </>
-              )}
+              {typedQuery}
             </span>
           </motion.div>
 
           {/* 2 — say it */}
           <motion.div
-            custom={reducedMotion ? 0 : voiceDelay}
+            custom={0.25}
             variants={rowVariant}
             className="flex items-center gap-3 rounded-2xl border border-[#D8EBB4] bg-[#F1F7E8] px-3 py-2.5"
           >
@@ -120,11 +91,8 @@ export function SearchWaysVisual({
               {WAVE_HEIGHTS.map((height, i) => (
                 <span
                   key={i}
-                  className="wa-wave w-[3px] rounded-full bg-[var(--brand-green)]"
-                  style={{
-                    height: `${height}px`,
-                    animationDelay: `${i * 0.12}s`,
-                  }}
+                  className="w-[3px] rounded-full bg-[var(--brand-green)]"
+                  style={{ height: `${height}px` }}
                 />
               ))}
             </span>
@@ -135,12 +103,12 @@ export function SearchWaysVisual({
 
           {/* 3 — snap it */}
           <motion.div
-            custom={reducedMotion ? 0 : photoDelay}
+            custom={0.4}
             variants={rowVariant}
             className="flex items-center gap-3 rounded-2xl border border-[#E4DECB] bg-[#FAF8F2] px-3 py-2.5"
           >
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-[#C0392B] to-[#7D6608]">
-              <CameraIcon className="size-4 text-white" />
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--brand-green)]">
+              <CameraIcon className="size-4 text-[var(--brand-lime)]" />
             </span>
             <span className="font-semibold text-[11px] text-[#566058]">
               {photoLabel}

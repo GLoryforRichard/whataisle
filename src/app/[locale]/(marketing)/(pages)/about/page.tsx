@@ -1,10 +1,9 @@
 import Container from '@/components/layout/container';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { websiteConfig } from '@/config/website';
 import { constructMetadata } from '@/lib/metadata';
 import { cn } from '@/lib/utils';
-import { MailIcon, TwitterIcon } from 'lucide-react';
+import { MailIcon } from 'lucide-react';
 import type { Metadata } from 'next';
 import type { Locale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
@@ -27,76 +26,50 @@ export async function generateMetadata({
 }
 
 /**
- * inspired by https://astro-nomy.vercel.app/about
+ * Plain product story. The mksaas template shipped a personal-blog "about
+ * the author" layout here; store owners expect to read what the product is
+ * and who it is for, so that's all this page does. The support address is
+ * shown as visible text — this audience often copies it into their own
+ * mail app instead of tapping a mailto button.
  */
 export default async function AboutPage() {
   const t = await getTranslations('AboutPage');
+  const supportEmail = websiteConfig.mail.supportEmail;
 
   return (
-    <Container className="py-16 px-4">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* about section */}
-        <div className="relative max-w-(--breakpoint-md) mx-auto mb-24 mt-8 md:mt-16">
-          <div className="mx-auto flex flex-col justify-between">
-            <div className="grid gap-8 sm:grid-cols-2">
-              {/* avatar and name */}
-              <div className="flex items-center gap-8">
-                <Avatar className="size-32 p-0.5">
-                  <AvatarImage
-                    className="rounded-full border-4 border-gray-200"
-                    src="/logo.png"
-                    alt="Avatar"
-                  />
-                  <AvatarFallback>
-                    <div className="size-32 text-muted-foreground" />
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h1 className="text-4xl text-foreground">
-                    {t('authorName')}
-                  </h1>
-                  <p className="text-base text-muted-foreground mt-2">
-                    {t('authorBio')}
-                  </p>
-                </div>
-              </div>
+    <Container className="px-4 py-16">
+      <div className="mx-auto flex max-w-3xl flex-col gap-10">
+        <h1 className="font-bold text-4xl text-foreground">{t('title')}</h1>
 
-              {/* introduction */}
-              <div>
-                <p className="mb-8 text-base text-muted-foreground">
-                  {t('introduction')}
-                </p>
-
-                <div className="flex items-center gap-4">
-                  {websiteConfig.metadata.social?.twitter && (
-                    <a
-                      href={websiteConfig.metadata.social.twitter}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(
-                        buttonVariants({ variant: 'outline' }),
-                        'rounded-lg'
-                      )}
-                    >
-                      <TwitterIcon className="mr-1 size-4" />
-                      {t('followMe')}
-                    </a>
-                  )}
-                  {websiteConfig.mail.supportEmail && (
-                    <div className="flex items-center gap-4">
-                      <Button className="rounded-lg">
-                        <MailIcon className="mr-1 size-4" />
-                        <a href={`mailto:${websiteConfig.mail.supportEmail}`}>
-                          {t('talkWithMe')}
-                        </a>
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="flex flex-col gap-5">
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            {t('p1')}
+          </p>
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            {t('p2')}
+          </p>
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            {t('p3')}
+          </p>
         </div>
+
+        {supportEmail && (
+          <div className="flex flex-col items-start gap-3 rounded-[20px] border border-[#EAE3D2] bg-white p-6">
+            <h2 className="font-bold text-foreground text-xl">
+              {t('contactTitle')}
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              {t('contactBody')}
+            </p>
+            <a
+              href={`mailto:${supportEmail}`}
+              className={cn(buttonVariants(), 'rounded-full text-base')}
+            >
+              <MailIcon className="mr-1 size-4" aria-hidden />
+              {supportEmail}
+            </a>
+          </div>
+        )}
       </div>
     </Container>
   );

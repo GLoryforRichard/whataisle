@@ -58,6 +58,10 @@ browser console errors or page errors.
 | 1 | Public pages render successfully | Open `/`, `/pricing`, `/about`, `/contact`, `/cookie`, `/privacy`, `/terms`, `/auth/login`, `/auth/register`, `/auth/forgot-password`, and `/auth/reset-password` for `en` and `zh` (light mode; dark mode removed). Verify each returns 2xx, renders a visible body, applies the requested theme, and emits no browser errors. |
 | 2 | Home login modal opens | Open `/`, click the navbar login button, verify the login dialog and credential inputs are visible, and assert no browser errors. |
 | 3 | Health check responds with pong | Call `/api/ping` and verify `{ "message": "pong" }`. |
+| 4 | Chinese browsers land on Chinese | With a `zh-CN` browser context, open `/`; require a redirect to `/zh` and `html[lang="zh"]`. Locale resolution order is URL prefix → NEXT_LOCALE cookie → Accept-Language (`localeDetection: true` in `src/i18n/routing.ts`). |
+| 5 | English browsers stay on English | With the default (en-US) context, open `/`; require the URL to stay `/` and `html[lang="en"]`. Regression guard: search bots must keep receiving the English page at the bare domain. |
+| 6 | A manual language choice is remembered | From `/`, click the navbar 中文 switcher; require `/zh`. Open `/` again in the same context; require the NEXT_LOCALE cookie to redirect back to `/zh`. |
+| 7 | Homepage links to the demo store | Open `/`; require the hero "Visit the demo store" link to point at the `demo.localhost` subdomain (`websiteConfig.demoStoreHandle` + `getStoreUrl()`; the seeded `demo` tenant serves it locally). |
 
 ## 2. Authentication And Protected Routes
 
@@ -190,7 +194,7 @@ owners — it destroys its own tenant.
 | 2 | The exact store name deletes the store and frees its subdomain | Type the exact name, confirm twice, then require the subdomain renders store-not-found and the owner is bounced to `/onboarding/handle`. |
 
 
-The current eleven specs expand to 37 Playwright tests across the locale matrices.
+The current eleven specs expand to 41 Playwright tests across the locale matrices.
 
 ## Deferred Coverage
 

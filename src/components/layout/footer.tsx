@@ -2,7 +2,6 @@
 
 import Container from '@/components/layout/container';
 import { Logo } from '@/components/layout/logo';
-import { ModeSwitcherHorizontal } from '@/components/layout/mode-switcher-horizontal';
 import { useFooterLinks } from '@/config/footer-config';
 import { useSocialLinks } from '@/config/social-config';
 import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
@@ -76,15 +75,26 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
               <ul className="mt-4 list-inside space-y-3">
                 {section.items?.map(
                   (item) =>
-                    item.href && (
+                    item.href &&
+                    (item.external ? (
+                      // Absolute URLs (e.g. the demo-store subdomain) must
+                      // not go through LocaleLink, which would prefix the
+                      // locale onto them.
+                      <li key={item.title}>
+                        <a
+                          href={item.href}
+                          className="text-base text-[var(--brand-cream)]/70 transition-colors duration-150 hover:text-[var(--brand-lime)]"
+                        >
+                          {item.title}
+                        </a>
+                      </li>
+                    ) : (
                       <li key={item.title}>
                         <LocaleLink
                           href={item.href || '#'}
-                          target={item.external ? '_blank' : undefined}
                           className={cn(
-                            'text-sm text-[var(--brand-cream)]/70 transition-colors duration-150 hover:text-[var(--brand-lime)]',
-                            !item.external &&
-                              !item.href.includes('#') &&
+                            'text-base text-[var(--brand-cream)]/70 transition-colors duration-150 hover:text-[var(--brand-lime)]',
+                            !item.href.includes('#') &&
                               (item.href === '/'
                                 ? localePathname === '/'
                                 : localePathname.startsWith(item.href)) &&
@@ -94,7 +104,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                           {item.title}
                         </LocaleLink>
                       </li>
-                    )
+                    ))
                 )}
               </ul>
             </div>
@@ -103,15 +113,11 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
       </Container>
 
       <div className="border-t border-[var(--brand-cream)]/15 py-8">
-        <Container className="px-4 flex items-center justify-between gap-x-4">
+        <Container className="px-4">
           <span className="text-[var(--brand-cream)]/70 text-sm">
             &copy; {new Date().getFullYear()} {t('Metadata.name')}. All Rights
             Reserved.
           </span>
-
-          <div className="flex items-center gap-x-4 text-[var(--brand-cream)]/70">
-            <ModeSwitcherHorizontal />
-          </div>
         </Container>
       </div>
     </footer>

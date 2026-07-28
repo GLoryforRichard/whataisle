@@ -8,6 +8,7 @@ import {
 } from '@/assets/fonts';
 import { StoreHeader } from '@/components/store/store-header';
 import { StoreNotFound } from '@/components/store/store-not-found';
+import { websiteConfig } from '@/config/website';
 import { cn } from '@/lib/utils';
 import { getStoreByHandle } from '@/lib/store-context';
 import { NextIntlClientProvider } from 'next-intl';
@@ -71,6 +72,7 @@ export default async function StoreLayout({
         <NextIntlClientProvider>
           {active ? (
             <div className="flex min-h-screen flex-col">
+              {store.handle === websiteConfig.demoStoreHandle && <DemoBanner />}
               <StoreHeader
                 displayName={
                   locale === 'zh' && store.displayNameZh
@@ -89,6 +91,15 @@ export default async function StoreLayout({
         </NextIntlClientProvider>
       </body>
     </html>
+  );
+}
+
+async function DemoBanner() {
+  const t = await getTranslations('Store');
+  return (
+    <div className="bg-[var(--brand-lime)] px-4 py-2 text-center font-semibold text-[var(--brand-green)] text-sm">
+      {t('demoBanner')}
+    </div>
   );
 }
 

@@ -61,6 +61,10 @@ export const RESERVED_HANDLES: ReadonlySet<string> = new Set([
   'staging',
   'dev',
   'test',
+  // `demo` is the marketing demo store (websiteConfig.demoStoreHandle).
+  // Reserved so nobody can squat it in a fresh environment; the production
+  // tenant itself is registered by ops before this list ever sees it.
+  'demo',
   'demo-store',
   // platform identity / impersonation risk
   'whataisle',

@@ -33,7 +33,7 @@ export default async function PricingPageLayout({
           <h1 className="text-center text-3xl font-bold tracking-tight">
             {t('title')}
           </h1>
-          <h2 className="text-center text-lg text-muted-foreground">
+          <h2 className="text-center text-xl text-muted-foreground">
             {t('subtitle')}
           </h2>
         </div>

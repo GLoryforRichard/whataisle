@@ -21,6 +21,9 @@ export type WebsiteConfig = {
   payment: PaymentConfig;
   price: PriceConfig;
   credits: CreditsConfig;
+  // Handle of the production demo store linked from marketing pages
+  // (hero CTA, scan-band QR, footer). Unset hides every demo-store link.
+  demoStoreHandle?: string;
 };
 
 /**

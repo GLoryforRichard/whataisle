@@ -151,10 +151,15 @@ export function PricingCard({
             {formattedPrice}
           </span>
           {priceLabel && <span className="text-2xl">{priceLabel}</span>}
+          {plan.isLifetime && (
+            <span className="text-lg text-muted-foreground">
+              {t('oneTime')}
+            </span>
+          )}
         </div>
 
         <CardDescription>
-          <p className="text-sm">{plan.description}</p>
+          <p className="text-base">{plan.description}</p>
         </CardDescription>
 
         {/* show action buttons based on plans */}
@@ -192,7 +197,7 @@ export function PricingCard({
           ) : (
             <LoginWrapper mode="modal" asChild callbackUrl={currentPath}>
               <Button variant="default" className="mt-4 w-full">
-                {t('getStarted')}
+                {plan.isLifetime ? t('getLifetimeAccess') : t('getStarted')}
               </Button>
             </LoginWrapper>
           )
@@ -219,17 +224,17 @@ export function PricingCard({
         )}
 
         {/* show features of this plan */}
-        <ul className="list-outside space-y-4 text-sm">
+        <ul className="list-outside space-y-4 text-base">
           {plan.features?.map((feature, i) => (
             <li key={i} className="flex items-center gap-2">
-              <CheckCircleIcon className="size-4 text-green-500 dark:text-green-400" />
+              <CheckCircleIcon className="size-4 shrink-0 text-green-500 dark:text-green-400" />
               <span>{feature}</span>
             </li>
           ))}
         </ul>
 
         {/* show limits of this plan */}
-        <ul className="list-outside space-y-4 text-sm">
+        <ul className="list-outside space-y-4 text-base">
           {plan.limits?.map((limit, i) => (
             <li key={i} className="flex items-center gap-2">
               <XCircleIcon className="size-4 text-gray-500 dark:text-gray-400" />
