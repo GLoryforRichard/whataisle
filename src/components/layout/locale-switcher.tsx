@@ -84,11 +84,11 @@ export function LocaleSwitcher({ variant = 'dark' }: LocaleSwitcherProps) {
               'h-full cursor-pointer rounded-full px-3 font-semibold text-base transition-colors',
               variant === 'dark' &&
                 (isActive
-                  ? 'bg-[var(--brand-accent)] text-[var(--brand)]'
-                  : 'text-[var(--brand-paper)]/85 hover:text-[var(--brand-accent)]'),
+                  ? 'bg-white text-[var(--brand)]'
+                  : 'text-[var(--brand-paper)]/85 hover:text-white'),
               variant === 'light' &&
                 (isActive
-                  ? 'bg-[var(--brand)] text-[var(--brand-paper)]'
+                  ? 'bg-[var(--brand)] text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground')
             )}
           >

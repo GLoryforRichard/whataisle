@@ -62,7 +62,7 @@ export function SearchWaysVisual({
             <span className="size-2 rounded-full bg-[var(--brand-paper)]/40" />
             <span className="size-2 rounded-full bg-[var(--brand-accent)]" />
           </span>
-          <span className="text-[11px] text-[var(--brand-accent)]">中/EN</span>
+          <span className="text-[11px] text-white">中/EN</span>
         </div>
 
         <div className="flex flex-col gap-3 p-3.5">
@@ -85,7 +85,7 @@ export function SearchWaysVisual({
             className="flex items-center gap-3 rounded-2xl border border-[var(--accent-border)] bg-accent px-3 py-2.5"
           >
             <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand-accent)]">
-              <MicIcon className="size-4 text-[var(--brand)]" />
+              <MicIcon className="size-4 text-[var(--brand-ink)]" />
             </span>
             <span className="flex h-7 items-center gap-[3px]">
               {WAVE_HEIGHTS.map((height, i) => (
@@ -108,7 +108,7 @@ export function SearchWaysVisual({
             className="flex items-center gap-3 rounded-2xl border border-border bg-[var(--background)] px-3 py-2.5"
           >
             <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--brand)]">
-              <CameraIcon className="size-4 text-[var(--brand-accent)]" />
+              <CameraIcon className="size-4 text-white" />
             </span>
             <span className="font-semibold text-[11px] text-muted-foreground">
               {photoLabel}

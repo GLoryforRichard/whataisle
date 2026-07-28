@@ -50,7 +50,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                       rel="noreferrer"
                       aria-label={link.title}
                       className="border border-[var(--brand-paper)]/20 inline-flex size-8 items-center
-                          justify-center rounded-full text-[var(--brand-paper)]/80 transition-all duration-200 hover:border-[var(--brand-accent)] hover:text-[var(--brand-accent)]"
+                          justify-center rounded-full text-[var(--brand-paper)]/80 transition-all duration-200 hover:border-white hover:text-white"
                     >
                       {link.icon ? link.icon : null}
                     </a>
@@ -66,7 +66,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
               key={section.title}
               className="col-span-1 md:col-span-1 items-start"
             >
-              <span className="text-sm font-bold uppercase tracking-[0.04em] text-[var(--brand-accent)]">
+              <span className="text-sm font-bold uppercase tracking-[0.04em] text-white">
                 {section.title}
               </span>
               <ul className="mt-4 list-inside space-y-3">
@@ -80,7 +80,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                       <li key={item.title}>
                         <a
                           href={item.href}
-                          className="text-base text-[var(--brand-paper)]/70 transition-colors duration-150 hover:text-[var(--brand-accent)]"
+                          className="text-base text-[var(--brand-paper)]/70 transition-colors duration-150 hover:text-white"
                         >
                           {item.title}
                         </a>
@@ -90,12 +90,12 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                         <LocaleLink
                           href={item.href || '#'}
                           className={cn(
-                            'text-base text-[var(--brand-paper)]/70 transition-colors duration-150 hover:text-[var(--brand-accent)]',
+                            'text-base text-[var(--brand-paper)]/70 transition-colors duration-150 hover:text-white',
                             !item.href.includes('#') &&
                               (item.href === '/'
                                 ? localePathname === '/'
                                 : localePathname.startsWith(item.href)) &&
-                              'font-semibold text-[var(--brand-accent)]'
+                              'font-semibold text-white'
                           )}
                         >
                           {item.title}

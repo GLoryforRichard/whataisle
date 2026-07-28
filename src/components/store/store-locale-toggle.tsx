@@ -30,7 +30,7 @@ export function StoreLocaleToggle() {
       onClick={toggle}
       disabled={isPending}
       aria-label="Switch language"
-      className="inline-flex h-9 min-w-14 items-center justify-center rounded-full border border-[var(--brand-paper)]/30 bg-transparent px-3.5 font-semibold text-[var(--brand-paper)] text-sm transition-colors hover:border-[var(--brand-accent)] hover:text-[var(--brand-accent)] disabled:opacity-60"
+      className="inline-flex h-9 min-w-14 items-center justify-center rounded-full border border-[var(--brand-paper)]/30 bg-transparent px-3.5 font-semibold text-[var(--brand-paper)] text-sm transition-colors hover:border-white hover:text-white disabled:opacity-60"
     >
       {t('header.languageToggle')}
     </button>

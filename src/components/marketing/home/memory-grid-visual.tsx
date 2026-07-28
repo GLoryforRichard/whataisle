@@ -116,7 +116,7 @@ export function MemoryGridVisual({
           />
           <motion.span
             variants={ringVariant}
-            className="-top-2 -right-2 absolute whitespace-nowrap rounded-full bg-[var(--brand-accent)] px-1.5 py-0.5 font-bold text-[9px] text-[var(--brand)] shadow-sm"
+            className="-top-2 -right-2 absolute whitespace-nowrap rounded-full bg-[var(--brand-accent)] px-1.5 py-0.5 font-bold text-[9px] text-[var(--brand-ink)] shadow-sm"
           >
             {newBadge}
           </motion.span>

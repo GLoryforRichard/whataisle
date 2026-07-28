@@ -150,7 +150,7 @@ export function ShopperSearch() {
           </button>
           <button
             type="button"
-            className="h-13 flex-1 rounded-xl bg-[var(--brand)] font-bold text-[var(--brand-accent)] transition-transform active:scale-[0.98] disabled:opacity-50"
+            className="h-13 flex-1 rounded-xl bg-[var(--brand)] font-bold text-white transition-transform active:scale-[0.98] disabled:opacity-50"
             disabled={!confirm.text}
             onClick={() =>
               goSearch(
@@ -188,7 +188,7 @@ export function ShopperSearch() {
         />
         <button
           type="submit"
-          className="flex size-15 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand)] text-[var(--brand-accent)] shadow-[0_6px_18px_color-mix(in_srgb,var(--brand)_30%,transparent)] transition-transform active:scale-95"
+          className="flex size-15 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand)] text-white shadow-[0_6px_18px_color-mix(in_srgb,var(--brand)_30%,transparent)] transition-transform active:scale-95"
           aria-label={t('searchButton')}
         >
           <SearchIcon className="size-6" />

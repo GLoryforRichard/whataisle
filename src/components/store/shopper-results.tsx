@@ -221,7 +221,7 @@ export function ShopperResults({
           className={`wa-pop flex items-center gap-4 rounded-2xl border p-4 shadow-[0_10px_26px_color-mix(in_srgb,var(--brand-ink)_12%,transparent)] ${answerClass}`}
         >
           {isDarkAnswer && answerShelf ? (
-            <div className="shrink-0 rounded-xl bg-[var(--brand-accent)] px-4 py-3 font-bold text-2xl text-[var(--brand)] leading-none">
+            <div className="shrink-0 rounded-xl bg-[var(--brand-accent)] px-4 py-3 font-bold text-2xl text-[var(--brand-ink)] leading-none">
               {answerShelf}
             </div>
           ) : null}
@@ -270,7 +270,7 @@ export function ShopperResults({
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
                       {loc ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--brand-accent)] px-3 py-0.5 font-bold text-[var(--brand)] text-sm">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--brand-accent)] px-3 py-0.5 font-bold text-[var(--brand-ink)] text-sm">
                           <MapPinIcon className="size-3.5" />
                           {t('shelfBadge', {
                             code: loc.side

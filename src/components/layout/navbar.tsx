@@ -48,25 +48,18 @@ export function Navbar({ scroll = true }: NavBarProps) {
   }, [localePathname]);
 
   return (
-    <header className="sticky inset-x-0 top-0 z-40 pt-3 sm:pt-4">
-      <Container className="px-3 sm:px-4">
-        <div className="relative">
-          {/* Page-colored mask over the sliver ABOVE the pill, so content
-              scrolling up doesn't peek through the top gap. The pill's own
-              opaque green rounded bottom caps whatever scrolls underneath with a
-              soft convex edge, so the hero card keeps a rounded top. */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 bottom-full h-screen bg-background"
-          />
-          <div
-            className={cn(
-              'relative rounded-[22px] bg-[var(--brand)] px-4 py-3 text-[var(--brand-paper)] transition-shadow duration-300 sm:px-6',
-              showBarBg
-                ? 'shadow-[0_14px_34px_color-mix(in_srgb,var(--brand-ink)_28%,transparent)]'
-                : 'shadow-[0_6px_20px_color-mix(in_srgb,var(--brand-ink)_16%,transparent)]'
-            )}
-          >
+    // Thin full-width brand strip — the page below is pure white, so the
+    // strip and the footer are the only two dark anchors on the page.
+    <header className="sticky inset-x-0 top-0 z-40">
+      <div
+        className={cn(
+          'bg-[var(--brand)] text-[var(--brand-paper)] transition-shadow duration-300',
+          showBarBg &&
+            'shadow-[0_6px_20px_color-mix(in_srgb,var(--brand-ink)_16%,transparent)]'
+        )}
+      >
+        <Container className="px-3 sm:px-6">
+          <div className="py-2.5">
             {/* desktop navbar */}
             <nav
               aria-label="Main navigation"
@@ -164,17 +157,17 @@ export function Navbar({ scroll = true }: NavBarProps) {
                           asChild
                           className={cn(
                             navigationMenuTriggerStyle(),
-                            // Dark-green nav: keep the light accent pill from
-                            // washing out the label — use a subtle translucent
-                            // highlight with bright lime text on hover/focus.
+                            // Brand strip: white text throughout (accent as
+                            // text fails contrast on warm palettes); the
+                            // active page gets an accent underline instead.
                             'bg-transparent text-base text-[var(--brand-paper)]/85',
-                            'hover:bg-white/10 hover:text-[var(--brand-accent)]',
-                            'focus:bg-white/10 focus:text-[var(--brand-accent)]',
+                            'hover:bg-white/10 hover:text-white',
+                            'focus:bg-white/10 focus:text-white',
                             item.href &&
                               (item.href === '/'
                                 ? localePathname === '/'
                                 : localePathname.startsWith(item.href)) &&
-                              'font-semibold text-[var(--brand-accent)]'
+                              'font-semibold text-white underline decoration-2 decoration-[var(--brand-accent)] underline-offset-8'
                           )}
                         >
                           <LocaleLink
@@ -204,14 +197,14 @@ export function Navbar({ scroll = true }: NavBarProps) {
                     <LoginWrapper mode="modal" asChild>
                       <button
                         type="button"
-                        className="inline-flex h-9 cursor-pointer items-center rounded-full border border-[var(--brand-paper)]/30 bg-transparent px-4 font-semibold text-[var(--brand-paper)] text-base transition-colors hover:border-[var(--brand-accent)] hover:text-[var(--brand-accent)]"
+                        className="inline-flex h-9 cursor-pointer items-center rounded-full border border-[var(--brand-paper)]/30 bg-transparent px-4 font-semibold text-[var(--brand-paper)] text-base transition-colors hover:border-white hover:text-white"
                       >
                         {t('Common.login')}
                       </button>
                     </LoginWrapper>
                     <LocaleLink
                       href={Routes.Register}
-                      className="inline-flex h-9 items-center rounded-full bg-[var(--brand-accent)] px-4 font-bold text-[var(--brand)] text-base transition-colors hover:bg-[var(--brand-accent-hover)]"
+                      className="inline-flex h-9 items-center rounded-full bg-[var(--brand-accent)] px-4 font-bold text-[var(--brand-ink)] text-base transition-colors hover:bg-[var(--brand-accent-hover)]"
                     >
                       {t('Common.signUp')}
                     </LocaleLink>
@@ -223,8 +216,8 @@ export function Navbar({ scroll = true }: NavBarProps) {
             {/* mobile navbar */}
             <NavbarMobile className="lg:hidden" />
           </div>
-        </div>
-      </Container>
+        </Container>
+      </div>
     </header>
   );
 }

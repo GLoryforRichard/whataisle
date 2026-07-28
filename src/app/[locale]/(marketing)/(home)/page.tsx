@@ -76,56 +76,55 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
     <div className="flex flex-col">
-      {/* ── Hero — detached rounded card floating on the cream page ── */}
-      <section className="pt-3 sm:pt-4">
+      {/* ── Hero — ink text straight on the white page; the brand color
+             lives only in the CTA, badge and small accents ── */}
+      <section className="pt-10 sm:pt-14">
         <Container className="px-3 sm:px-4">
-          <div className="relative overflow-hidden rounded-[28px] bg-[var(--brand)] text-[var(--brand-paper)] shadow-[0_18px_44px_color-mix(in_srgb,var(--brand-ink)_16%,transparent)]">
-            <div className="grid grid-cols-1 items-center gap-10 px-6 py-12 sm:px-10 sm:py-14 lg:grid-cols-[1.05fr_0.95fr] lg:px-14 lg:py-16">
-              <div className="wa-fade-up flex flex-col items-start gap-6">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[var(--brand-accent)]/40 bg-[var(--brand-accent)]/15 px-3.5 py-1.5 font-semibold text-[var(--brand-accent)] text-sm">
-                  <MapPinIcon className="size-3.5" aria-hidden />
-                  {t('hero.badge')}
-                </span>
-                <h1 className="text-balance font-bold text-4xl leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.25rem]">
-                  {t('hero.title')}
-                </h1>
-                <p className="max-w-xl text-pretty text-[var(--brand-paper)]/75 text-lg leading-relaxed">
-                  {t('hero.description')}
-                </p>
-                <div className="mt-1 flex flex-wrap items-center gap-3.5">
-                  <LocaleLink
-                    href="/auth/register"
-                    className="inline-flex h-14 items-center gap-2 rounded-full bg-[var(--brand-accent)] px-7 font-bold text-[var(--brand)] text-lg shadow-[0_10px_26px_color-mix(in_srgb,var(--brand-accent)_28%,transparent)] transition-transform hover:bg-[var(--brand-accent-hover)] active:scale-[0.97]"
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="wa-fade-up flex flex-col items-start gap-6">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-accent px-3.5 py-1.5 font-semibold text-[var(--brand)] text-sm">
+                <MapPinIcon className="size-3.5" aria-hidden />
+                {t('hero.badge')}
+              </span>
+              <h1 className="text-balance font-bold text-4xl text-foreground leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.25rem]">
+                {t('hero.title')}
+              </h1>
+              <p className="max-w-xl text-pretty text-lg text-muted-foreground leading-relaxed">
+                {t('hero.description')}
+              </p>
+              <div className="mt-1 flex flex-wrap items-center gap-3.5">
+                <LocaleLink
+                  href="/auth/register"
+                  className="inline-flex h-14 items-center gap-2 rounded-full bg-primary px-7 font-bold text-lg text-primary-foreground shadow-[0_10px_26px_color-mix(in_srgb,var(--brand)_25%,transparent)] transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
+                >
+                  {t('hero.primaryCta')}
+                  <ArrowRightIcon className="size-5" aria-hidden />
+                </LocaleLink>
+                {demoStoreUrl ? (
+                  <a
+                    href={demoStoreUrl}
+                    className="inline-flex h-14 items-center rounded-full border-[1.5px] border-input px-6 font-semibold text-foreground text-lg transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)]"
                   >
-                    {t('hero.primaryCta')}
-                    <ArrowRightIcon className="size-5" aria-hidden />
+                    {t('hero.secondaryCta')}
+                  </a>
+                ) : (
+                  <LocaleLink
+                    href="#how-it-works"
+                    className="inline-flex h-14 items-center rounded-full border-[1.5px] border-input px-6 font-semibold text-foreground text-lg transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)]"
+                  >
+                    {t('hero.howItWorksCta')}
                   </LocaleLink>
-                  {demoStoreUrl ? (
-                    <a
-                      href={demoStoreUrl}
-                      className="inline-flex h-14 items-center rounded-full border-[1.5px] border-[var(--brand-paper)]/35 px-6 font-semibold text-[var(--brand-paper)] text-lg transition-colors hover:border-[var(--brand-accent)]"
-                    >
-                      {t('hero.secondaryCta')}
-                    </a>
-                  ) : (
-                    <LocaleLink
-                      href="#how-it-works"
-                      className="inline-flex h-14 items-center rounded-full border-[1.5px] border-[var(--brand-paper)]/35 px-6 font-semibold text-[var(--brand-paper)] text-lg transition-colors hover:border-[var(--brand-accent)]"
-                    >
-                      {t('hero.howItWorksCta')}
-                    </LocaleLink>
-                  )}
-                </div>
-                {/* Price up front: this audience distrusts hidden pricing far
-                    more than a big number (requirements §〇: 选诚实). */}
-                <p className="text-[var(--brand-paper)]/70 text-base">
-                  {t('hero.priceNote')}
-                </p>
+                )}
               </div>
-
-              {/* Hero visual — live one-photo scan demo */}
-              <HeroTryScan />
+              {/* Price up front: this audience distrusts hidden pricing far
+                  more than a big number (requirements §〇: 选诚实). */}
+              <p className="text-base text-muted-foreground">
+                {t('hero.priceNote')}
+              </p>
             </div>
+
+            {/* Hero visual — live one-photo scan demo */}
+            <HeroTryScan />
           </div>
         </Container>
       </section>
@@ -194,23 +193,23 @@ export default async function HomePage({ params }: HomePageProps) {
         </Container>
       </section>
 
-      {/* ── Scan band (lime) ── */}
+      {/* ── Scan band — one of the page's few intentional tint blocks ── */}
       <section className="pb-24">
         <Container className="px-3 sm:px-4">
-          <div className="grid grid-cols-1 overflow-hidden rounded-3xl bg-[var(--brand-accent)] md:grid-cols-[1.2fr_0.8fr]">
+          <div className="grid grid-cols-1 overflow-hidden rounded-3xl border border-[var(--accent-border)] bg-accent md:grid-cols-[1.2fr_0.8fr]">
             <div className="flex flex-col items-start gap-4 p-8 md:p-10">
               <span className="rounded-full bg-primary/10 px-3 py-1 font-bold text-[var(--brand)] text-sm">
                 {t('scan.tag')}
               </span>
-              <h2 className="text-balance font-bold text-3xl text-[var(--brand)] leading-tight">
+              <h2 className="text-balance font-bold text-3xl text-foreground leading-tight">
                 {t('scan.title')}
               </h2>
-              <p className="max-w-md text-foreground text-lg leading-relaxed">
+              <p className="max-w-md text-lg text-muted-foreground leading-relaxed">
                 {t('scan.sub')}
               </p>
               <LocaleLink
                 href="/auth/register"
-                className="mt-1 inline-flex h-13 items-center gap-2 rounded-full bg-[var(--brand)] px-6 py-3.5 font-bold text-[var(--brand-accent)] transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
+                className="mt-1 inline-flex h-13 items-center gap-2 rounded-full bg-[var(--brand)] px-6 py-3.5 font-bold text-white transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
               >
                 <QrCodeIcon className="size-[18px]" aria-hidden />
                 {t('scan.cta')}
@@ -240,7 +239,7 @@ export default async function HomePage({ params }: HomePageProps) {
                     className="flex size-[132px] items-center justify-center rounded-xl bg-[var(--brand)]"
                     aria-hidden
                   >
-                    <QrCodeIcon className="size-11 text-[var(--brand-accent)]" />
+                    <QrCodeIcon className="size-11 text-white" />
                   </div>
                   <span className="text-muted-foreground text-sm">
                     {t('scan.caption')}

@@ -125,7 +125,7 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
         <button
           type="submit"
           disabled={busy || !newCode.trim()}
-          className="inline-flex h-11 items-center gap-1.5 rounded-full bg-[var(--brand)] px-5 font-bold text-[var(--brand-accent)] transition-transform active:scale-[0.97] disabled:opacity-50"
+          className="inline-flex h-11 items-center gap-1.5 rounded-full bg-[var(--brand)] px-5 font-bold text-white transition-transform active:scale-[0.97] disabled:opacity-50"
         >
           <PlusIcon className="size-[18px]" aria-hidden />
           {t('add')}

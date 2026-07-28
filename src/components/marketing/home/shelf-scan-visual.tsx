@@ -185,7 +185,7 @@ export function ShelfScanVisual({ labels, foundChip }: ShelfScanVisualProps) {
       </div>
 
       <motion.div variants={chipVariant} className="mt-3 flex justify-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand)] px-3 py-1.5 font-semibold text-[var(--brand-accent)] text-xs">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand)] px-3 py-1.5 font-semibold text-white text-xs">
           <span className="size-1.5 rounded-full bg-[var(--brand-accent)]" />
           {foundChip}
         </span>

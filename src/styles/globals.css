@@ -114,12 +114,16 @@
 }
 
 :root {
-  /* ── Fresh Green (5a) brand palette ── */
+  /* ── Fresh Green (5a) brand palette ──
+     Page background is deliberately PURE WHITE (owner decision: warm
+     off-whites render dirty on cheap panels). --brand-paper doubles as
+     "light text on brand surfaces", so it is white too; tinted color is
+     reserved for small intentional accents, never page-sized fills. */
   --brand: #0f4c3f;
   --brand-hover: #17604f;
   --brand-accent: #c6f24e;
   --brand-accent-hover: #d3f76e;
-  --brand-paper: #f7f4ec;
+  --brand-paper: #ffffff;
   --brand-ink: #12352c;
   /* The shopper map's "your product is HERE" pin. Deliberately its own token:
      it must stay distinguishable from --destructive AND from --brand under
@@ -133,24 +137,24 @@
   --popover: #ffffff;
   --popover-foreground: #12352c;
   --primary: #0f4c3f;
-  --primary-foreground: #f7f4ec;
+  --primary-foreground: #ffffff;
   --secondary: #eef3e6;
   --secondary-foreground: #0f4c3f;
-  --muted: #f1efe6;
+  --muted: #f5f5f4;
   --muted-foreground: #566058;
   --accent: #f1f7e8;
   --accent-foreground: #0f4c3f;
   --destructive: #c1272d;
-  --destructive-foreground: #f7f4ec;
+  --destructive-foreground: #ffffff;
   --border: #e4decb;
   --input: #d5dccb;
   --ring: #0f4c3f;
   /* Light dashboard chrome — a calm warm surround (the inset content panel
      floats on it), dark-green text, and a soft green active/hover pill. */
-  --sidebar: #edeae1;
+  --sidebar: #f7f7f5;
   --sidebar-foreground: #12352c;
   --sidebar-primary: #0f4c3f;
-  --sidebar-primary-foreground: #f7f4ec;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #e6f0ce;
   --sidebar-accent-foreground: #0f4c3f;
   --sidebar-border: #e0dccf;
@@ -174,7 +178,7 @@
   --shadow-xl:
     0px 4px 8px 0px hsl(0 0% 0% / 0.05), 0px 8px 10px -1px hsl(0 0% 0% / 0.05);
   --shadow-2xl: 0px 4px 8px 0px hsl(0 0% 0% / 0.13);
-  --background: #f7f4ec;
+  --background: #ffffff;
   --foreground: #12352c;
 }
 

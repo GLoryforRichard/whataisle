@@ -166,7 +166,7 @@ export function HeroTryScan() {
 
   return (
     <div className="wa-fade-up mx-auto w-full max-w-[420px]">
-      <div className="relative overflow-hidden rounded-[28px] bg-[var(--brand-paper)] p-4 shadow-[0_26px_60px_rgba(0,0,0,0.32)]">
+      <div className="relative overflow-hidden rounded-[28px] border border-border bg-white p-4 shadow-[0_18px_44px_color-mix(in_srgb,var(--brand-ink)_14%,transparent)]">
         {/* Idle: drop zone + upload/camera buttons */}
         {phase === 'idle' && (
           <div
@@ -179,10 +179,10 @@ export function HeroTryScan() {
             className={`flex min-h-[340px] flex-col items-center justify-center gap-4 rounded-[18px] border-2 border-dashed p-6 text-center transition-colors ${
               dragOver
                 ? 'border-[var(--brand)] bg-accent'
-                : 'border-[var(--accent-border)] bg-white/60'
+                : 'border-[var(--accent-border)] bg-muted/60'
             }`}
           >
-            <span className="rounded-full bg-[var(--brand)] px-3 py-1 font-bold text-[var(--brand-accent)] text-xs">
+            <span className="rounded-full bg-[var(--brand)] px-3 py-1 font-bold text-white text-xs">
               {t('tag')}
             </span>
             <div className="flex size-14 items-center justify-center rounded-2xl bg-[var(--brand-accent)]/25">
@@ -198,7 +198,7 @@ export function HeroTryScan() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--brand)] px-5 font-bold text-[var(--brand-accent)] transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--brand)] px-5 font-bold text-white transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
               >
                 <ImageUpIcon className="size-4" aria-hidden />
                 {t('upload')}
@@ -275,13 +275,13 @@ export function HeroTryScan() {
                   }}
                 >
                   {b.w > 0.16 && (
-                    <span className="absolute top-0 left-0 max-w-full truncate rounded-br-[3px] bg-[var(--brand-accent)] px-1 py-px font-semibold text-[10px] text-[var(--brand)] leading-tight">
+                    <span className="absolute top-0 left-0 max-w-full truncate rounded-br-[3px] bg-[var(--brand-accent)] px-1 py-px font-semibold text-[10px] text-[var(--brand-ink)] leading-tight">
                       {b.label}
                     </span>
                   )}
                 </div>
               ))}
-              <span className="absolute top-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-[var(--brand)] px-3 py-1.5 font-bold text-[var(--brand-accent)] text-xs shadow-[0_6px_16px_rgba(0,0,0,0.25)]">
+              <span className="absolute top-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-[var(--brand)] px-3 py-1.5 font-bold text-white text-xs shadow-[0_6px_16px_rgba(0,0,0,0.25)]">
                 <span className="size-1.5 rounded-full bg-[var(--brand-accent)]" />
                 {t('resultTitle', { count: result.count })}
               </span>
@@ -311,7 +311,7 @@ export function HeroTryScan() {
             {errorCode === 'limit_reached' ? (
               <LocaleLink
                 href="/auth/register"
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--brand)] px-5 font-bold text-[var(--brand-accent)] transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--brand)] px-5 font-bold text-white transition-transform hover:bg-[var(--brand-hover)] active:scale-[0.97]"
               >
                 {t('cta')}
                 <ArrowRightIcon className="size-4" aria-hidden />
