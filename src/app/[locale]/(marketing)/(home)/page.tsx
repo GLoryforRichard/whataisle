@@ -1,3 +1,4 @@
+import { BearFace } from '@/components/layout/bear-face';
 import Container from '@/components/layout/container';
 import { AnswerMapVisual } from '@/components/marketing/home/answer-map-visual';
 import { MemoryGridVisual } from '@/components/marketing/home/memory-grid-visual';
@@ -81,21 +82,40 @@ export default async function HomePage({ params }: HomePageProps) {
       <section className="pt-10 sm:pt-14">
         <Container className="px-3 sm:px-4">
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="wa-fade-up flex flex-col items-start gap-6">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--chip-border)] bg-[var(--chip-bg)] px-3.5 py-1.5 font-semibold text-[var(--chip-fg)] text-sm">
+            <div className="flex flex-col items-start gap-6">
+              {/* Bear badge — the wherebear hero mascot in a white sticker circle. */}
+              <div
+                className="wa-rise flex size-[112px] items-center justify-center overflow-hidden rounded-full border-2 border-foreground bg-card shadow-[4px_4px_0_#111]"
+                aria-hidden
+              >
+                <BearFace size={104} />
+              </div>
+              <span
+                className="wa-rise inline-flex items-center gap-2 rounded-full border border-[var(--chip-border)] bg-[var(--chip-bg)] px-3.5 py-1.5 font-semibold text-[var(--chip-fg)] text-sm"
+                style={{ animationDelay: '70ms' }}
+              >
                 <MapPinIcon className="size-3.5" aria-hidden />
                 {t('hero.badge')}
               </span>
-              <h1 className="text-balance font-bold text-4xl text-foreground leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.25rem]">
+              <h1
+                className="wa-display wa-rise text-balance font-bold text-4xl text-foreground leading-[1.1] sm:text-5xl lg:text-[3.25rem]"
+                style={{ animationDelay: '140ms' }}
+              >
                 {t('hero.title')}
               </h1>
-              <p className="max-w-xl text-pretty text-lg text-muted-foreground leading-relaxed">
+              <p
+                className="wa-rise max-w-xl text-pretty text-lg text-muted-foreground leading-relaxed"
+                style={{ animationDelay: '210ms' }}
+              >
                 {t('hero.description')}
               </p>
-              <div className="mt-1 flex flex-wrap items-center gap-3.5">
+              <div
+                className="wa-rise mt-1 flex flex-wrap items-center gap-3.5"
+                style={{ animationDelay: '280ms' }}
+              >
                 <LocaleLink
                   href="/auth/register"
-                  className="inline-flex h-14 items-center gap-2 rounded-full border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-7 font-bold text-[var(--cta-fg)] text-lg shadow-[var(--cta-shadow)] transition-colors hover:bg-[var(--cta-hover-bg)] hover:text-[var(--cta-hover-fg)] active:scale-[0.97]"
+                  className="inline-flex h-14 items-center gap-2 rounded-[16px] border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-7 font-bold text-[var(--cta-fg)] text-lg shadow-[var(--cta-shadow)] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#111] active:translate-x-0 active:translate-y-0 active:shadow-[var(--cta-shadow)]"
                 >
                   {t('hero.primaryCta')}
                   <ArrowRightIcon className="size-5" aria-hidden />
@@ -103,14 +123,14 @@ export default async function HomePage({ params }: HomePageProps) {
                 {demoStoreUrl ? (
                   <a
                     href={demoStoreUrl}
-                    className="inline-flex h-14 items-center rounded-full border-[1.5px] border-input px-6 font-semibold text-foreground text-lg transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)]"
+                    className="inline-flex h-14 items-center rounded-[16px] border-2 border-foreground bg-card px-6 font-semibold text-foreground text-lg shadow-[4px_4px_0_#111] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#111] active:translate-x-0 active:translate-y-0 active:shadow-[4px_4px_0_#111]"
                   >
                     {t('hero.secondaryCta')}
                   </a>
                 ) : (
                   <LocaleLink
                     href="#how-it-works"
-                    className="inline-flex h-14 items-center rounded-full border-[1.5px] border-input px-6 font-semibold text-foreground text-lg transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)]"
+                    className="inline-flex h-14 items-center rounded-[16px] border-2 border-foreground bg-card px-6 font-semibold text-foreground text-lg shadow-[4px_4px_0_#111] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#111] active:translate-x-0 active:translate-y-0 active:shadow-[4px_4px_0_#111]"
                   >
                     {t('hero.howItWorksCta')}
                   </LocaleLink>
@@ -118,7 +138,10 @@ export default async function HomePage({ params }: HomePageProps) {
               </div>
               {/* Price up front: this audience distrusts hidden pricing far
                   more than a big number (requirements §〇: 选诚实). */}
-              <p className="text-base text-muted-foreground">
+              <p
+                className="wa-rise text-base text-muted-foreground"
+                style={{ animationDelay: '350ms' }}
+              >
                 {t('hero.priceNote')}
               </p>
             </div>
@@ -132,7 +155,7 @@ export default async function HomePage({ params }: HomePageProps) {
       {/* ── How it works — story steps (static copy, animated visuals) ── */}
       <section id="how-it-works" className="pt-12 pb-12 sm:pt-16">
         <Container className="px-3 sm:px-4">
-          <h2 className="mb-10 font-bold text-3xl text-foreground sm:mb-14">
+          <h2 className="wa-display mb-10 font-bold text-3xl text-foreground sm:mb-14">
             {t('story.title')}
           </h2>
 
@@ -201,7 +224,7 @@ export default async function HomePage({ params }: HomePageProps) {
               <span className="rounded-full border border-[var(--chip-border)] bg-[var(--chip-bg)] px-3 py-1 font-bold text-[var(--chip-fg)] text-sm">
                 {t('scan.tag')}
               </span>
-              <h2 className="text-balance font-bold text-3xl text-foreground leading-tight">
+              <h2 className="wa-display text-balance font-bold text-3xl text-foreground leading-tight">
                 {t('scan.title')}
               </h2>
               <p className="max-w-md text-lg text-muted-foreground leading-relaxed">
@@ -209,7 +232,7 @@ export default async function HomePage({ params }: HomePageProps) {
               </p>
               <LocaleLink
                 href="/auth/register"
-                className="mt-1 inline-flex h-13 items-center gap-2 rounded-full border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-6 py-3.5 font-bold text-[var(--cta-fg)] shadow-[var(--cta-shadow)] transition-colors hover:bg-[var(--cta-hover-bg)] hover:text-[var(--cta-hover-fg)] active:scale-[0.97]"
+                className="mt-1 inline-flex h-13 items-center gap-2 rounded-[16px] border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-6 py-3.5 font-bold text-[var(--cta-fg)] shadow-[var(--cta-shadow)] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#111] active:translate-x-0 active:translate-y-0 active:shadow-[var(--cta-shadow)]"
               >
                 <QrCodeIcon className="size-[18px]" aria-hidden />
                 {t('scan.cta')}
@@ -221,7 +244,7 @@ export default async function HomePage({ params }: HomePageProps) {
                 // decoration for this audience.
                 <a
                   href={demoStoreUrl}
-                  className="flex flex-col items-center gap-3 rounded-2xl bg-white p-5 shadow-[0_16px_34px_color-mix(in_srgb,var(--brand-ink)_18%,transparent)] transition-transform hover:scale-[1.02]"
+                  className="flex flex-col items-center gap-3 rounded-2xl border border-foreground bg-white p-5 shadow-[4px_4px_0_#111] transition-transform hover:scale-[1.02]"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -234,12 +257,12 @@ export default async function HomePage({ params }: HomePageProps) {
                   </span>
                 </a>
               ) : (
-                <div className="flex flex-col items-center gap-3 rounded-2xl bg-white p-5 shadow-[0_16px_34px_color-mix(in_srgb,var(--brand-ink)_18%,transparent)]">
+                <div className="flex flex-col items-center gap-3 rounded-2xl border border-foreground bg-white p-5 shadow-[4px_4px_0_#111]">
                   <div
                     className="flex size-[132px] items-center justify-center rounded-xl bg-[var(--brand)]"
                     aria-hidden
                   >
-                    <QrCodeIcon className="size-11 text-white" />
+                    <QrCodeIcon className="size-11 text-[var(--brand-ink)]" />
                   </div>
                   <span className="text-muted-foreground text-sm">
                     {t('scan.caption')}
@@ -256,7 +279,7 @@ export default async function HomePage({ params }: HomePageProps) {
         <Container className="px-3 sm:px-4">
           <div className="mx-auto flex max-w-3xl flex-col gap-12">
             <div className="flex flex-col gap-4">
-              <h2 className="text-balance font-bold text-3xl text-foreground">
+              <h2 className="wa-display text-balance font-bold text-3xl text-foreground">
                 {t('seo.title')}
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed">
@@ -317,14 +340,14 @@ export default async function HomePage({ params }: HomePageProps) {
             </div>
 
             <div className="flex flex-col gap-5">
-              <h2 className="font-bold text-3xl text-foreground">
+              <h2 className="wa-display font-bold text-3xl text-foreground">
                 {t('seo.faq.title')}
               </h2>
               <div className="flex flex-col gap-4">
                 {faqItems.map((item) => (
                   <div
                     key={item.question}
-                    className="rounded-[20px] border border-border bg-white p-6 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent)]"
+                    className="rounded-[20px] border border-border bg-white p-6"
                   >
                     <h3 className="mb-2 font-bold text-[var(--brand-ink)] text-lg">
                       {item.question}
@@ -377,10 +400,10 @@ function StoryStep({
           reverse && 'lg:order-2'
         )}
       >
-        <span className="rounded-full bg-primary/8 px-3 py-1 font-bold text-[var(--brand)] text-sm">
+        <span className="rounded-full border border-[var(--brand-chip)] bg-[var(--brand-softer)] px-3 py-1 font-bold text-[var(--brand-dark)] text-sm">
           {step}
         </span>
-        <h3 className="text-balance font-bold text-2xl text-[var(--brand-ink)] sm:text-3xl">
+        <h3 className="wa-display text-balance font-bold text-2xl text-[var(--brand-ink)] sm:text-3xl">
           {title}
         </h3>
         <p className="max-w-md text-muted-foreground text-lg leading-relaxed">

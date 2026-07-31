@@ -165,8 +165,18 @@ export function HeroTryScan() {
       : undefined;
 
   return (
-    <div className="wa-fade-up mx-auto w-full max-w-[420px]">
-      <div className="relative overflow-hidden rounded-[28px] border border-border bg-white p-4 shadow-[0_18px_44px_color-mix(in_srgb,var(--brand-ink)_14%,transparent)]">
+    <div className="wa-fade-up relative mx-auto mt-9 w-full max-w-[420px]">
+      {/* 趴姿小熊 draped over the card's top edge (true-alpha PNG, hidden on
+          the result view so it doesn't crowd the detections — wherebear). */}
+      {phase !== 'result' && (
+        <img
+          src="/searchbar-bear.png"
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute -top-[37px] right-3 z-10 w-[172px]"
+        />
+      )}
+      <div className="relative overflow-hidden rounded-[28px] border border-border bg-white p-4 shadow-[4px_4px_0_#111]">
         {/* Idle: drop zone + upload/camera buttons */}
         {phase === 'idle' && (
           <div
@@ -182,7 +192,7 @@ export function HeroTryScan() {
                 : 'border-[var(--accent-border)] bg-muted/60'
             }`}
           >
-            <span className="rounded-full bg-[var(--brand)] px-3 py-1 font-bold text-white text-xs">
+            <span className="rounded-full border border-foreground bg-[var(--brand)] px-3 py-1 font-bold text-[var(--brand-ink)] text-xs">
               {t('tag')}
             </span>
             <div className="flex size-14 items-center justify-center rounded-2xl bg-[var(--brand-accent)]/25">
@@ -198,7 +208,7 @@ export function HeroTryScan() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex h-11 items-center gap-2 rounded-full border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-5 font-bold text-[var(--cta-fg)] transition-colors hover:bg-[var(--cta-hover-bg)] hover:text-[var(--cta-hover-fg)] active:scale-[0.97]"
+                className="inline-flex h-11 items-center gap-2 rounded-[14px] border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-5 font-bold text-[var(--cta-fg)] shadow-[var(--cta-shadow)] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#111] active:translate-x-0 active:translate-y-0 active:shadow-[var(--cta-shadow)]"
               >
                 <ImageUpIcon className="size-4" aria-hidden />
                 {t('upload')}
@@ -206,7 +216,7 @@ export function HeroTryScan() {
               <button
                 type="button"
                 onClick={() => cameraInputRef.current?.click()}
-                className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] border-[var(--accent-border)] px-5 font-semibold text-[var(--brand)] transition-colors hover:border-[var(--brand)] sm:hidden"
+                className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] border-[var(--brand)] px-5 font-semibold text-[var(--brand-dark)] transition-colors hover:bg-[var(--brand-softer)] sm:hidden"
               >
                 <CameraIcon className="size-4" aria-hidden />
                 {t('takePhoto')}
@@ -281,7 +291,7 @@ export function HeroTryScan() {
                   )}
                 </div>
               ))}
-              <span className="absolute top-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-[var(--brand)] px-3 py-1.5 font-bold text-white text-xs shadow-[0_6px_16px_rgba(0,0,0,0.25)]">
+              <span className="absolute top-2 left-2 inline-flex items-center gap-1.5 rounded-full border border-foreground bg-[var(--brand)] px-3 py-1.5 font-bold text-[var(--brand-ink)] text-xs shadow-[0_6px_16px_rgba(0,0,0,0.25)]">
                 <span className="size-1.5 rounded-full bg-[var(--brand-accent)]" />
                 {t('resultTitle', { count: result.count })}
               </span>
@@ -293,7 +303,7 @@ export function HeroTryScan() {
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex items-center gap-1.5 font-semibold text-[var(--brand)] text-sm transition-opacity hover:opacity-70"
+                className="inline-flex items-center gap-1.5 font-semibold text-[var(--brand-dark)] text-sm transition-opacity hover:opacity-70"
               >
                 <RotateCcwIcon className="size-3.5" aria-hidden />
                 {t('tryAnother')}
@@ -311,7 +321,7 @@ export function HeroTryScan() {
             {errorCode === 'limit_reached' ? (
               <LocaleLink
                 href="/auth/register"
-                className="inline-flex h-11 items-center gap-2 rounded-full border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-5 font-bold text-[var(--cta-fg)] transition-colors hover:bg-[var(--cta-hover-bg)] hover:text-[var(--cta-hover-fg)] active:scale-[0.97]"
+                className="inline-flex h-11 items-center gap-2 rounded-[14px] border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-5 font-bold text-[var(--cta-fg)] shadow-[var(--cta-shadow)] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#111] active:translate-x-0 active:translate-y-0 active:shadow-[var(--cta-shadow)]"
               >
                 {t('cta')}
                 <ArrowRightIcon className="size-4" aria-hidden />
@@ -320,7 +330,7 @@ export function HeroTryScan() {
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] border-[var(--accent-border)] px-5 font-semibold text-[var(--brand)] transition-colors hover:border-[var(--brand)]"
+                className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] border-[var(--brand)] px-5 font-semibold text-[var(--brand-dark)] transition-colors hover:bg-[var(--brand-softer)]"
               >
                 <RotateCcwIcon className="size-4" aria-hidden />
                 {t('tryAnother')}

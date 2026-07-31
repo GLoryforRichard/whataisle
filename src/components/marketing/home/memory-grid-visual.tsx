@@ -75,7 +75,7 @@ export function MemoryGridVisual({
       viewport={{ once: true, amount: 0.4 }}
       variants={container}
       aria-hidden="true"
-      className="w-full max-w-[380px] rounded-[20px] border border-border bg-white p-5 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent),0_14px_30px_color-mix(in_srgb,var(--brand-ink)_06%,transparent)]"
+      className="w-full max-w-[380px] rounded-[20px] border border-border bg-white p-5 shadow-[4px_4px_0_#111]"
     >
       <motion.div
         variants={headerVariant}

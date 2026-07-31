@@ -53,7 +53,7 @@ export function SearchWaysVisual({
       viewport={{ once: true, amount: 0.4 }}
       variants={phoneVariant}
       aria-hidden="true"
-      className="w-[260px] rounded-[30px] bg-[var(--brand-paper)] p-4 shadow-[0_18px_44px_color-mix(in_srgb,var(--brand-ink)_16%,transparent)]"
+      className="w-[260px] rounded-[30px] border border-foreground bg-[var(--brand-paper)] p-4 shadow-[4px_4px_0_#111]"
     >
       <div className="overflow-hidden rounded-[20px] border border-border bg-white">
         <div className="flex items-center justify-between bg-[var(--brand)] px-3.5 py-3">
@@ -62,7 +62,7 @@ export function SearchWaysVisual({
             <span className="size-2 rounded-full bg-[var(--brand-paper)]/40" />
             <span className="size-2 rounded-full bg-[var(--brand-accent)]" />
           </span>
-          <span className="text-[11px] text-white">中/EN</span>
+          <span className="text-[11px] text-[var(--brand-ink)]">中/EN</span>
         </div>
 
         <div className="flex flex-col gap-3 p-3.5">
@@ -108,7 +108,7 @@ export function SearchWaysVisual({
             className="flex items-center gap-3 rounded-2xl border border-border bg-[var(--background)] px-3 py-2.5"
           >
             <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--brand)]">
-              <CameraIcon className="size-4 text-white" />
+              <CameraIcon className="size-4 text-[var(--brand-ink)]" />
             </span>
             <span className="font-semibold text-[11px] text-muted-foreground">
               {photoLabel}

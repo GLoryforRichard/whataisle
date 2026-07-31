@@ -106,7 +106,7 @@ export function ShelfScanVisual({ labels, foundChip }: ShelfScanVisualProps) {
       viewport={{ once: true, amount: 0.4 }}
       variants={cardVariant}
       aria-hidden="true"
-      className="w-full max-w-[380px] rounded-[20px] border border-border bg-white p-4 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent),0_14px_30px_color-mix(in_srgb,var(--brand-ink)_06%,transparent)]"
+      className="w-full max-w-[380px] rounded-[20px] border border-border bg-white p-4 shadow-[4px_4px_0_#111]"
     >
       <div className="relative overflow-hidden rounded-[14px]">
         {/* Shelf "photo" */}
@@ -185,7 +185,7 @@ export function ShelfScanVisual({ labels, foundChip }: ShelfScanVisualProps) {
       </div>
 
       <motion.div variants={chipVariant} className="mt-3 flex justify-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand)] px-3 py-1.5 font-semibold text-white text-xs">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground bg-[var(--brand)] px-3 py-1.5 font-semibold text-[var(--brand-ink)] text-xs">
           <span className="size-1.5 rounded-full bg-[var(--brand-accent)]" />
           {foundChip}
         </span>
