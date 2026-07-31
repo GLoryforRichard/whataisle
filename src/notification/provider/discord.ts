@@ -36,7 +36,7 @@ export class DiscordProvider implements NotificationProvider {
         embeds: [
           {
             title: '🎉 New Purchase',
-            color: 0x4caf50,
+            color: 0xff8a00,
             fields: [
               { name: 'Username', value: userName, inline: true },
               { name: 'Amount', value: `$${amount.toFixed(2)}`, inline: true },
@@ -71,7 +71,7 @@ export class DiscordProvider implements NotificationProvider {
         embeds: [
           {
             title: '🎉 Credit Distribution',
-            color: 0x4caf50,
+            color: 0xff8a00,
             fields: [
               { name: 'Users', value: usersCount.toString(), inline: true },
               {

@@ -1,5 +1,6 @@
 'use client';
 
+import { BearFace } from '@/components/layout/bear-face';
 import { Button } from '@/components/ui/button';
 import { PrinterIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -32,9 +33,27 @@ export function PosterSheet({
   }
 
   const pieces = [
-    { id: 'poster', label: t('poster'), scale: 'text-5xl', qr: 'w-64' },
-    { id: 'counter', label: t('counter'), scale: 'text-3xl', qr: 'w-40' },
-    { id: 'stickers', label: t('stickers'), scale: 'text-xl', qr: 'w-28' },
+    {
+      id: 'poster',
+      label: t('poster'),
+      scale: 'text-5xl',
+      qr: 'w-64',
+      bear: 96,
+    },
+    {
+      id: 'counter',
+      label: t('counter'),
+      scale: 'text-3xl',
+      qr: 'w-40',
+      bear: 64,
+    },
+    {
+      id: 'stickers',
+      label: t('stickers'),
+      scale: 'text-xl',
+      qr: 'w-28',
+      bear: 40,
+    },
   ];
 
   return (
@@ -65,21 +84,47 @@ export function PosterSheet({
                 {t('printType', { type: piece.label })}
               </Button>
             </div>
+            {/* White paper (toner-friendly), hard ink frame, bear + yellow
+                marker underline + yellow scan pill. print-color-adjust keeps
+                the orange/yellow in print; the QR stays pure black for scan
+                reliability. */}
             <div
               data-piece={piece.id}
-              className="flex flex-col items-center gap-4 rounded-xl border p-8 text-center"
+              className="flex flex-col items-center gap-4 rounded-[18px] border-2 border-[#111111] bg-white p-8 text-center [print-color-adjust:exact]"
             >
-              <p className={`font-bold ${piece.scale}`}>{storeName}</p>
+              <BearFace size={piece.bear} />
+              <span className="relative inline-block">
+                <p className={`wa-display font-bold ${piece.scale}`}>
+                  {storeName}
+                </p>
+                <svg
+                  viewBox="0 0 100 12"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-0 -bottom-2 left-0 h-2.5 w-full"
+                >
+                  <path
+                    d="M4 8 C 28 3, 64 3, 96 6"
+                    fill="none"
+                    stroke="#ffc900"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={qrDataUrl}
                 alt="QR code"
                 className={`${piece.qr} h-auto`}
               />
-              <p className="font-semibold text-xl">{t('scanToFind')}</p>
+              <p className="inline-block rounded-full border-2 border-[#111111] bg-[#ffc900] px-4 py-1.5 font-bold text-[#111111] text-xl [print-color-adjust:exact]">
+                {t('scanToFind')}
+              </p>
               <p className="text-lg">{t('scanToFindZh')}</p>
               <p className="text-muted-foreground">
-                {t('orVisit')} <span className="font-medium">{plainUrl}</span>
+                {t('orVisit')}{' '}
+                <span className="font-mono font-medium">{plainUrl}</span>
               </p>
             </div>
           </div>
