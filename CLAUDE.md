@@ -330,13 +330,28 @@ Present in the tree but **not live** — do not treat these as working features:
 - Filenames: kebab-case (`dashboard-sidebar.tsx`); hooks prefixed `use-`
 - Named exports preferred; default exports only for pages/layouts
 - Server-only modules start with `import 'server-only'`
-- Colors flow through the tokens in `src/styles/globals.css` (brand palette:
-  湖蓝净白 lake blue, pure-white page background — owner decisions 2026-07-28).
-  Never hex-hardcode brand-family colors in components. Conventions the
-  palette depends on: text on brand fills is white; text on accent fills is
-  `--brand-accent-foreground`; the shopper map pin is `--map-target` and must
-  never be reused for brand or error colors. `pnpm tsx
-  scripts/check-contrast.mts` verifies every relied-upon pairing.
+- Colors flow through the tokens in `src/styles/globals.css` (brand: the
+  找货熊 bear sticker system ported from the wherebear repo — owner decision
+  2026-07-30, replacing the 2026-07-28 lake blue). Cream page `#fdf7e3`,
+  white cards, ink `#111111` text/borders, orange `#ff8a00` primary, yellow
+  `#ffc900` accent; blur-free offset "sticker" shadows (the `--shadow-*`
+  tokens are ink offsets 2-8px; hover on stickers LIFTS -2px/-2px with the
+  shadow growing 4->7px). Border semantics: 2px ink = interactive/loud, 1px
+  ink = quiet container, dashed = empty affordance; badges/chips never take
+  shadows. Never hex-hardcode brand-family colors in components. Conventions
+  the palette depends on: **text on brand/accent fills is INK `#111`**
+  (white-on-orange is 2.4:1); the ONLY white-on-orange surfaces are three
+  documented exceptions — aisle-code chips, the map's selected shelf, the
+  active locale-toggle segment. Deep companions carry text on tints:
+  `--brand-dark` on orange tints, `--brand-accent-foreground` on yellow
+  tints. The shopper map pin is `--map-target` (`#cf343a`, deliberately NOT
+  wherebear's `#e5484d` which fails AA) and must never be reused for brand
+  or error colors. The bear mascot (`BearFace`/`AnimatedBear`) uses
+  `mix-blend-mode: multiply` to erase its white matte and must only sit on
+  cream/white/tint surfaces. Wherebear's 17px body base was deliberately
+  NOT ported (it would shift admin/dashboard density); marketing + shopper
+  surfaces size type locally instead. `pnpm tsx scripts/check-contrast.mts`
+  verifies every relied-upon pairing.
 - Tailwind CSS v4 with tokens in `src/styles/`
 - UI primitives from Radix UI; icons from `lucide-react`
 - Conventional Commits: `feat:`, `fix:`, `chore:`, `docs:`, `test:`

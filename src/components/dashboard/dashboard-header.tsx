@@ -79,7 +79,7 @@ export function DashboardHeader({
           {actions}
 
           <CreditsBalanceButton />
-          <LocaleSwitcher variant="light" />
+          <LocaleSwitcher />
         </div>
       </div>
     </header>

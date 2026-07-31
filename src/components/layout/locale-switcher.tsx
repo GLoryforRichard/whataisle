@@ -8,14 +8,6 @@ import { type Locale, useLocale } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useEffect, useTransition } from 'react';
 
-interface LocaleSwitcherProps {
-  /**
-   * 'dark' sits on the dark-green navbar; 'light' sits on light surfaces
-   * such as the dashboard header.
-   */
-  variant?: 'dark' | 'light';
-}
-
 /**
  * LocaleSwitcher component
  *
@@ -27,7 +19,7 @@ interface LocaleSwitcherProps {
  * navigation, which also persist the choice in the NEXT_LOCALE cookie.
  * https://next-intl.dev/docs/routing/navigation#userouter
  */
-export function LocaleSwitcher({ variant = 'dark' }: LocaleSwitcherProps) {
+export function LocaleSwitcher() {
   const router = useLocaleRouter();
   const pathname = useLocalePathname();
   const params = useParams();
@@ -66,12 +58,11 @@ export function LocaleSwitcher({ variant = 'dark' }: LocaleSwitcherProps) {
   return (
     // No group role needed: each button's visible label (中文 / EN) is its
     // accessible name, and aria-pressed marks the active one.
-    <div
-      className={cn(
-        'flex h-9 shrink-0 items-center gap-0.5 rounded-full border p-0.5',
-        variant === 'dark' ? 'border-[var(--nav-fg)]/30' : 'border-border'
-      )}
-    >
+    // Wherebear language pill: white capsule, 1px ink border; the ACTIVE
+    // segment fills orange with bold white glyphs (documented white-on-orange
+    // exception #3). Every mount now sits on a light surface (the nav is
+    // cream), so the old dark/light variant prop is gone.
+    <div className="flex h-9 shrink-0 items-center gap-0.5 rounded-full border border-foreground bg-white p-0.5">
       {locales.map((localeOption) => {
         const isActive = localeOption === locale;
         return (
@@ -82,14 +73,9 @@ export function LocaleSwitcher({ variant = 'dark' }: LocaleSwitcherProps) {
             onClick={() => setLocale(localeOption)}
             className={cn(
               'h-full cursor-pointer rounded-full px-3 font-semibold text-base transition-colors',
-              variant === 'dark' &&
-                (isActive
-                  ? 'bg-[var(--nav-fg)] text-[var(--nav-bg)]'
-                  : 'text-[var(--nav-fg)]/85 hover:text-[var(--nav-fg)]'),
-              variant === 'light' &&
-                (isActive
-                  ? 'bg-[var(--brand)] text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground')
+              isActive
+                ? 'bg-[var(--brand)] font-bold text-[var(--brand-paper)]'
+                : 'text-muted-foreground hover:text-foreground'
             )}
           >
             {localeOption === 'zh' ? '中文' : localeOption.toUpperCase()}
