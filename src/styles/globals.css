@@ -50,6 +50,12 @@
   --color-brand-accent-hover: var(--brand-accent-hover);
   --color-brand-paper: var(--brand-paper);
   --color-brand-ink: var(--brand-ink);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-softer: var(--brand-softer);
+  --color-brand-chip: var(--brand-chip);
+  --color-accent-bg: var(--accent-bg);
+  --color-accent-tint: var(--accent-tint);
   --color-map-target: var(--map-target);
   --color-accent-border: var(--accent-border);
   --color-sidebar: var(--sidebar);
@@ -77,12 +83,10 @@
 
   /* fonts */
   --font-sans:
-    var(--font-quicksand), var(--font-noto-sans-sc), var(--font-noto-sans),
+    var(--font-space), var(--font-noto-sans-sc), var(--font-noto-sans),
     ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-noto-sans-mono);
   --font-serif: var(--font-noto-serif);
-  --font-quicksand: var(--font-quicksand);
-  --font-bricolage-grotesque: var(--font-bricolage-grotesque);
 
   /* animate — mksaas/magicui keyframes were removed with the components
      that used them. NOTE: the template's --animate-pulse override (with an
@@ -114,95 +118,122 @@
 }
 
 :root {
-  /* ── 湖蓝净白 Lake Blue (all-blue, no yellow) brand palette ──
-     Page background is deliberately PURE WHITE (owner decision: warm
-     off-whites render dirty on cheap panels). --brand-paper doubles as
-     "light text on brand surfaces", so it is white too; tinted color is
-     reserved for small intentional accents, never page-sized fills. */
-  --brand: #2765a8;
-  --brand-hover: #1e5290;
-  --brand-accent: #8fc1e8;
-  --brand-accent-hover: #a9d2f0;
+  /* ── 找货熊 Bear (Wherebear 3.0) brand palette ──────────────────────────
+     Neo-brutalist "sticker" system ported from the wherebear repo: cream
+     page, white cards, hard #111 ink outlines, blur-free offset shadows,
+     warm-orange primary + golden-yellow accent, bear mascot.
+     RULE: text on brand/accent fills is INK (#111) — white-on-orange fails
+     WCAG (2.4:1). --brand-paper survives ONLY for the three deliberate
+     white-on-orange exceptions: aisle-code chips, the map's selected shelf,
+     and the active locale-toggle segment (all large/bold, documented in
+     CLAUDE.md). */
+  --brand: #ff8a00;
+  --brand-hover: #e67c00;
+  --brand-accent: #ffc900;
+  --brand-accent-hover: #ffd84d;
   --brand-paper: #ffffff;
-  --brand-ink: #24344a;
-  --brand-accent-foreground: #24344a;
+  --brand-ink: #111111;
+  --brand-accent-foreground: #6b5200;
+  /* Deep/tint companions from the wherebear scale. --brand-dark is the ink
+     used ON orange tints; --brand-softer/--brand-chip are the map's default
+     shelf fill/stroke pair. */
+  --brand-dark: #8a4a00;
+  --brand-soft: #ffd6a8;
+  --brand-softer: #ffefdc;
+  --brand-chip: #ffc585;
+  --accent-bg: #fff1c2;
+  --accent-tint: #fffae6;
   /* The shopper map's "your product is HERE" pin. Deliberately its own token:
      it must stay distinguishable from --destructive AND from --brand under
-     every palette (a red brand gets a blue pin). */
+     every palette. Kept at the lake-blue-era red: white-on-#cf343a passes
+     4.5:1 where wherebear's #e5484d (3.9:1) does not. */
   --map-target: #cf343a;
   /* Border shade paired with --accent tint fills (chips, drop zones). */
-  --accent-border: #c8def2;
+  --accent-border: #ffe48a;
+  /* Cream radial page wash (wherebear pageBg) + the sticker shadows. */
+  --page-bg: radial-gradient(
+    circle at 20% 10%,
+    #fefbf2 0%,
+    #fdf7e3 55%,
+    #f7eed6 100%
+  );
+  --shadow-sticker: 4px 4px 0 #111111;
+  --shadow-sticker-hover: 7px 7px 0 #111111;
 
   /* ── Marketing-chrome role vars ──────────────────────────────────────
      Nav, footer, CTAs, chips and the scan band consume these instead of
      raw brand tokens, so a future restyle (e.g. an outline variant) is a
      var-block edit, not a component sweep. The shipped design is the
-     "filled" treatment the owner picked (2026-07-28). */
-  --nav-bg: var(--brand);
-  --nav-fg: #ffffff;
-  --nav-shadow: 0 6px 20px color-mix(in srgb, var(--brand-ink) 16%, transparent);
-  --footer-bg: var(--brand);
-  --footer-fg: #ffffff;
+     bear sticker treatment (2026-07-30): the page reads as one continuous
+     cream sheet, so the nav is cream too and its "shadow" is the 1px ink
+     hairline that appears on scroll; the footer anchors on deeper cream
+     (never ink-black — the multiply-blend bear and the two-tone wordmark
+     both fail on dark fills). */
+  --nav-bg: var(--background);
+  --nav-fg: #111111;
+  --nav-shadow: 0 1px 0 0 #111111;
+  --footer-bg: #f6eed6;
+  --footer-fg: #111111;
   --cta-bg: var(--brand);
-  --cta-fg: #ffffff;
-  --cta-border: transparent;
-  --cta-hover-bg: var(--brand-hover);
-  --cta-hover-fg: #ffffff;
-  --cta-shadow: 0 10px 26px color-mix(in srgb, var(--brand) 25%, transparent);
-  --chip-bg: var(--accent);
-  --chip-border: var(--accent-border);
-  --chip-fg: var(--brand);
-  --band-bg: var(--accent);
-  --band-border: var(--accent-border);
+  --cta-fg: #111111;
+  --cta-border: #111111;
+  --cta-hover-bg: var(--brand);
+  --cta-hover-fg: #111111;
+  --cta-shadow: var(--shadow-sticker);
+  --chip-bg: var(--brand-softer);
+  --chip-border: #111111;
+  --chip-fg: var(--brand-dark);
+  --band-bg: var(--accent-bg);
+  --band-border: #111111;
 
   --card: #ffffff;
-  --card-foreground: #24344a;
+  --card-foreground: #111111;
   --popover: #ffffff;
-  --popover-foreground: #24344a;
-  --primary: #2765a8;
-  --primary-foreground: #ffffff;
-  --secondary: #e7eff7;
-  --secondary-foreground: #2765a8;
-  --muted: #f5f5f4;
-  --muted-foreground: #51617a;
-  --accent: #eaf2fa;
-  --accent-foreground: #2765a8;
+  --popover-foreground: #111111;
+  --primary: #ff8a00;
+  --primary-foreground: #111111;
+  --secondary: #ffefdc;
+  --secondary-foreground: #8a4a00;
+  --muted: #f6eed6;
+  --muted-foreground: #6a6359;
+  --accent: #fff1c2;
+  --accent-foreground: #6b5200;
   --destructive: #c1272d;
   --destructive-foreground: #ffffff;
-  --border: #dfe2e6;
-  --input: #cbd2da;
-  --ring: #2765a8;
-  /* Light dashboard chrome — a calm warm surround (the inset content panel
-     floats on it), ink-blue text, and a soft blue active/hover pill. */
-  --sidebar: #f7f7f5;
-  --sidebar-foreground: #24344a;
-  --sidebar-primary: #2765a8;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e3ecf5;
-  --sidebar-accent-foreground: #2765a8;
-  --sidebar-border: #dfe2e6;
-  --sidebar-ring: #2765a8;
+  /* Ink borders everywhere — wherebear's dividers are 1px solid #111, not
+     gray. Soften locally with border-foreground/20 where a dense table gets
+     too loud; never re-gray the token. */
+  --border: #111111;
+  --input: #111111;
+  --ring: #ff8a00;
+  /* Dashboard chrome — deeper cream surround, ink text, orange-tint pills. */
+  --sidebar: #f6eed6;
+  --sidebar-foreground: #111111;
+  --sidebar-primary: #ff8a00;
+  --sidebar-primary-foreground: #111111;
+  --sidebar-accent: #ffefdc;
+  --sidebar-accent-foreground: #8a4a00;
+  --sidebar-border: #111111;
+  --sidebar-ring: #ff8a00;
   --font-sans:
-    var(--font-quicksand), var(--font-noto-sans-sc), var(--font-noto-sans),
+    var(--font-space), var(--font-noto-sans-sc), var(--font-noto-sans),
     ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-noto-serif);
   --font-mono: var(--font-noto-sans-mono);
   --radius: 0.875rem;
-  --shadow-2xs: 0px 4px 8px 0px hsl(0 0% 0% / 0.03);
-  --shadow-xs: 0px 4px 8px 0px hsl(0 0% 0% / 0.03);
-  --shadow-sm:
-    0px 4px 8px 0px hsl(0 0% 0% / 0.05), 0px 1px 2px -1px hsl(0 0% 0% / 0.05);
-  --shadow:
-    0px 4px 8px 0px hsl(0 0% 0% / 0.05), 0px 1px 2px -1px hsl(0 0% 0% / 0.05);
-  --shadow-md:
-    0px 4px 8px 0px hsl(0 0% 0% / 0.05), 0px 2px 4px -1px hsl(0 0% 0% / 0.05);
-  --shadow-lg:
-    0px 4px 8px 0px hsl(0 0% 0% / 0.05), 0px 4px 6px -1px hsl(0 0% 0% / 0.05);
-  --shadow-xl:
-    0px 4px 8px 0px hsl(0 0% 0% / 0.05), 0px 8px 10px -1px hsl(0 0% 0% / 0.05);
-  --shadow-2xl: 0px 4px 8px 0px hsl(0 0% 0% / 0.13);
-  --background: #ffffff;
-  --foreground: #24344a;
+  /* Neo-brutalist shadow scale: blur-free ink offsets ("sticker pinned to
+     paper"). Escalate size = escalate loudness; disabled elements drop the
+     shadow entirely. */
+  --shadow-2xs: 2px 2px 0 #111111;
+  --shadow-xs: 2px 2px 0 #111111;
+  --shadow-sm: 3px 3px 0 #111111;
+  --shadow: 4px 4px 0 #111111;
+  --shadow-md: 4px 4px 0 #111111;
+  --shadow-lg: 6px 6px 0 #111111;
+  --shadow-xl: 7px 7px 0 #111111;
+  --shadow-2xl: 8px 8px 0 #111111;
+  --background: #fdf7e3;
+  --foreground: #111111;
 }
 
 /* NOTE: the product is light-only (forcedTheme="light", enableSwitch:false),
@@ -210,15 +241,16 @@
    line at the top stays so template components' `dark:` utilities keep
    compiling — they just never activate. */
 
-/* Chinese-first font stack: Quicksand has no CJK glyphs, so on Chinese pages
-   Noto Sans SC must lead — otherwise every mixed-script line renders in two
-   typefaces (rounded Quicksand latin next to fallback hanzi). While Noto's
-   unicode-range slices lazy-load, PingFang/YaHei keep the fallback close, so
-   no preload is needed. Both root layouts set lang={locale} on <html>. */
+/* Chinese font stack: Space Grotesk has no CJK glyphs, and unlike the old
+   rounded Quicksand it sits comfortably next to Noto SC/PingFang, so it
+   LEADS even on zh pages — Latin runs (numbers, shelf codes, "WhatAisle")
+   keep the brand grotesk while hanzi fall through to Noto SC with system
+   CJK close behind. This mixed-script texture is exactly how wherebear
+   rendered 中文. Both root layouts set lang={locale} on <html>. */
 html[lang="zh"] {
   --font-sans:
-    var(--font-noto-sans-sc), "PingFang SC", "Hiragino Sans GB",
-    "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+    var(--font-space), var(--font-noto-sans-sc), "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
 }
 
 /*
@@ -250,6 +282,10 @@ html[lang="zh"] {
 
 body {
   @apply overscroll-none;
+  /* Cream radial wash over the flat --background fallback. `fixed` keeps the
+     gradient's focal point stable while scrolling; if iOS Safari ever bands,
+     drop `fixed` (the flat #fdf7e3 base is close enough). */
+  background: var(--page-bg) fixed;
 }
 
 /* https://github.com/shadcn-ui/ui/issues/4227#issuecomment-2438290165 */
@@ -324,7 +360,7 @@ div[class*="border-t"][class*="bg-fd-secondary"]:not(:has(*)):not(
   }
 }
 
-/* ── Fresh Green (5a) motion + brand helpers ── */
+/* ── Bear-sticker motion + brand helpers ── */
 @keyframes wa-pop {
   from {
     transform: scale(0.92) translateY(10px);
@@ -383,12 +419,13 @@ div[class*="border-t"][class*="bg-fd-secondary"]:not(:has(*)):not(
     background-position: 200% 0;
   }
 }
+/* Skeleton shimmer in the wherebear pair: bgMuted ↔ primarySofter. */
 .wa-shimmer {
   background: linear-gradient(
     90deg,
-    transparent 25%,
-    rgba(0, 0, 0, 0.06) 50%,
-    transparent 75%
+    var(--muted) 25%,
+    var(--brand-softer) 50%,
+    var(--muted) 75%
   );
   background-size: 200% 100%;
   animation: wa-shimmer 1.6s linear infinite;
@@ -401,14 +438,76 @@ div[class*="border-t"][class*="bg-fd-secondary"]:not(:has(*)):not(
   animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Dotted "paper" background used on onboarding + shopper search. */
+/* Staggered entrance for result/hero blocks (wherebear `rise`): pair with an
+   inline animation-delay of i*70ms for the cascade. */
+@keyframes wa-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.wa-rise {
+  animation: wa-rise 0.32s ease-out both;
+}
+
+/* Error shake for the staff PIN gate (wherebear passcode dots). */
+@keyframes wa-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-9px);
+  }
+  40%,
+  80% {
+    transform: translateX(9px);
+  }
+}
+.wa-shake {
+  animation: wa-shake 0.42s ease;
+}
+
+/* Display-type helper: wherebear headings take negative tracking on Latin;
+   hanzi get cramped by it, so zh pages zero it out. */
+.wa-display {
+  letter-spacing: -0.03em;
+}
+html[lang="zh"] .wa-display {
+  letter-spacing: 0;
+}
+
+/* Footer hook (class was already applied in footer.tsx, previously empty). */
+.wa-footer {
+  border-top: 1px solid var(--foreground);
+}
+
+/* Dotted "paper" background used on onboarding + shopper search. Ink dots
+   read as notebook paper on cream; orange dots read as smudge. */
 .wa-dotted {
   background-color: var(--background);
   background-image: radial-gradient(
-    color-mix(in srgb, var(--primary) 5%, transparent) 1px,
+    color-mix(in srgb, var(--foreground) 7%, transparent) 1px,
     transparent 1px
   );
   background-size: 22px 22px;
+}
+
+/* AnimatedBear renders /bear-idle.mp4 as a decorative inline video; WebKit
+   would otherwise paint a centered play button over it (ported from
+   wherebear globals.css). */
+video::-webkit-media-controls,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -webkit-appearance: none !important;
 }
 
 /* ── Scrollbar styling ── */

@@ -1,10 +1,9 @@
 import {
-  fontBricolageGrotesque,
   fontNotoSans,
   fontNotoSansMono,
   fontNotoSansSC,
   fontNotoSerif,
-  fontQuicksand,
+  fontSpaceGrotesk,
 } from '@/assets/fonts';
 import { StoreHeader } from '@/components/store/store-header';
 import { StoreNotFound } from '@/components/store/store-not-found';
@@ -61,12 +60,11 @@ export default async function StoreLayout({
       <body
         className={cn(
           'size-full font-sans antialiased',
-          fontQuicksand.variable,
+          fontSpaceGrotesk.variable,
           fontNotoSansSC.variable,
           fontNotoSans.variable,
           fontNotoSerif.variable,
-          fontNotoSansMono.variable,
-          fontBricolageGrotesque.variable
+          fontNotoSansMono.variable
         )}
       >
         <NextIntlClientProvider>

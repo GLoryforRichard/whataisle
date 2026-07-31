@@ -1,5 +1,5 @@
 /**
- * Contrast guard for the 湖蓝净白 (lake blue) palette.
+ * Contrast guard for the 找货熊 bear (Wherebear 3.0 neo-brutalist) palette.
  *
  * Checks every text/background pairing the design relies on against
  * WCAG AA (4.5:1 for body-size text). Run after any token change in
@@ -7,50 +7,69 @@
  *
  *   pnpm tsx scripts/check-contrast.mts
  *
- * Exits non-zero on the first failing pair. The one deliberate
- * convention it protects: text on brand-filled surfaces is WHITE, and
- * text on accent fills uses --brand-accent-foreground — never place
- * the accent color itself as text on the brand.
+ * Exits non-zero on the first failing pair. The conventions it protects:
+ * text on brand/accent FILLS is INK (#111) — white-on-orange is 2.4:1 and
+ * must never carry text. The only white-on-orange surfaces are the three
+ * deliberate exceptions (aisle-code chips, the map's selected shelf, the
+ * active locale-toggle segment — all large/bold, listed in CLAUDE.md);
+ * they are exempt from this guard by design. Deep companions carry text on
+ * tints: --brand-dark on orange tints, --brand-accent-foreground on yellow
+ * tints.
  */
 
 const TOKENS = {
-  brand: '#2765a8',
-  brandHover: '#1e5290',
-  brandAccent: '#8fc1e8',
-  brandAccentForeground: '#24344a',
-  ink: '#24344a',
+  brand: '#ff8a00',
+  brandHover: '#e67c00',
+  brandAccent: '#ffc900',
+  brandAccentForeground: '#6b5200',
+  brandDark: '#8a4a00',
+  brandSofter: '#ffefdc',
+  ink: '#111111',
   white: '#ffffff',
-  secondary: '#e7eff7',
-  secondaryForeground: '#2765a8',
-  mutedForeground: '#51617a',
-  accent: '#eaf2fa',
-  accentForeground: '#2765a8',
+  cream: '#fdf7e3',
+  creamMuted: '#f6eed6',
+  accentBg: '#fff1c2',
+  accentTint: '#fffae6',
+  mutedForeground: '#6a6359',
   destructive: '#c1272d',
   mapTarget: '#cf343a',
 };
 
 const CHECKS: Array<[label: string, fg: string, bg: string, min: number]> = [
-  ['white on brand (buttons, nav, footer)', TOKENS.white, TOKENS.brand, 4.5],
-  ['white on brand-hover', TOKENS.white, TOKENS.brandHover, 4.5],
-  ['brand on white (links, chip text)', TOKENS.brand, TOKENS.white, 4.5],
-  ['ink on white (body)', TOKENS.ink, TOKENS.white, 4.5],
-  ['muted-foreground on white', TOKENS.mutedForeground, TOKENS.white, 4.5],
+  ['ink on brand (primary buttons, CTAs)', TOKENS.ink, TOKENS.brand, 4.5],
+  ['ink on brand-hover', TOKENS.ink, TOKENS.brandHover, 4.5],
   [
-    'accent-foreground on accent chip fill',
-    TOKENS.brandAccentForeground,
+    'ink on accent (yellow chips, scan band)',
+    TOKENS.ink,
     TOKENS.brandAccent,
     4.5,
   ],
+  ['ink on cream page background', TOKENS.ink, TOKENS.cream, 4.5],
   [
-    'accent-foreground on accent tint',
-    TOKENS.accentForeground,
-    TOKENS.accent,
+    'ink on deeper cream (footer, sidebar, muted)',
+    TOKENS.ink,
+    TOKENS.creamMuted,
+    4.5,
+  ],
+  ['ink on white cards', TOKENS.ink, TOKENS.white, 4.5],
+  ['muted-foreground on white', TOKENS.mutedForeground, TOKENS.white, 4.5],
+  ['muted-foreground on cream', TOKENS.mutedForeground, TOKENS.cream, 4.5],
+  [
+    'brand-dark on brand-softer (secondary pair, chips)',
+    TOKENS.brandDark,
+    TOKENS.brandSofter,
     4.5,
   ],
   [
-    'secondary-foreground on secondary tint',
-    TOKENS.secondaryForeground,
-    TOKENS.secondary,
+    'accent-foreground on accent-bg (accent pair, bands)',
+    TOKENS.brandAccentForeground,
+    TOKENS.accentBg,
+    4.5,
+  ],
+  [
+    'accent-foreground on accent-tint (speech bubbles)',
+    TOKENS.brandAccentForeground,
+    TOKENS.accentTint,
     4.5,
   ],
   ['white on destructive', TOKENS.white, TOKENS.destructive, 4.5],

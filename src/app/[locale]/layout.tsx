@@ -1,11 +1,10 @@
 import { Analytics } from '@/analytics/analytics';
 import {
-  fontBricolageGrotesque,
   fontNotoSans,
   fontNotoSansMono,
   fontNotoSansSC,
   fontNotoSerif,
-  fontQuicksand,
+  fontSpaceGrotesk,
 } from '@/assets/fonts';
 import { TailwindIndicator } from '@/components/layout/tailwind-indicator';
 import { routing } from '@/i18n/routing';
@@ -52,12 +51,11 @@ export default async function LocaleLayout({
       <body
         className={cn(
           'size-full font-sans antialiased',
-          fontQuicksand.variable,
+          fontSpaceGrotesk.variable,
           fontNotoSansSC.variable,
           fontNotoSans.variable,
           fontNotoSerif.variable,
-          fontNotoSansMono.variable,
-          fontBricolageGrotesque.variable
+          fontNotoSansMono.variable
         )}
       >
         <NuqsAdapter>

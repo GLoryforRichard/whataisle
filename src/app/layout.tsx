@@ -8,10 +8,11 @@ interface Props {
 /**
  * Brand color for the mobile browser chrome (Android address bar, iOS
  * status area). Applies to every route because this is the root layout.
- * Keep in sync with --brand in src/styles/globals.css.
+ * The nav is cream, so the chrome matches the page, not the primary.
+ * Keep in sync with --background in src/styles/globals.css.
  */
 export const viewport: Viewport = {
-  themeColor: '#2765a8',
+  themeColor: '#fdf7e3',
 };
 
 /**

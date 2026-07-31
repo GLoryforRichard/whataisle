@@ -1,10 +1,9 @@
 import {
-  Bricolage_Grotesque,
   Noto_Sans,
   Noto_Sans_Mono,
   Noto_Sans_SC,
   Noto_Serif,
-  Quicksand,
+  Space_Grotesk,
 } from 'next/font/google';
 
 /**
@@ -58,25 +57,17 @@ export const fontNotoSansMono = Noto_Sans_Mono({
   weight: ['400'],
 });
 
-// https://fonts.google.com/specimen/Bricolage+Grotesque
-export const fontBricolageGrotesque = Bricolage_Grotesque({
+// 找货熊 bear rebrand — the wherebear display/UI grotesk. Variable font
+// (300-700 axis; there is NO 800 — wherebear's 800 specs map to font-bold).
+// https://fonts.google.com/specimen/Space+Grotesk
+export const fontSpaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-bricolage-grotesque',
-  weight: ['400', '500', '600', '700'],
+  variable: '--font-space',
 });
 
-// Fresh Green (5a) rebrand — rounded geometric display/UI font.
-// https://fonts.google.com/specimen/Quicksand
-export const fontQuicksand = Quicksand({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-quicksand',
-  weight: ['500', '600', '700'],
-});
-
-// CJK fallback for Quicksand (which has no Chinese glyphs). Not preloaded — the
-// SC font files are large and only needed for Chinese runs.
+// CJK fallback for Space Grotesk (which has no Chinese glyphs). Not preloaded —
+// the SC font files are large and only needed for Chinese runs.
 // https://fonts.google.com/noto/specimen/Noto+Sans+SC
 export const fontNotoSansSC = Noto_Sans_SC({
   subsets: ['latin'],
