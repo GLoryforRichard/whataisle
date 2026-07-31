@@ -5,6 +5,7 @@ import {
   fontNotoSerif,
   fontSpaceGrotesk,
 } from '@/assets/fonts';
+import { BearFace } from '@/components/layout/bear-face';
 import { StoreHeader } from '@/components/store/store-header';
 import { StoreNotFound } from '@/components/store/store-not-found';
 import { websiteConfig } from '@/config/website';
@@ -95,7 +96,7 @@ export default async function StoreLayout({
 async function DemoBanner() {
   const t = await getTranslations('Store');
   return (
-    <div className="bg-[var(--brand-accent)] px-4 py-2 text-center font-semibold text-[var(--brand-accent-foreground)] text-sm">
+    <div className="border-foreground border-b bg-[var(--accent-bg)] px-4 py-2 text-center font-semibold text-foreground text-sm">
       {t('demoBanner')}
     </div>
   );
@@ -106,11 +107,12 @@ async function StoreFooter() {
   const mainSite =
     process.env.NEXT_PUBLIC_BASE_URL ?? 'https://www.whataisle.com';
   return (
-    <footer className="border-t py-4 text-center">
+    <footer className="border-t py-4">
       <a
         href={mainSite}
-        className="text-muted-foreground text-sm hover:text-primary"
+        className="mx-auto flex w-fit items-center gap-1.5 text-muted-foreground text-sm hover:text-[var(--brand-dark)]"
       >
+        <BearFace size={20} />
         {t('footer.poweredBy')}
       </a>
     </footer>

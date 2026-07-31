@@ -1,6 +1,7 @@
 'use client';
 
 import { StoreMapSvg } from '@/components/store/store-map-svg';
+import { BearFace } from '@/components/layout/bear-face';
 import { Button } from '@/components/ui/button';
 import type { FloorMapJson } from '@/db/store.schema';
 import { outboxDelete, outboxPut, outboxSupported } from '@/lib/scan-outbox';
@@ -668,6 +669,7 @@ export function ScanFlow({
             </span>
             {readingCount > 0 ? (
               <span className="flex items-center gap-1.5 text-muted-foreground">
+                <BearFace size={26} />
                 <span className="size-2 animate-pulse rounded-full bg-primary" />
                 {t('reading', { count: readingCount })}
               </span>
@@ -750,7 +752,8 @@ export function ScanFlow({
                 className="wa-shimmer h-16 rounded-lg border bg-muted/40"
               />
             ))}
-            <p className="pt-1 text-center text-muted-foreground text-sm">
+            <p className="flex items-center justify-center gap-1.5 pt-1 text-center text-muted-foreground text-sm">
+              <BearFace size={30} />
               {t('readingPhotos', { count: readingCount })}
             </p>
           </div>
@@ -807,9 +810,12 @@ export function ScanFlow({
 
       {saving || saveResult ? (
         <div className="rounded-xl border p-4">
-          <h3 className="mb-3 font-medium">
-            {saveResult ? t('savedTitle') : t('savingTitle')}
-          </h3>
+          <div className="mb-3 flex items-end gap-2.5">
+            <BearFace size={56} />
+            <h3 className="rounded-[14px] rounded-bl-[4px] border border-[var(--accent-border)] bg-[var(--accent-tint)] px-3.5 py-2 font-semibold text-[var(--brand-accent-foreground)] text-sm">
+              {saveResult ? t('savedTitle') : t('savingTitle')}
+            </h3>
+          </div>
           <ul className="flex flex-col gap-2">
             {saveSteps.map((s) => (
               <li key={s.key} className="flex items-center gap-2 text-sm">

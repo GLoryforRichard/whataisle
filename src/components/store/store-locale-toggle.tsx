@@ -24,15 +24,29 @@ export function StoreLocaleToggle() {
     });
   }
 
+  // Wherebear language pill: white capsule with an ink border; the ACTIVE
+  // segment fills orange with bold white glyphs (documented white-on-orange
+  // exception #3 — two glyphs, bold, decorative-scale).
+  const seg = 'rounded-full px-2.5 py-1 text-sm transition-colors';
   return (
     <button
       type="button"
       onClick={toggle}
       disabled={isPending}
       aria-label="Switch language"
-      className="inline-flex h-9 min-w-14 items-center justify-center rounded-full border border-[var(--brand-paper)]/30 bg-transparent px-3.5 font-semibold text-[var(--brand-paper)] text-sm transition-colors hover:border-white hover:text-white disabled:opacity-60"
+      title={t('header.languageToggle')}
+      className="inline-flex items-center rounded-full border border-foreground bg-white p-0.5 font-semibold disabled:opacity-60"
     >
-      {t('header.languageToggle')}
+      <span
+        className={`${seg} ${locale === 'en' ? 'bg-[var(--brand)] font-bold text-[var(--brand-paper)]' : 'text-muted-foreground'}`}
+      >
+        EN
+      </span>
+      <span
+        className={`${seg} ${locale === 'zh' ? 'bg-[var(--brand)] font-bold text-[var(--brand-paper)]' : 'text-muted-foreground'}`}
+      >
+        中
+      </span>
     </button>
   );
 }

@@ -69,7 +69,8 @@ export function StaffPinForm() {
         pattern="\d*"
         autoFocus
       >
-        <InputOTPGroup>
+        {/* key remounts the group on each new error so wa-shake replays */}
+        <InputOTPGroup className={error ? 'wa-shake' : undefined} key={error}>
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <InputOTPSlot key={i} index={i} className="size-12 text-xl" />
           ))}

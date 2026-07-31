@@ -12,11 +12,13 @@ interface StoreHeaderProps {
  */
 export function StoreHeader({ displayName, logoKey }: StoreHeaderProps) {
   return (
-    <header className="sticky top-0 z-40 bg-[var(--brand)]">
+    <header className="sticky top-0 z-40 border-foreground border-b bg-[var(--background)]">
       <div className="mx-auto flex h-15 max-w-2xl items-center justify-between px-4">
         <a href="/" className="flex min-w-0 items-center gap-2">
-          {/* Logo upload lands in Phase 5; until then the name is the brand. */}
-          <span className="truncate font-bold text-[var(--brand-paper)] text-lg">
+          {/* Logo upload lands in Phase 5; until then the name is the brand.
+              Quiet cream header with an ink hairline — wherebear never fills
+              page headers, and the multiply bear couldn't sit on orange. */}
+          <span className="wa-display truncate font-bold text-foreground text-lg">
             {displayName}
           </span>
         </a>

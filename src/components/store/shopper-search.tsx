@@ -1,5 +1,6 @@
 'use client';
 
+import { BearFace } from '@/components/layout/bear-face';
 import { Input } from '@/components/ui/input';
 import { CameraIcon, Loader2Icon, MicIcon, SearchIcon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -22,6 +23,7 @@ export function ShopperSearch() {
   const locale = useLocale();
   const [text, setText] = useState('');
   const [busy, setBusy] = useState<'voice' | 'photo' | null>(null);
+  const [recording, setRecording] = useState(false);
   const [confirm, setConfirm] = useState<PendingConfirm>(null);
   const [permError, setPermError] = useState<string | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -53,6 +55,7 @@ export function ShopperSearch() {
       };
       recorder.start();
       recorderRef.current = recorder;
+      setRecording(true);
     } catch {
       setPermError(t('permissionDenied.mic'));
     }
@@ -61,6 +64,7 @@ export function ShopperSearch() {
   function stopRecording() {
     recorderRef.current?.stop();
     recorderRef.current = null;
+    setRecording(false);
   }
 
   async function sendVoice(blob: Blob) {
@@ -150,7 +154,7 @@ export function ShopperSearch() {
           </button>
           <button
             type="button"
-            className="h-13 flex-1 rounded-xl bg-[var(--brand)] font-bold text-white transition-transform active:scale-[0.98] disabled:opacity-50"
+            className="h-13 flex-1 rounded-xl border-2 border-foreground bg-[var(--brand)] font-bold text-[var(--brand-ink)] shadow-[4px_4px_0_#111] transition-transform active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
             disabled={!confirm.text}
             onClick={() =>
               goSearch(
@@ -168,7 +172,7 @@ export function ShopperSearch() {
 
   return (
     <div className="wa-fade-up flex flex-col gap-5">
-      <h1 className="text-center font-bold text-[27px] text-[var(--brand-ink)]">
+      <h1 className="wa-display text-center font-bold text-[27px] text-[var(--brand-ink)]">
         {t('greeting')}
       </h1>
 
@@ -183,12 +187,12 @@ export function ShopperSearch() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={t('placeholder')}
-          className="h-15 flex-1 rounded-2xl bg-white text-lg"
+          className="h-15 flex-1 rounded-[16px] bg-white text-lg"
           enterKeyHint="search"
         />
         <button
           type="submit"
-          className="flex size-15 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand)] text-white shadow-[0_6px_18px_color-mix(in_srgb,var(--brand)_30%,transparent)] transition-transform active:scale-95"
+          className="flex size-15 shrink-0 items-center justify-center rounded-[16px] border-2 border-foreground bg-[var(--brand)] text-[var(--brand-ink)] shadow-[4px_4px_0_#111] transition-transform active:scale-95"
           aria-label={t('searchButton')}
         >
           <SearchIcon className="size-6" />
@@ -198,7 +202,11 @@ export function ShopperSearch() {
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
-          className="flex h-19 flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-input bg-white font-semibold text-[var(--brand-ink)] transition-transform active:scale-[0.98] disabled:opacity-50"
+          className={
+            recording
+              ? 'flex h-19 flex-col items-center justify-center gap-1.5 rounded-[14px] border-2 border-transparent bg-[#c0392b] font-semibold text-white shadow-[0_0_0_5px_rgba(192,57,43,0.18)] transition-all'
+              : 'flex h-19 flex-col items-center justify-center gap-1.5 rounded-[14px] border-2 border-foreground bg-white font-semibold text-[var(--brand-ink)] shadow-[4px_4px_0_#111] transition-all active:scale-[0.98] disabled:opacity-50'
+          }
           onPointerDown={startRecording}
           onPointerUp={stopRecording}
           onPointerLeave={stopRecording}
@@ -207,14 +215,16 @@ export function ShopperSearch() {
           {busy === 'voice' ? (
             <Loader2Icon className="size-6 animate-spin" />
           ) : (
-            <MicIcon className="size-6" />
+            <MicIcon
+              className={recording ? 'size-6 animate-pulse' : 'size-6'}
+            />
           )}
           <span className="text-sm">{t('voiceHold')}</span>
         </button>
 
         <button
           type="button"
-          className="flex h-19 flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-input bg-white font-semibold text-[var(--brand-ink)] transition-transform active:scale-[0.98] disabled:opacity-50"
+          className="flex h-19 flex-col items-center justify-center gap-1.5 rounded-[14px] border-2 border-foreground bg-white font-semibold text-[var(--brand-ink)] shadow-[4px_4px_0_#111] transition-all active:scale-[0.98] disabled:opacity-50"
           onClick={() => photoInputRef.current?.click()}
           disabled={busy !== null}
         >
@@ -239,7 +249,8 @@ export function ShopperSearch() {
         }}
       />
 
-      <p className="text-center text-muted-foreground text-xs">
+      <p className="flex items-center justify-center gap-1.5 text-center text-muted-foreground text-xs">
+        <BearFace size={26} />
         {t('photoNotKept')}
       </p>
 

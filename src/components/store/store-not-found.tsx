@@ -1,3 +1,4 @@
+import { BearFace } from '@/components/layout/bear-face';
 import { getTranslations } from 'next-intl/server';
 
 /**
@@ -12,11 +13,15 @@ export async function StoreNotFound() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
-      <h1 className="font-bold text-3xl">{t('notFound.title')}</h1>
+      <BearFace size={108} />
+      <h1 className="wa-display font-bold text-3xl">{t('notFound.title')}</h1>
       <p className="max-w-md text-lg text-muted-foreground">
         {t('notFound.description')}
       </p>
-      <a href={mainSite} className="text-primary underline underline-offset-4">
+      <a
+        href={mainSite}
+        className="text-[var(--brand-dark)] underline underline-offset-4"
+      >
         {t('notFound.cta')}
       </a>
     </div>

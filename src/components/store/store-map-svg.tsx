@@ -41,9 +41,12 @@ export function StoreMapSvg({
     >
       {mapJson.shapes.map((shape) => {
         const isTarget = highlight && shape.shelfCode === highlight;
-        const fill = isTarget ? HIGHLIGHT : 'var(--secondary)';
-        const stroke = isTarget ? HIGHLIGHT : 'var(--input)';
-        const textFill = isTarget ? '#fff' : 'var(--muted-foreground)';
+        // Wherebear map palette: primarySofter fill + primaryChip stroke
+        // for ordinary shelves (a full-ink stroke reads far too heavy at
+        // map scale); the target keeps the reserved red.
+        const fill = isTarget ? HIGHLIGHT : 'var(--brand-softer)';
+        const stroke = isTarget ? HIGHLIGHT : 'var(--brand-chip)';
+        const textFill = isTarget ? '#fff' : 'var(--brand-dark)';
         const clickable = !!onSelectShelf;
         const targetStyle = isTarget
           ? { animation: 'wa-target 1.6s ease-in-out infinite' }

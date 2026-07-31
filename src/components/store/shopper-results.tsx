@@ -1,5 +1,7 @@
 'use client';
 
+import { AnimatedBear } from '@/components/layout/animated-bear';
+import { BearFace } from '@/components/layout/bear-face';
 import { StoreMapSvg } from '@/components/store/store-map-svg';
 import type { FloorMapJson } from '@/db/store.schema';
 import {
@@ -129,7 +131,7 @@ export function ShopperResults({
 
   const isDarkAnswer = result?.tone === 'confident' || result?.tone === 'multi';
   const answerClass = isDarkAnswer
-    ? 'bg-[var(--brand)] text-[var(--brand-paper)] border-transparent'
+    ? 'bg-[var(--brand)] text-[var(--brand-ink)] border-foreground'
     : result?.tone === 'category'
       ? 'bg-[#FDF6E3] border-[#E7C86F] text-[#7A5B18]'
       : 'bg-white border-border text-[var(--brand-ink)]';
@@ -169,7 +171,16 @@ export function ShopperResults({
       {/* Live "searching…" card */}
       {loading ? (
         <div className="flex flex-col items-center gap-2.5 rounded-2xl border border-border bg-white p-7">
-          <Loader2Icon className="size-6 animate-spin text-[var(--brand)]" />
+          <AnimatedBear size={108} />
+          <div aria-hidden className="flex items-center gap-2">
+            {[0, 1, 2].map((i) => (
+              <span
+                key={i}
+                className="size-2 animate-pulse rounded-full bg-[var(--brand)]"
+                style={{ animationDelay: `${i * 180}ms` }}
+              />
+            ))}
+          </div>
           <span className="text-muted-foreground">{t('thinkingLive')}</span>
         </div>
       ) : null}
@@ -218,10 +229,10 @@ export function ShopperResults({
       {/* Answer card */}
       {result ? (
         <div
-          className={`wa-pop flex items-center gap-4 rounded-2xl border p-4 shadow-[0_10px_26px_color-mix(in_srgb,var(--brand-ink)_12%,transparent)] ${answerClass}`}
+          className={`wa-pop flex items-center gap-4 rounded-[18px] border-2 p-4 shadow-[4px_4px_0_#111] ${answerClass}`}
         >
           {isDarkAnswer && answerShelf ? (
-            <div className="shrink-0 rounded-xl bg-[var(--brand-accent)] px-4 py-3 font-bold text-2xl text-[var(--brand-accent-foreground)] leading-none">
+            <div className="shrink-0 rounded-xl border-2 border-foreground bg-[var(--brand-accent)] px-4 py-3 font-bold font-mono text-2xl text-[var(--brand-ink)] leading-none">
               {answerShelf}
             </div>
           ) : null}
@@ -270,7 +281,7 @@ export function ShopperResults({
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
                       {loc ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--brand-accent)] px-3 py-0.5 font-bold text-[var(--brand-accent-foreground)] text-sm">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--brand)] px-3 py-0.5 font-bold font-mono text-[var(--brand-paper)] text-sm">
                           <MapPinIcon className="size-3.5" />
                           {t('shelfBadge', {
                             code: loc.side
@@ -304,7 +315,7 @@ export function ShopperResults({
                 {/* "I looked — it's not there" feedback */}
                 <div className="mt-2">
                   {reported.has(c.productId) ? (
-                    <span className="font-semibold text-[var(--brand)] text-sm">
+                    <span className="font-semibold text-[var(--brand-dark)] text-sm">
                       {t('notThereThanks')}
                     </span>
                   ) : (
@@ -346,8 +357,9 @@ export function ShopperResults({
 
       {/* No results */}
       {result && result.tone === 'none' && shown.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-white p-4 text-center">
-          <p className="font-semibold text-[var(--brand-ink)]">
+        <div className="flex flex-col items-center rounded-2xl border border-border bg-white p-5 text-center">
+          <BearFace size={88} />
+          <p className="mt-1 font-semibold text-[var(--brand-ink)]">
             {t('noResults')}
           </p>
           <p className="mt-1 text-muted-foreground text-sm">{t('rephrase')}</p>
