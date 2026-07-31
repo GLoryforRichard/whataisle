@@ -372,13 +372,15 @@ div[class*="border-t"][class*="bg-fd-secondary"]:not(:has(*)):not(
   }
 }
 
+/* Target pulse dips only to 0.75: at 0.45 the white shelf label's blended
+   backdrop fell to ~2:1 mid-cycle; 0.75 keeps the bold label ≥3:1. */
 @keyframes wa-target {
   0%,
   100% {
     opacity: 1;
   }
   50% {
-    opacity: 0.45;
+    opacity: 0.75;
   }
 }
 

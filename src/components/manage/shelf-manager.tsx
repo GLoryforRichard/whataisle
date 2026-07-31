@@ -87,7 +87,7 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
     <div className="flex flex-col gap-6">
       {/* Add shelf */}
       <form
-        className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent)]"
+        className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-5"
         onSubmit={(e) => {
           e.preventDefault();
           addShelf();
@@ -125,7 +125,7 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
         <button
           type="submit"
           disabled={busy || !newCode.trim()}
-          className="inline-flex h-11 items-center gap-1.5 rounded-full bg-[var(--brand)] px-5 font-bold text-white transition-transform active:scale-[0.97] disabled:opacity-50"
+          className="inline-flex h-11 items-center gap-1.5 rounded-full border-2 border-foreground bg-[var(--brand)] px-5 font-bold text-[var(--brand-ink)] shadow-[4px_4px_0_#111] transition-transform active:scale-[0.97] disabled:opacity-50 disabled:shadow-none"
         >
           <PlusIcon className="size-[18px]" aria-hidden />
           {t('add')}
@@ -137,7 +137,7 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
         <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-input border-dashed bg-card p-10 text-center">
           <div className="flex size-16 items-center justify-center rounded-2xl bg-accent">
             <PackageOpenIcon
-              className="size-8 text-[var(--brand)]"
+              className="size-8 text-[var(--brand-dark)]"
               aria-hidden
             />
           </div>
@@ -150,11 +150,11 @@ export function ShelfManager({ shelves }: { shelves: Shelf[] }) {
           {shelves.map((shelf) => (
             <div
               key={shelf.id}
-              className="rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent)]"
+              className="rounded-2xl border border-border bg-card p-5"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center justify-center rounded-xl border border-[var(--accent-border)] bg-accent px-3 py-1.5 font-bold text-[var(--brand)] text-lg leading-none">
+                  <span className="inline-flex items-center justify-center rounded-xl border border-[var(--accent-border)] bg-accent px-3 py-1.5 font-bold text-[var(--brand-dark)] text-lg leading-none">
                     {shelf.code}
                   </span>
                   <div className="min-w-0">

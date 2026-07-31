@@ -59,7 +59,7 @@ export default async function OnboardingPaymentPage({
       </div>
 
       <div className="flex flex-1 items-center justify-center p-5 sm:p-8">
-        <div className="wa-fade-up w-full max-w-lg rounded-[20px] border border-border bg-white p-6 text-[var(--brand-ink)] shadow-[0_14px_34px_color-mix(in_srgb,var(--brand-ink)_07%,transparent)] sm:p-8">
+        <div className="wa-fade-up w-full max-w-lg rounded-[20px] border border-border bg-white p-6 text-[var(--brand-ink)] shadow-[4px_4px_0_#111] sm:p-8">
           <div className="text-center">
             <h1 className="font-bold text-2xl text-[var(--brand-ink)]">
               {t('title')}
@@ -79,7 +79,7 @@ export default async function OnboardingPaymentPage({
           <ul className="mt-6 space-y-3">
             {features.map((feature) => (
               <li key={feature} className="flex items-start gap-2.5">
-                <CheckIcon className="mt-0.5 size-5 shrink-0 text-[var(--brand)]" />
+                <CheckIcon className="mt-0.5 size-5 shrink-0 text-[var(--brand-dark)]" />
                 <span className="text-foreground text-sm">{feature}</span>
               </li>
             ))}

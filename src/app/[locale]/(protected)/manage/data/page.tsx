@@ -43,7 +43,10 @@ export default async function ManageDataPage({ params }: PageProps) {
         <h2 className="font-bold text-xl">{tC('title')}</h2>
         <p className="text-muted-foreground">
           {tC('exportFirst')} —{' '}
-          <a href="/api/owner/export" className="text-primary underline">
+          <a
+            href="/api/owner/export"
+            className="text-[var(--brand-dark)] underline"
+          >
             {tC('exportCta')}
           </a>
         </p>

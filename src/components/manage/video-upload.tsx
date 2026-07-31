@@ -103,7 +103,10 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
     return (
       <div className="wa-pop flex flex-col items-center gap-4 rounded-[22px] border-2 border-foreground bg-[var(--brand)] p-8 text-center text-[var(--brand-ink)] shadow-[4px_4px_0_#111] sm:p-10">
         <div className="flex size-16 items-center justify-center rounded-full bg-[var(--brand-accent)]">
-          <CheckIcon className="size-9 text-[var(--brand)]" strokeWidth={2.6} />
+          <CheckIcon
+            className="size-9 text-[var(--brand-ink)]"
+            strokeWidth={2.6}
+          />
         </div>
         <p className="font-bold text-2xl">{t('received')}</p>
         <p className="max-w-md text-[var(--brand-ink)]/75 leading-relaxed">
@@ -123,10 +126,13 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
   return (
     <div className="flex flex-col gap-5">
       {/* Filming guide */}
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-[0_1px_2px_color-mix(in_srgb,var(--brand-ink)_04%,transparent)]">
+      <div className="rounded-2xl border border-border bg-card p-6">
         <div className="mb-4 flex items-center gap-2.5">
           <div className="flex size-9 items-center justify-center rounded-full bg-accent">
-            <FilmIcon className="size-[18px] text-[var(--brand)]" aria-hidden />
+            <FilmIcon
+              className="size-[18px] text-[var(--brand-dark)]"
+              aria-hidden
+            />
           </div>
           <h2 className="font-bold text-foreground text-lg">
             {t('guideTitle')}
@@ -159,7 +165,7 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
         <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6">
           <div className="flex items-center gap-3">
             <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent">
-              <Loader2Icon className="size-5 animate-spin text-[var(--brand)]" />
+              <Loader2Icon className="size-5 animate-spin text-[var(--brand-dark)]" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold text-foreground">
@@ -171,7 +177,7 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
                 </p>
               ) : null}
             </div>
-            <span className="font-bold text-[var(--brand)] text-xl tabular-nums">
+            <span className="font-bold text-[var(--brand-dark)] text-xl tabular-nums">
               {percent}%
             </span>
           </div>
@@ -205,7 +211,10 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
           }`}
         >
           <div className="flex size-16 items-center justify-center rounded-2xl bg-accent">
-            <VideoIcon className="size-8 text-[var(--brand)]" aria-hidden />
+            <VideoIcon
+              className="size-8 text-[var(--brand-dark)]"
+              aria-hidden
+            />
           </div>
           <div className="flex flex-col gap-1">
             <p className="font-semibold text-foreground text-lg">
@@ -213,7 +222,7 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
             </p>
             <p className="text-muted-foreground text-sm">{t('formats')}</p>
           </div>
-          <span className="inline-flex h-12 items-center gap-2 rounded-full bg-[var(--brand)] px-6 font-bold text-white transition-transform active:scale-[0.97]">
+          <span className="inline-flex h-12 items-center gap-2 rounded-full border-2 border-foreground bg-[var(--brand)] px-6 font-bold text-[var(--brand-ink)] shadow-[4px_4px_0_#111] transition-transform active:scale-[0.97]">
             <FilmIcon className="size-[18px]" aria-hidden />
             {t('pick')}
           </span>

@@ -28,7 +28,7 @@ import { UserButtonMobile } from './user-button-mobile';
 
 const mobileLinkClass =
   'flex w-full items-center rounded-md p-2 text-base text-muted-foreground transition-colors duration-150 hover:text-foreground';
-const mobileLinkActiveClass = 'font-semibold text-primary';
+const mobileLinkActiveClass = 'font-semibold text-[var(--brand-dark)]';
 const mobileSubLinkClass =
   'flex w-full items-center gap-4 rounded-md p-2 text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground';
 

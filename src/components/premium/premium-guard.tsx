@@ -185,10 +185,7 @@ export function PremiumGuard({
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <Button asChild size="lg" className="min-w-[160px]">
-                  <LocaleLink
-                    href="/pricing"
-                    className="text-white no-underline hover:text-white/90"
-                  >
+                  <LocaleLink href="/pricing" className="no-underline">
                     {t('upgradeCta')}
                     <ArrowRightIcon className="ml-2 size-4" />
                   </LocaleLink>

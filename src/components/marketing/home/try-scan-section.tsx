@@ -196,7 +196,10 @@ export function HeroTryScan() {
               {t('tag')}
             </span>
             <div className="flex size-14 items-center justify-center rounded-2xl bg-[var(--brand-accent)]/25">
-              <ImageUpIcon className="size-7 text-[var(--brand)]" aria-hidden />
+              <ImageUpIcon
+                className="size-7 text-[var(--brand-dark)]"
+                aria-hidden
+              />
             </div>
             <p className="font-bold text-[var(--brand-ink)] text-lg leading-snug">
               {t('dropHint')}

@@ -129,7 +129,7 @@ export function PaymentCard() {
     switch (status) {
       case 'processing':
         return (
-          <RefreshCwIcon className="h-12 w-12 text-cyan-600 animate-spin" />
+          <RefreshCwIcon className="h-12 w-12 animate-spin text-[var(--brand-dark)]" />
         );
       case 'success':
         return <CheckCircleIcon className="h-12 w-12 text-green-600" />;

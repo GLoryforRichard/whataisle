@@ -2,7 +2,7 @@
   "Metadata": {
     "name": "WhatAisle",
     "title": "WhatAisle — \"What Aisle Is It In?\" Answered for Grocery Stores",
-    "description": "WhatAisle lets grocery shoppers ask \"what aisle is it in?\" and get the exact shelf with a map — staff just snap shelf photos, shoppers search in English or Chinese. No app, no data entry."
+    "description": "WhatAisle lets grocery shoppers ask \"what aisle is it in?\" and get the exact shelf with a map — type, speak, snap a photo, or just describe what it's for, in English or Chinese. Staff just snap shelf photos. No app, no data entry."
   },
   "Common": {
     "premium": "Premium",
@@ -703,8 +703,8 @@
     "description": "Every product, the right shelf",
     "hero": {
       "badge": "For neighborhood grocery stores",
-      "title": "Shoppers scan, ask, and see the exact shelf",
-      "description": "Staff snap photos of shelves with a phone, and the system remembers where every product sits. Shoppers scan your in-store QR code and ask by typing, speaking, or taking a photo — in English or Chinese.",
+      "title": "Ask in any language, any words — find the exact shelf",
+      "description": "Shoppers ask in English or Chinese, with whatever name they know — typos included. They can snap a photo of a picture or a package, hold to talk, or just describe what the thing is for. Staff only ever snap shelf photos; the system remembers where every product sits.",
       "primaryCta": "Open my store",
       "priceNote": "$999 one-time · yours for life, no monthly fees",
       "secondaryCta": "Visit the demo store",
@@ -728,8 +728,8 @@
         "newBadge": "just added"
       },
       "ask": {
-        "title": "Shoppers scan and ask",
-        "description": "Shoppers scan the QR code in your store — nothing to download. They can type, hold to talk, or photograph a package, in English or Chinese.",
+        "title": "Shoppers ask any way they like",
+        "description": "Shoppers scan the QR code in your store — nothing to download. They can type, hold to talk, photograph a package or a picture someone sent them, or just describe what it's for — in English or Chinese.",
         "typedQuery": "chili sauce",
         "voiceLabel": "Hold to talk",
         "photoLabel": "Snap the package"
@@ -834,7 +834,7 @@
       "cta": "WhatAisle — every product, the right shelf"
     },
     "header": {
-      "languageToggle": "中文"
+      "languageToggle": "Switch to 中文"
     },
     "footer": {
       "poweredBy": "Powered by WhatAisle"

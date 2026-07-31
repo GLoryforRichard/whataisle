@@ -84,7 +84,7 @@ export function MemoryGridVisual({
         <AnimatedCounter
           to={count}
           delay={0.3}
-          className="font-bold text-4xl text-[var(--brand)] tabular-nums"
+          className="font-bold text-4xl text-[var(--brand-dark)] tabular-nums"
         />
         <span className="font-medium text-muted-foreground text-sm">
           {counterLabel}

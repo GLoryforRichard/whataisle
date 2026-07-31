@@ -112,9 +112,9 @@ strictly. Validate changes with `pnpm typecheck`, `pnpm lint`, and `pnpm build`.
 
 - Config: `playwright.config.ts`; specs: `tests/e2e/specs/`; catalog:
   `tests/e2e/TEST-CATALOG.md`
-- **25 tests across 7 specs**: public pages, auth + protected routes, profile
-  settings, shopper search, store routing + staff PIN isolation, and the
-  purchase funnel/paywall.
+- **41 tests across 11 specs**: public pages, auth + protected routes, profile
+  settings, shopper search, store routing + staff PIN isolation, the
+  purchase funnel/paywall, and resumable video upload.
 - Workflow: update the catalog first, implement and walk the real UI, then add
   or update the matching spec.
 - Runs against a dedicated server on port `3100` using `.next-e2e`, so it can

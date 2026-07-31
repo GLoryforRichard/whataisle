@@ -72,7 +72,7 @@ export function SearchWaysVisual({
             variants={rowVariant}
             className="flex items-center gap-2 rounded-full border border-border bg-[var(--background)] px-3 py-2.5"
           >
-            <SearchIcon className="size-4 shrink-0 text-[var(--brand)]" />
+            <SearchIcon className="size-4 shrink-0 text-[var(--brand-dark)]" />
             <span className="font-medium text-[13px] text-[var(--brand-ink)]">
               {typedQuery}
             </span>
@@ -96,7 +96,7 @@ export function SearchWaysVisual({
                 />
               ))}
             </span>
-            <span className="ml-auto font-semibold text-[11px] text-[var(--brand)]">
+            <span className="ml-auto font-semibold text-[11px] text-[var(--brand-dark)]">
               {voiceLabel}
             </span>
           </motion.div>

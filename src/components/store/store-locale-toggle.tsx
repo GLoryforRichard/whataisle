@@ -33,7 +33,7 @@ export function StoreLocaleToggle() {
       type="button"
       onClick={toggle}
       disabled={isPending}
-      aria-label="Switch language"
+      aria-label={t('header.languageToggle')}
       title={t('header.languageToggle')}
       className="inline-flex items-center rounded-full border border-foreground bg-white p-0.5 font-semibold disabled:opacity-60"
     >

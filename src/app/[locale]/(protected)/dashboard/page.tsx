@@ -95,7 +95,7 @@ export default async function DashboardPage() {
             href={Routes.OnboardingPayment}
             className="flex items-center gap-3 rounded-xl border border-[var(--brand)] bg-[var(--brand)]/5 p-4 hover:bg-[var(--brand)]/10"
           >
-            <LockIcon className="size-5 shrink-0 text-[var(--brand)]" />
+            <LockIcon className="size-5 shrink-0 text-[var(--brand-dark)]" />
             <div>
               <p className="font-semibold">{t('payBannerTitle')}</p>
               <p className="text-muted-foreground text-sm">

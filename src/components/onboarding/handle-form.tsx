@@ -162,7 +162,7 @@ export function HandleForm() {
 
         {/* live preview URL + availability pill */}
         <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--accent-border)] bg-accent px-3.5 py-3">
-          <span className="break-all font-mono font-bold text-[15px] text-[var(--brand)]">
+          <span className="break-all font-mono font-bold text-[15px] text-[var(--brand-dark)]">
             {previewUrl}
           </span>
           <div className="shrink-0 text-sm" aria-live="polite">
@@ -173,7 +173,7 @@ export function HandleForm() {
               </span>
             )}
             {check.status === 'available' && (
-              <span className="wa-pop inline-flex items-center gap-1 font-bold text-[var(--brand)]">
+              <span className="wa-pop inline-flex items-center gap-1 font-bold text-[var(--brand-dark)]">
                 <CheckCircle2Icon className="size-4" aria-hidden />
                 {t('available')}
               </span>
@@ -207,7 +207,7 @@ export function HandleForm() {
           <LocaleLink
             href={Routes.TermsOfService}
             target="_blank"
-            className="text-[var(--brand)] text-sm underline underline-offset-4"
+            className="text-[var(--brand-dark)] text-sm underline underline-offset-4"
           >
             {t('termsLink')}
           </LocaleLink>
@@ -236,7 +236,7 @@ export function HandleForm() {
               {t('confirm.title')}
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <div className="rounded-xl border border-[var(--accent-border)] bg-accent p-3.5 text-center font-mono font-bold text-lg text-[var(--brand)] break-all">
+          <div className="rounded-xl border border-[var(--accent-border)] bg-accent p-3.5 text-center font-mono font-bold text-lg text-[var(--brand-dark)] break-all">
             {previewUrl}
           </div>
           <AlertDialogDescription className="text-center text-muted-foreground text-base">
