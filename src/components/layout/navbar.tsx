@@ -2,7 +2,8 @@
 
 import { LoginWrapper } from '@/components/auth/login-wrapper';
 import Container from '@/components/layout/container';
-import { Logo } from '@/components/layout/logo';
+import { BearFace } from '@/components/layout/bear-face';
+import { Wordmark } from '@/components/layout/wordmark';
 import { NavbarMobile } from '@/components/layout/navbar-mobile';
 import { UserButton } from '@/components/layout/user-button';
 import {
@@ -69,10 +70,8 @@ export function Navbar({ scroll = true }: NavBarProps) {
                 aria-label="Home"
                 className="flex items-center gap-2 shrink-0"
               >
-                <Logo />
-                <span className="text-xl font-semibold">
-                  {t('Metadata.name')}
-                </span>
+                <BearFace size={32} />
+                <Wordmark size="md" className="pr-3" />
               </LocaleLink>
 
               <NavigationMenu

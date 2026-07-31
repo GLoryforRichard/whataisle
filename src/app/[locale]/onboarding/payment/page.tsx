@@ -1,4 +1,5 @@
-import { Logo } from '@/components/layout/logo';
+import { BearFace } from '@/components/layout/bear-face';
+import { Wordmark } from '@/components/layout/wordmark';
 import { CheckoutButton } from '@/components/pricing/create-checkout-button';
 import { websiteConfig } from '@/config/website';
 import { checkPremiumAccess } from '@/lib/premium-access';
@@ -38,7 +39,6 @@ export default async function OnboardingPaymentPage({
   }
 
   const t = await getTranslations('OnboardingPayment');
-  const tMeta = await getTranslations('Metadata');
 
   const plan = websiteConfig.price.plans.lifetime;
   const price = plan.prices[0];
@@ -53,11 +53,9 @@ export default async function OnboardingPaymentPage({
 
   return (
     <div className="wa-dotted flex min-h-screen flex-col">
-      <div className="flex items-center gap-2.5 bg-[var(--brand)] px-6 py-3.5">
-        <Logo className="size-8" />
-        <span className="font-bold text-[var(--brand-paper)] text-lg">
-          {tMeta('name')}
-        </span>
+      <div className="flex items-center gap-2.5 border-b border-foreground bg-[var(--background)] px-6 py-3.5">
+        <BearFace size={36} />
+        <Wordmark size="md" className="pr-3" />
       </div>
 
       <div className="flex flex-1 items-center justify-center p-5 sm:p-8">
@@ -93,7 +91,7 @@ export default async function OnboardingPaymentPage({
               planId={plan.id}
               priceId={price.priceId}
               callbackUrl={Routes.ManageVideo}
-              className="w-full bg-[var(--brand)] text-[var(--brand-paper)] hover:bg-[var(--brand)]/90"
+              className="w-full"
               size="lg"
             >
               {t('cta', { price: displayPrice })}

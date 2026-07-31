@@ -1,7 +1,8 @@
 'use client';
 
 import Container from '@/components/layout/container';
-import { Logo } from '@/components/layout/logo';
+import { BearFace } from '@/components/layout/bear-face';
+import { Wordmark } from '@/components/layout/wordmark';
 import { useFooterLinks } from '@/config/footer-config';
 import { useSocialLinks } from '@/config/social-config';
 import { LocaleLink, useLocalePathname } from '@/i18n/navigation';
@@ -28,10 +29,8 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
             <div className="space-y-4">
               {/* logo and name */}
               <div className="items-center space-x-2 flex">
-                <Logo />
-                <span className="text-xl font-semibold">
-                  {t('Metadata.name')}
-                </span>
+                <BearFace size={32} />
+                <Wordmark size="md" className="pr-3" />
               </div>
 
               {/* tagline */}

@@ -1,4 +1,4 @@
-import { Logo } from '@/components/layout/logo';
+import { AnimatedBear } from '@/components/layout/animated-bear';
 import { Button } from '@/components/ui/button';
 import { LocaleLink } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
@@ -15,7 +15,16 @@ export default function NotFound() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8">
-      <Logo className="size-12" />
+      <AnimatedBear size={108} />
+      <div aria-hidden className="-mt-4 flex items-center gap-2">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="size-2 animate-pulse rounded-full bg-[var(--brand)]"
+            style={{ animationDelay: `${i * 180}ms` }}
+          />
+        ))}
+      </div>
 
       <h1 className="text-4xl font-bold">{t('title')}</h1>
 

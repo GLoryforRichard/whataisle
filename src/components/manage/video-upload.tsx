@@ -101,12 +101,12 @@ export function VideoUpload({ hasVideo }: { hasVideo: boolean }) {
   // ── Done: celebratory confirmation ──
   if (phase === 'done') {
     return (
-      <div className="wa-pop flex flex-col items-center gap-4 rounded-[22px] bg-[var(--brand)] p-8 text-center text-[var(--brand-paper)] shadow-[0_18px_44px_color-mix(in_srgb,var(--brand-ink)_16%,transparent)] sm:p-10">
+      <div className="wa-pop flex flex-col items-center gap-4 rounded-[22px] border-2 border-foreground bg-[var(--brand)] p-8 text-center text-[var(--brand-ink)] shadow-[4px_4px_0_#111] sm:p-10">
         <div className="flex size-16 items-center justify-center rounded-full bg-[var(--brand-accent)]">
           <CheckIcon className="size-9 text-[var(--brand)]" strokeWidth={2.6} />
         </div>
         <p className="font-bold text-2xl">{t('received')}</p>
-        <p className="max-w-md text-[var(--brand-paper)]/75 leading-relaxed">
+        <p className="max-w-md text-[var(--brand-ink)]/75 leading-relaxed">
           {t('receivedNote')}
         </p>
         <LocaleLink

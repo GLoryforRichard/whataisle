@@ -1,7 +1,8 @@
 'use client';
 
 import { BottomLink } from '@/components/auth/bottom-link';
-import { Logo } from '@/components/layout/logo';
+import { BearFace } from '@/components/layout/bear-face';
+import { Wordmark } from '@/components/layout/wordmark';
 import {
   Card,
   CardContent,
@@ -30,8 +31,13 @@ export const AuthCard = ({
   return (
     <Card className={cn('shadow-xs border border-border', className)}>
       <CardHeader className="flex flex-col items-center">
-        <LocaleLink href="/" prefetch={false}>
-          <Logo className="mb-2" />
+        <LocaleLink
+          href="/"
+          prefetch={false}
+          className="mb-2 flex flex-col items-center gap-1.5"
+        >
+          <BearFace size={48} />
+          <Wordmark size="lg" />
         </LocaleLink>
         <CardDescription>{headerLabel}</CardDescription>
       </CardHeader>

@@ -1,4 +1,5 @@
-import { Logo } from '@/components/layout/logo';
+import { BearFace } from '@/components/layout/bear-face';
+import { Wordmark } from '@/components/layout/wordmark';
 import { HandleForm } from '@/components/onboarding/handle-form';
 import { getSession } from '@/lib/server';
 import { getStoreByOwner } from '@/lib/store-context';
@@ -36,16 +37,13 @@ export default async function OnboardingHandlePage({
   }
 
   const t = await getTranslations('Onboarding');
-  const tMeta = await getTranslations('Metadata');
 
   return (
     <div className="wa-dotted flex min-h-screen flex-col">
       {/* dark-green brand bar */}
-      <div className="flex items-center gap-2.5 bg-[var(--brand)] px-6 py-3.5">
-        <Logo className="size-8" />
-        <span className="font-bold text-[var(--brand-paper)] text-lg">
-          {tMeta('name')}
-        </span>
+      <div className="flex items-center gap-2.5 border-b border-foreground bg-[var(--background)] px-6 py-3.5">
+        <BearFace size={36} />
+        <Wordmark size="md" className="pr-3" />
       </div>
 
       <div className="flex flex-1 items-center justify-center p-5 sm:p-8">

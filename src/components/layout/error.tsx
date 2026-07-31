@@ -1,6 +1,6 @@
 'use client';
 
-import { Logo } from '@/components/layout/logo';
+import { BearFace } from '@/components/layout/bear-face';
 import { Button } from '@/components/ui/button';
 import { useLocaleRouter } from '@/i18n/navigation';
 import { Loader2Icon } from 'lucide-react';
@@ -23,7 +23,7 @@ export default function Error({ reset }: { reset: () => void }) {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8">
-      <Logo className="size-12" />
+      <BearFace size={48} />
 
       <h1 className="text-2xl text-center">{t('title')}</h1>
 

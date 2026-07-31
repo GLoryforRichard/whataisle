@@ -18,7 +18,7 @@ import type { SessionUser } from '@/lib/auth-types';
 import { Routes } from '@/routes';
 import { useTranslations } from 'next-intl';
 import type * as React from 'react';
-import { Logo } from '../layout/logo';
+import { BearFace } from '../layout/bear-face';
 import { UpgradeCard } from './upgrade-card';
 
 type DashboardSidebarProps = React.ComponentProps<typeof Sidebar> & {
@@ -50,7 +50,7 @@ export function DashboardSidebar({ user, ...props }: DashboardSidebarProps) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <LocaleLink href={Routes.Root}>
-                <Logo className="size-5" />
+                <BearFace size={24} />
                 <span className="truncate font-semibold text-base">
                   {t('Metadata.name')}
                 </span>

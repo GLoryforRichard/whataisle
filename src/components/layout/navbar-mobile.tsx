@@ -1,7 +1,8 @@
 'use client';
 
 import { LocaleSwitcher } from '@/components/layout/locale-switcher';
-import { Logo } from '@/components/layout/logo';
+import { BearFace } from '@/components/layout/bear-face';
+import { Wordmark } from '@/components/layout/wordmark';
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Collapsible,
@@ -57,8 +58,8 @@ export function NavbarMobile({ className, ...props }: NavbarMobileProps) {
         {...props}
       >
         <LocaleLink href="/" className="flex items-center gap-2">
-          <Logo />
-          <span className="text-xl font-semibold">{t('Metadata.name')}</span>
+          <BearFace size={28} />
+          <Wordmark size="sm" className="pr-3" />
         </LocaleLink>
 
         <div className="flex items-center gap-3">
