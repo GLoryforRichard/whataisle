@@ -1,10 +1,10 @@
 import Container from '@/components/layout/container';
-import { PricingTable } from '@/components/pricing/pricing-table';
+import { PricingHero } from '@/components/pricing/pricing-hero';
 
 export default async function PricingPage() {
   return (
-    <Container className="mt-8 max-w-6xl px-4 flex flex-col gap-16">
-      <PricingTable />
+    <Container className="mt-12 max-w-6xl px-4 pb-8">
+      <PricingHero />
     </Container>
   );
 }

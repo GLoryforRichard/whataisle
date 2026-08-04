@@ -67,6 +67,33 @@
     "CheckoutButton": {
       "loading": "Loading...",
       "checkoutFailed": "Failed to open checkout page"
+    },
+    "steps": {
+      "title": "How it starts",
+      "s1t": "Subscribe online",
+      "s1d": "Checkout takes two minutes.",
+      "s2t": "We come and install",
+      "s2d": "Floor map, shelf memory, QR posters — all set up by us.",
+      "s3t": "Your store just works",
+      "s3d": "Staff snap shelves; shoppers find any product in seconds."
+    },
+    "finePrint": "Cancel anytime — no long-term contract. Promotion code? Enter it at checkout.",
+    "tiles": {
+      "t1": "We install everything",
+      "d1": "Map, shelf memory, posters — done for you",
+      "t2": "Cancel anytime",
+      "d2": "Monthly billing, no long-term contract",
+      "t3": "English + 中文",
+      "d3": "Shoppers ask in either language"
+    },
+    "faq": {
+      "title": "Pricing questions",
+      "q1": "Is there a contract or setup fee?",
+      "a1": "No setup fee and no long-term contract — it's $199/month and you can cancel anytime from your billing page.",
+      "q2": "What do we need to do on our side?",
+      "a2": "Almost nothing. We visit your store, build the floor map, set up the shelf memory and hang the QR posters. Staff just snap shelf photos as they restock.",
+      "q3": "How do shoppers use it?",
+      "a3": "They scan the QR poster and ask in English or Chinese — typing, speaking, or snapping a photo — and get the exact shelf with a map."
     }
   },
   "PricePlans": {
