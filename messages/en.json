@@ -94,6 +94,12 @@
       "a2": "Almost nothing. We visit your store, build the floor map, set up the shelf memory and hang the QR posters. Staff just snap shelf photos as they restock.",
       "q3": "How do shoppers use it?",
       "a3": "They scan the QR poster and ask in English or Chinese — typing, speaking, or snapping a photo — and get the exact shelf with a map."
+    },
+    "annual": {
+      "hint": "Pay yearly: 2 months free + custom store branding",
+      "save": "2 months free — save $398",
+      "promoTitle": "Annual exclusive: custom store branding",
+      "promoDesc": "We restyle the shopper app and the QR posters with your supermarket's own look — name, colors, and the shelf-sign style your customers already know."
     }
   },
   "PricePlans": {

@@ -13,10 +13,12 @@ import { PaymentTypes, PlanIntervals } from '@/payment/types';
 import {
   CalendarX2Icon,
   CheckCircle2Icon,
+  GiftIcon,
   LanguagesIcon,
   WrenchIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 /**
  * Bespoke single-plan pricing layout (sticker/ink design language). The
@@ -29,15 +31,22 @@ export function PricingHero() {
   const t = useTranslations('PricingPage');
   const plans = usePricePlans();
   const plan = plans.monthly;
-  const price = plan?.prices.find(
+  const monthlyPrice = plan?.prices.find(
     (p) =>
       p.type === PaymentTypes.SUBSCRIPTION && p.interval === PlanIntervals.MONTH
   );
+  const yearlyPrice = plan?.prices.find(
+    (p) =>
+      p.type === PaymentTypes.SUBSCRIPTION && p.interval === PlanIntervals.YEAR
+  );
+  const [interval, setInterval] = useState<'month' | 'year'>('month');
   const currentUser = useCurrentUser();
   const currentPath = useLocalePathname();
   const mounted = useMounted();
 
-  if (!plan || !price) return null;
+  if (!plan || !monthlyPrice) return null;
+  const isYear = interval === 'year' && !!yearlyPrice;
+  const price = isYear && yearlyPrice ? yearlyPrice : monthlyPrice;
 
   const ctaClassName =
     'h-12 w-full rounded-xl border-2 border-foreground bg-[var(--cta-bg)] font-bold text-[var(--cta-fg)] text-base shadow-[4px_4px_0_#111] transition-transform hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0_#111] hover:bg-[var(--cta-hover-bg)]';
@@ -52,6 +61,37 @@ export function PricingHero() {
 
   return (
     <div className="flex flex-col gap-14">
+      {/* ── Billing interval toggle ── */}
+      {yearlyPrice && (
+        <div className="-mb-4 flex flex-col items-center gap-2">
+          <div className="inline-flex rounded-full border-2 border-foreground bg-card p-1 shadow-[3px_3px_0_#111]">
+            {(['month', 'year'] as const).map((iv) => (
+              <button
+                key={iv}
+                type="button"
+                onClick={() => setInterval(iv)}
+                className={
+                  interval === iv
+                    ? 'rounded-full bg-[var(--cta-bg)] px-5 py-1.5 font-bold text-[var(--cta-fg)] text-sm'
+                    : 'rounded-full px-5 py-1.5 font-semibold text-muted-foreground text-sm'
+                }
+              >
+                {iv === 'month' ? t('monthly') : t('yearly')}
+              </button>
+            ))}
+          </div>
+          {!isYear && (
+            <button
+              type="button"
+              onClick={() => setInterval('year')}
+              className="font-semibold text-[var(--chip-fg)] text-sm underline decoration-dotted underline-offset-4"
+            >
+              {t('annual.hint')}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* ── Main plan card ── */}
       <div className="relative mx-auto w-full max-w-4xl">
         {/* Mascot peeking over the card edge, like the home try-scan panel. */}
@@ -70,13 +110,20 @@ export function PricingHero() {
                 {plan.name}
               </span>
 
-              <div className="flex items-baseline gap-2">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <span className="font-extrabold text-6xl tracking-tight">
                   {formatPrice(price.amount, price.currency)}
                 </span>
                 <span className="font-semibold text-2xl text-muted-foreground">
-                  {t('PricingCard.perMonth')}
+                  {isYear
+                    ? t('PricingCard.perYear')
+                    : t('PricingCard.perMonth')}
                 </span>
+                {isYear && (
+                  <span className="ml-1 inline-flex items-center rounded-full border-2 border-foreground bg-[var(--cta-bg)] px-3 py-1 font-bold text-[var(--cta-fg)] text-xs shadow-[2px_2px_0_#111]">
+                    {t('annual.save')}
+                  </span>
+                )}
               </div>
 
               <p className="text-base text-muted-foreground">
@@ -96,6 +143,21 @@ export function PricingHero() {
                   </li>
                 ))}
               </ul>
+
+              {isYear && (
+                <div className="rounded-2xl border-2 border-foreground border-dashed bg-[var(--accent-tint)] p-4">
+                  <div className="flex items-center gap-2 font-bold">
+                    <GiftIcon
+                      className="size-4.5 text-[var(--chip-fg)]"
+                      aria-hidden
+                    />
+                    {t('annual.promoTitle')}
+                  </div>
+                  <p className="mt-1 text-muted-foreground text-sm leading-relaxed">
+                    {t('annual.promoDesc')}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Right: how it starts + CTA */}

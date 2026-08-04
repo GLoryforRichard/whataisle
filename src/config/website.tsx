@@ -19,6 +19,7 @@ const paymentProvider: PaymentConfig['provider'] = 'stripe';
 // plan on the billing page.
 const priceIds = {
   monthly: process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY!,
+  yearly: process.env.NEXT_PUBLIC_STRIPE_PRICE_YEARLY!,
   proMonthly: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY!,
   proYearly: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY!,
   lifetime: process.env.NEXT_PUBLIC_STRIPE_PRICE_LIFETIME!,
@@ -132,6 +133,16 @@ export const websiteConfig: WebsiteConfig = {
             amount: 19900,
             currency: 'USD',
             interval: PlanIntervals.MONTH,
+            allowPromotionCode: true,
+          },
+          // Annual: 10 months' price for 12 (save $398) + the store-branding
+          // customization promo, fulfilled manually like the install itself.
+          {
+            type: PaymentTypes.SUBSCRIPTION,
+            priceId: priceIds.yearly,
+            amount: 199000,
+            currency: 'USD',
+            interval: PlanIntervals.YEAR,
             allowPromotionCode: true,
           },
         ],
