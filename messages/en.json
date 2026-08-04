@@ -46,8 +46,8 @@
   },
   "PricingPage": {
     "title": "Pricing",
-    "description": "Free 3-month pilot in your store — we install everything. Then $199/month, cancel anytime.",
-    "subtitle": "Free 3-month pilot in your store — we install everything. Then $199/month, cancel anytime.",
+    "description": "$199/month — we install everything in your store. Cancel anytime.",
+    "subtitle": "$199/month — we install everything in your store. Cancel anytime.",
     "monthly": "Monthly",
     "yearly": "Yearly",
     "PricingCard": {
@@ -72,10 +72,10 @@
   "PricePlans": {
     "monthly": {
       "name": "WhatAisle for your store",
-      "description": "Free 3-month pilot — we install everything. Then $199/month, cancel anytime.",
+      "description": "We install everything in your store. Cancel anytime.",
       "features": {
         "feature-1": "We install and set up everything in your store",
-        "feature-2": "Free 3-month pilot with your promotion code",
+        "feature-2": "Have a promotion code? Enter it at checkout",
         "feature-3": "Shoppers type, speak, or snap a photo to find items",
         "feature-4": "Works in English and Chinese",
         "feature-5": "Search reports: what shoppers want, what's missing",
@@ -728,8 +728,8 @@
       "badge": "For neighborhood grocery stores",
       "title": "Ask in any language, any words — find the exact shelf",
       "description": "Shoppers ask in English or Chinese, with whatever name they know — typos included. They can snap a photo of a picture or a package, hold to talk, or just describe what the thing is for. Staff only ever snap shelf photos; the system remembers where every product sits.",
-      "primaryCta": "Start your free pilot",
-      "priceNote": "Free 3-month pilot in your store — we install everything. Then $199/month, cancel anytime.",
+      "primaryCta": "Get started",
+      "priceNote": "$199/month — we install everything in your store. Cancel anytime.",
       "secondaryCta": "Visit the demo store",
       "howItWorksCta": "See how it works"
     },
@@ -778,7 +778,7 @@
       "resultTitle": "Recognized {count} products",
       "remaining": "{count} free tries left",
       "tryAnother": "Try another photo",
-      "cta": "Start your free pilot",
+      "cta": "Get started",
       "err": {
         "not_shelf": "That doesn't look like a store shelf. Try a photo of stocked shelves.",
         "not_legible": "The products are hard to see. Get a little closer and try again.",
@@ -834,7 +834,7 @@
         "q1": "Does WhatAisle answer the aisle or the shelf?",
         "a1": "The shelf. A typical answer is “Shelf B4, left side”, with that shelf marked in red on the map — much more precise than an aisle number.",
         "q2": "How much work is it to set up?",
-        "a2": "None on your side — we come in and install everything ourselves: the floor map, the shelf memory, and the QR posters. Your store starts on a free 3-month pilot, and staff just keep snapping shelf photos.",
+        "a2": "None on your side — we come in and install everything ourselves: the floor map, the shelf memory, and the QR posters. Once it's live, staff just keep snapping shelf photos.",
         "q3": "Do shoppers need to download anything?",
         "a3": "No. The QR code opens right in the phone's browser. Nothing to install, for shoppers or staff.",
         "q4": "What languages does it support?",
@@ -844,7 +844,7 @@
         "q6": "Is shopper data private?",
         "a6": "Yes. Faces are blurred before shelf photos are saved, shopper photos are only used to recognize the product and are not kept, and searches are only viewed as totals, never tied to a person.",
         "q7": "How much does it cost?",
-        "a7": "Your first 3 months are a free pilot in your store — we install everything. After that it's $199 per month, and you can cancel anytime. Details on the pricing page."
+        "a7": "It's $199 per month, we install everything in your store, and you can cancel anytime. Details on the pricing page."
       },
       "outro": "Don't let shoppers wander the store, and don't make staff walk them there every time. Print one QR poster and have staff start photographing shelves today."
     }
