@@ -47,34 +47,20 @@ export default async function proxy(req: NextRequest) {
   }
 
   // ---------------------------------------------------------------------------
-  // Host routing: <handle>.<root-domain> serves the store's shopper/staff pages.
-  // Store subdomains are rewritten to /store/<handle>/* and bypass the locale
-  // middleware entirely — store pages read the locale from a cookie instead of
-  // the URL, so shoppers see clean URLs like demo.whataisle.com/find?q=milk.
+  // Store subdomains: <handle>.<root-domain> used to serve the in-app store
+  // product (rewritten to /store/<handle>/*). That product moved to standalone
+  // per-store deployments, so any leftover subdomain traffic is permanently
+  // redirected to the marketing site root. 308 keeps the method, and the
+  // wildcard DNS/TLS setup still terminates here until the records are
+  // removed, so a redirect (not a 404) is the friendly failure mode.
+  //
+  // NOTE for the founder: before removing this, confirm no live store still
+  // points at *.<root-domain> — shoppers there would land on the homepage.
   // ---------------------------------------------------------------------------
   const storeHandle = storeHandleFromHost(req.headers.get('host'));
   if (storeHandle) {
-    // Reserved subdomains can never be registered, so they fall through to
-    // the store lookup and render the "store not found" page (which links to
-    // the main site). A cross-host redirect is avoided on purpose: Next
-    // normalizes same-origin Locations to relative paths in dev, which loops.
-    //
-    // DO NOT reintroduce an `x-store-handle` request header here. This used to
-    // set one, and server code preferred it over Host — but the matcher below
-    // excludes /api, so on every store API route that header was neither set
-    // nor stripped and any client could forge it to act on another tenant.
-    // Nothing reads it now; the handle travels in the rewritten path, and
-    // server code derives tenancy from Host via storeHandleFromHost().
-    const url = nextUrl.clone();
-    url.pathname = `/store/${storeHandle}${nextUrl.pathname === '/' ? '' : nextUrl.pathname}`;
-    console.log('<< proxy end, store rewrite:', url.pathname);
-    return NextResponse.rewrite(url);
-  }
-
-  // Direct path access to /store/* on the main host is not a real surface —
-  // store pages exist only behind their subdomain rewrite.
-  if (nextUrl.pathname.startsWith('/store/')) {
-    return NextResponse.redirect(new URL('/', nextUrl));
+    const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'localhost';
+    return NextResponse.redirect(`https://www.${rootDomain}/`, 308);
   }
 
   // Cookie-based session check for fast redirection

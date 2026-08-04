@@ -2,7 +2,6 @@ import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { localeRedirect } from '@/i18n/navigation';
 import { getSession } from '@/lib/server';
-import { getStoreByOwner } from '@/lib/store-context';
 import { hasAcceptedCurrentTerms } from '@/lib/terms';
 import { Routes } from '@/routes';
 import { getLocale } from 'next-intl/server';
@@ -31,15 +30,11 @@ export default async function DashboardLayout({ children }: PropsWithChildren) {
     redirect(`${Routes.Login}?error=email_not_verified`);
   }
 
-  // Every owner account maps to exactly one store; send storeless accounts to
-  // the handle picker first. Platform admins are exempt.
+  // Updated terms require re-confirmation before continuing (§10).
+  // The onboarding-funnel redirect that used to precede this is gone: stores
+  // are provisioned manually by the founder now, so accounts without a store
+  // are the normal case, not an error.
   if (session.user.role !== 'admin') {
-    const ownedStore = await getStoreByOwner(session.user.id);
-    if (!ownedStore) {
-      const locale = await getLocale();
-      localeRedirect({ href: '/onboarding/handle', locale });
-    }
-    // Updated terms require re-confirmation before continuing (§10).
     if (!(await hasAcceptedCurrentTerms(session.user.id))) {
       const locale = await getLocale();
       localeRedirect({ href: '/terms-update', locale });

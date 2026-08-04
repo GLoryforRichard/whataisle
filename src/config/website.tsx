@@ -9,11 +9,16 @@ const isE2ETestMode = process.env.NEXT_PUBLIC_E2E_TEST_MODE === 'true';
 const paymentProvider: PaymentConfig['provider'] = 'stripe';
 
 // Non-null assertions are deliberate and must stay. These are NEXT_PUBLIC_*,
-// i.e. inlined at build time, and deploy.yml passes only LIFETIME as a build
-// arg — the other six really are undefined in production. That is harmless
-// because their plans are disabled and their priceId is never read. Adding
-// validation here would crash the production build.
+// i.e. inlined at build time, and the deploy passes only MONTHLY and LIFETIME
+// as build args — the others really are undefined in production. That is
+// harmless because their plans are disabled and their priceId is never read.
+// Adding validation here would crash the production build.
+//
+// MONTHLY is the live $199/month subscription price. LIFETIME is the retired
+// $999 one-time price, kept so grandfathered customers still resolve their
+// plan on the billing page.
 const priceIds = {
+  monthly: process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY!,
   proMonthly: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY!,
   proYearly: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY!,
   lifetime: process.env.NEXT_PUBLIC_STRIPE_PRICE_LIFETIME!,
@@ -85,12 +90,11 @@ export const websiteConfig: WebsiteConfig = {
       },
     },
   },
-  // The production demo store shown to owners before they pay: hero CTA,
-  // scan-band QR and footer all link to <handle>.<root-domain>. The store
-  // must exist and be live in that environment, or visitors get the
-  // "store not found" page (local seeds create `demo`; production is
-  // registered manually — see the ops checklist in the redesign plan).
-  demoStoreHandle: 'demo',
+  // Demo store links are gone with the standalone pivot: per-store apps no
+  // longer run on <handle>.<root-domain> (those subdomains now 308 to the
+  // marketing site — see src/proxy.ts). Leaving the handle unset hides every
+  // demo-store link (hero CTA, scan-band QR, footer) in one place.
+  // demoStoreHandle: undefined,
   mail: {
     enable: true,
     provider: process.env.MAIL_PROVIDER === 'smtp' ? 'smtp' : 'resend',
@@ -115,12 +119,37 @@ export const websiteConfig: WebsiteConfig = {
   },
   price: {
     plans: {
+      // The single live plan: USD $199/month subscription. The 3-month free
+      // pilot is NOT a Stripe trial — it is a 100%-off × 3 months promotion
+      // coupon created by hand in the Stripe dashboard and entered by the
+      // customer at checkout, hence allowPromotionCode and no trialPeriodDays.
+      monthly: {
+        id: 'monthly',
+        prices: [
+          {
+            type: PaymentTypes.SUBSCRIPTION,
+            priceId: priceIds.monthly,
+            amount: 19900,
+            currency: 'USD',
+            interval: PlanIntervals.MONTH,
+            allowPromotionCode: true,
+          },
+        ],
+        isFree: false,
+        isLifetime: false,
+        popular: true,
+        credits: {
+          enable: true,
+          amount: 1000,
+          expireDays: 30,
+        },
+      },
       free: {
         id: 'free',
         prices: [],
         isFree: true,
         isLifetime: false,
-        // Single $999 tier for launch — free/pro hidden from pricing UI.
+        // Single $199/month tier — free/pro hidden from pricing UI.
         disabled: true,
         credits: {
           enable: true,
@@ -158,6 +187,10 @@ export const websiteConfig: WebsiteConfig = {
       },
       lifetime: {
         id: 'lifetime',
+        // Retired 2026-08 (standalone pivot): no longer sold, but existing
+        // $999 customers are grandfathered and must keep resolving this plan
+        // on the billing page — disable, do NOT delete.
+        disabled: true,
         prices: [
           {
             type: PaymentTypes.ONE_TIME,

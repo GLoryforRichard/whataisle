@@ -87,42 +87,42 @@ export function PricingTable({
 
   return (
     <div className={cn('flex flex-col gap-12', className)}>
-      {/* Show interval toggle if there are subscription plans */}
-      {(hasMonthlyOption || hasYearlyOption) &&
-        subscriptionPlans.length > 0 && (
-          <div className="flex justify-center">
-            <ToggleGroup
-              size="sm"
-              type="single"
-              value={interval}
-              onValueChange={(value) => value && handleIntervalChange(value)}
-              className="border rounded-lg p-1"
-            >
-              {hasMonthlyOption && (
-                <ToggleGroupItem
-                  value="month"
-                  className={cn(
-                    'px-3 py-0 text-sm rounded-md',
-                    'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-                  )}
-                >
-                  {t('monthly')}
-                </ToggleGroupItem>
-              )}
-              {hasYearlyOption && (
-                <ToggleGroupItem
-                  value="year"
-                  className={cn(
-                    'px-3 py-0 text-sm rounded-md',
-                    'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-                  )}
-                >
-                  {t('yearly')}
-                </ToggleGroupItem>
-              )}
-            </ToggleGroup>
-          </div>
-        )}
+      {/* Show interval toggle only when there is an actual choice to make —
+          with a single monthly-only plan a lone "Monthly" toggle is noise */}
+      {hasMonthlyOption && hasYearlyOption && subscriptionPlans.length > 0 && (
+        <div className="flex justify-center">
+          <ToggleGroup
+            size="sm"
+            type="single"
+            value={interval}
+            onValueChange={(value) => value && handleIntervalChange(value)}
+            className="border rounded-lg p-1"
+          >
+            {hasMonthlyOption && (
+              <ToggleGroupItem
+                value="month"
+                className={cn(
+                  'px-3 py-0 text-sm rounded-md',
+                  'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+                )}
+              >
+                {t('monthly')}
+              </ToggleGroupItem>
+            )}
+            {hasYearlyOption && (
+              <ToggleGroupItem
+                value="year"
+                className={cn(
+                  'px-3 py-0 text-sm rounded-md',
+                  'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+                )}
+              >
+                {t('yearly')}
+              </ToggleGroupItem>
+            )}
+          </ToggleGroup>
+        </div>
+      )}
 
       {/* Calculate total number of visible plans */}
       {(() => {

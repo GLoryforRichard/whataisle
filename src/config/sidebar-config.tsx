@@ -4,24 +4,13 @@ import { isDemoWebsite } from '@/lib/demo';
 import { Routes } from '@/routes';
 import type { NestedMenuItem } from '@/types';
 import {
-  ChartNoAxesCombinedIcon,
   CircleUserRoundIcon,
   CoinsIcon,
-  DatabaseIcon,
-  FilmIcon,
+  CreditCardIcon,
   LayoutDashboardIcon,
-  LifeBuoyIcon,
   LockKeyholeIcon,
-  MapIcon,
-  MapPinnedIcon,
-  MailPlusIcon,
-  MegaphoneIcon,
-  PackageIcon,
-  QrCodeIcon,
-  ScrollTextIcon,
   Settings2Icon,
   SettingsIcon,
-  StoreIcon,
   UsersRoundIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -32,6 +21,11 @@ import { websiteConfig } from './website';
  *
  * NOTICE: used in client components only
  *
+ * Standalone pivot (2026-08): the owner store portal and platform store-ops
+ * admin sections are gone — stores run as standalone deployments now. The
+ * sidebar keeps only what this site still does: account, billing, and the
+ * generic user-management admin page.
+ *
  * docs:
  * https://mksaas.com/docs/config/sidebar
  *
@@ -39,8 +33,6 @@ import { websiteConfig } from './website';
  */
 export function useSidebarLinks(): NestedMenuItem[] {
   const t = useTranslations('Dashboard');
-  const mt = useTranslations('Manage');
-  const at = useTranslations('Admin');
 
   // if is demo website, allow user to access admin and user pages, but data is fake
   const isDemo = isDemoWebsite();
@@ -53,100 +45,10 @@ export function useSidebarLinks(): NestedMenuItem[] {
       external: false,
     },
     {
-      title: mt('storeSection'),
-      icon: <StoreIcon className="size-4 shrink-0" />,
-      items: [
-        {
-          title: mt('shelves.nav'),
-          icon: <PackageIcon className="size-4 shrink-0" />,
-          href: Routes.ManageShelves,
-          external: false,
-        },
-        {
-          title: mt('insights.nav'),
-          icon: <ChartNoAxesCombinedIcon className="size-4 shrink-0" />,
-          href: Routes.ManageInsights,
-          external: false,
-        },
-        {
-          title: mt('video.nav'),
-          icon: <FilmIcon className="size-4 shrink-0" />,
-          href: Routes.ManageVideo,
-          external: false,
-        },
-        {
-          title: mt('map.nav'),
-          icon: <MapIcon className="size-4 shrink-0" />,
-          href: Routes.ManageMap,
-          external: false,
-        },
-        {
-          title: mt('posters.nav'),
-          icon: <QrCodeIcon className="size-4 shrink-0" />,
-          href: Routes.ManagePosters,
-          external: false,
-        },
-        {
-          title: mt('profile.nav'),
-          icon: <StoreIcon className="size-4 shrink-0" />,
-          href: Routes.ManageProfile,
-          external: false,
-        },
-        {
-          title: mt('export.nav'),
-          icon: <DatabaseIcon className="size-4 shrink-0" />,
-          href: Routes.ManageData,
-          external: false,
-        },
-      ],
-    },
-    {
       title: t('admin.title'),
       icon: <SettingsIcon className="size-4 shrink-0" />,
       authorizeOnly: isDemo ? ['admin', 'user'] : ['admin'],
       items: [
-        {
-          title: at('tenants.nav'),
-          icon: <StoreIcon className="size-4 shrink-0" />,
-          href: Routes.AdminTenants,
-          external: false,
-        },
-        {
-          title: at('onboarding.nav'),
-          icon: <MailPlusIcon className="size-4 shrink-0" />,
-          href: Routes.AdminOnboarding,
-          external: false,
-        },
-        {
-          title: mt('adminMapping.nav'),
-          icon: <MapPinnedIcon className="size-4 shrink-0" />,
-          href: Routes.AdminMapping,
-          external: false,
-        },
-        {
-          title: at('costs.nav'),
-          icon: <CoinsIcon className="size-4 shrink-0" />,
-          href: Routes.AdminCosts,
-          external: false,
-        },
-        {
-          title: at('tickets.nav'),
-          icon: <LifeBuoyIcon className="size-4 shrink-0" />,
-          href: Routes.AdminTickets,
-          external: false,
-        },
-        {
-          title: at('announcements.nav'),
-          icon: <MegaphoneIcon className="size-4 shrink-0" />,
-          href: Routes.AdminAnnouncements,
-          external: false,
-        },
-        {
-          title: at('audit.nav'),
-          icon: <ScrollTextIcon className="size-4 shrink-0" />,
-          href: Routes.AdminAudit,
-          external: false,
-        },
         {
           title: t('admin.users.title'),
           icon: <UsersRoundIcon className="size-4 shrink-0" />,
@@ -163,6 +65,12 @@ export function useSidebarLinks(): NestedMenuItem[] {
           title: t('settings.profile.title'),
           icon: <CircleUserRoundIcon className="size-4 shrink-0" />,
           href: Routes.SettingsProfile,
+          external: false,
+        },
+        {
+          title: t('settings.billing.title'),
+          icon: <CreditCardIcon className="size-4 shrink-0" />,
+          href: Routes.SettingsBilling,
           external: false,
         },
         ...(websiteConfig.credits.enableCredits

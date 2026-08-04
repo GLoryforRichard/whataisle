@@ -46,8 +46,8 @@
   },
   "PricingPage": {
     "title": "Pricing",
-    "description": "One price: $999. Pay once, use it forever — no monthly fees.",
-    "subtitle": "One price: $999. Pay once, use it forever — no monthly fees.",
+    "description": "Free 3-month pilot in your store — we install everything. Then $199/month, cancel anytime.",
+    "subtitle": "Free 3-month pilot in your store — we install everything. Then $199/month, cancel anytime.",
     "monthly": "Monthly",
     "yearly": "Yearly",
     "PricingCard": {
@@ -70,6 +70,18 @@
     }
   },
   "PricePlans": {
+    "monthly": {
+      "name": "WhatAisle for your store",
+      "description": "Free 3-month pilot — we install everything. Then $199/month, cancel anytime.",
+      "features": {
+        "feature-1": "We install and set up everything in your store",
+        "feature-2": "Free 3-month pilot with your promotion code",
+        "feature-3": "Shoppers type, speak, or snap a photo to find items",
+        "feature-4": "Works in English and Chinese",
+        "feature-5": "Search reports: what shoppers want, what's missing",
+        "feature-6": "Cancel anytime — no long-term contract"
+      }
+    },
     "free": {
       "name": "Free",
       "description": "Basic features for personal use",
@@ -374,7 +386,17 @@
   },
   "Dashboard": {
     "dashboard": {
-      "title": "Dashboard"
+      "title": "Dashboard",
+      "welcomeTitle": "Welcome to WhatAisle",
+      "welcomeDescription": "We install and set up WhatAisle in your store ourselves — there is nothing to configure here. Your account is for managing your subscription; for anything about your store's setup, just get in touch.",
+      "billingCard": {
+        "title": "Subscription & billing",
+        "description": "View your plan, invoices, and payment method"
+      },
+      "contactCard": {
+        "title": "Contact us",
+        "description": "Questions about your store's setup? We're happy to help"
+      }
     },
     "admin": {
       "title": "Admin",
@@ -497,7 +519,8 @@
         },
         "success": {
           "title": "Payment Success",
-          "description": "Redirecting automatically..."
+          "description": "Your subscription is active. We set up each store ourselves — we'll be in touch shortly to arrange the installation in your store.",
+          "action": "Go to billing"
         },
         "failed": {
           "title": "Payment Failed",
@@ -705,8 +728,8 @@
       "badge": "For neighborhood grocery stores",
       "title": "Ask in any language, any words — find the exact shelf",
       "description": "Shoppers ask in English or Chinese, with whatever name they know — typos included. They can snap a photo of a picture or a package, hold to talk, or just describe what the thing is for. Staff only ever snap shelf photos; the system remembers where every product sits.",
-      "primaryCta": "Open my store",
-      "priceNote": "$999 one-time · yours for life, no monthly fees",
+      "primaryCta": "Start your free pilot",
+      "priceNote": "Free 3-month pilot in your store — we install everything. Then $199/month, cancel anytime.",
       "secondaryCta": "Visit the demo store",
       "howItWorksCta": "See how it works"
     },
@@ -755,7 +778,7 @@
       "resultTitle": "Recognized {count} products",
       "remaining": "{count} free tries left",
       "tryAnother": "Try another photo",
-      "cta": "Open my store",
+      "cta": "Start your free pilot",
       "err": {
         "not_shelf": "That doesn't look like a store shelf. Try a photo of stocked shelves.",
         "not_legible": "The products are hard to see. Get a little closer and try again.",
@@ -769,8 +792,8 @@
     "scan": {
       "tag": "IN-STORE POSTER",
       "title": "One QR code in your store, and shoppers find things themselves",
-      "sub": "After you sign up, print your store's own QR poster. Put it at the door or the register — shoppers scan it and ask.",
-      "cta": "Get your store poster",
+      "sub": "We install everything and put your store's own QR poster at the door or the register — shoppers scan it and ask.",
+      "cta": "Talk to us",
       "caption": "scan to find any product",
       "demoCaption": "Scan to visit the demo store"
     },
@@ -811,7 +834,7 @@
         "q1": "Does WhatAisle answer the aisle or the shelf?",
         "a1": "The shelf. A typical answer is “Shelf B4, left side”, with that shelf marked in red on the map — much more precise than an aisle number.",
         "q2": "How much work is it to set up?",
-        "a2": "Three steps: sign up, upload a walk-through video of your store (we draw the floor map for you), and have staff start photographing shelves. Most stores are up and running the same day.",
+        "a2": "None on your side — we come in and install everything ourselves: the floor map, the shelf memory, and the QR posters. Your store starts on a free 3-month pilot, and staff just keep snapping shelf photos.",
         "q3": "Do shoppers need to download anything?",
         "a3": "No. The QR code opens right in the phone's browser. Nothing to install, for shoppers or staff.",
         "q4": "What languages does it support?",
@@ -821,7 +844,7 @@
         "q6": "Is shopper data private?",
         "a6": "Yes. Faces are blurred before shelf photos are saved, shopper photos are only used to recognize the product and are not kept, and searches are only viewed as totals, never tied to a person.",
         "q7": "How much does it cost?",
-        "a7": "One price: $999, paid once, yours for life — no monthly fees. It includes floor-map drawing, your store's own web address, and QR posters. Details on the pricing page."
+        "a7": "Your first 3 months are a free pilot in your store — we install everything. After that it's $199 per month, and you can cancel anytime. Details on the pricing page."
       },
       "outro": "Don't let shoppers wander the store, and don't make staff walk them there every time. Print one QR poster and have staff start photographing shelves today."
     }

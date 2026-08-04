@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { usePaymentCompletion } from '@/hooks/use-payment-completion';
-import { useLocaleRouter } from '@/i18n/navigation';
+import { LocaleLink } from '@/i18n/navigation';
 import { PAYMENT_MAX_POLL_TIME, PAYMENT_POLL_INTERVAL } from '@/lib/constants';
 import { Routes } from '@/routes';
 import { useQueryClient } from '@tanstack/react-query';
@@ -28,7 +28,6 @@ type PaymentStatus = 'processing' | 'success' | 'failed' | 'timeout';
  */
 export function PaymentCard() {
   const t = useTranslations('Dashboard.settings.payment');
-  const localeRouter = useLocaleRouter();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<PaymentStatus>('processing');
@@ -82,39 +81,21 @@ export function PaymentCard() {
     }
   }, [paymentCheck, status]);
 
-  // Handle auto-redirect for success, if status is success, redirect to callback url
+  // On success, refresh the cached payment/subscription state but do NOT
+  // auto-redirect: the store deployment is installed manually by the founder,
+  // so the success copy ("we'll be in touch") is the important part of this
+  // page. The user continues to billing via the button below when ready.
   useEffect(() => {
-    if (status === 'success' && callback) {
-      // Async function to handle cache invalidation and redirect
-      const handleRedirect = async () => {
-        // Invalidate relevant cache based on callback destination
-        if (callback === Routes.SettingsCredits) {
-          // Invalidate and refetch credits related queries
-          await queryClient.invalidateQueries({
-            queryKey: ['credits'],
-          });
-          // Wait for the refetch to complete
-          await queryClient.refetchQueries({
-            queryKey: ['credits'],
-          });
-        } else {
-          // Invalidate and refetch payment/subscription related queries
-          await queryClient.invalidateQueries({
-            queryKey: ['payment'],
-          });
-          // Wait for the refetch to complete
-          await queryClient.refetchQueries({
-            queryKey: ['payment'],
-          });
-        }
-
-        // Redirect to callback url after cache is updated
-        localeRouter.push(callback);
+    if (status === 'success') {
+      const refreshCaches = async () => {
+        const queryKey =
+          callback === Routes.SettingsCredits ? ['credits'] : ['payment'];
+        await queryClient.invalidateQueries({ queryKey });
+        await queryClient.refetchQueries({ queryKey });
       };
-
-      handleRedirect();
+      refreshCaches();
     }
-  }, [status, localeRouter, callback, queryClient]);
+  }, [status, callback, queryClient]);
 
   // Cleanup on unmount, clear timeout
   useEffect(() => {
@@ -178,6 +159,16 @@ export function PaymentCard() {
           <div className="flex justify-center mb-8">{getStatusIcon()}</div>
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
+          {status === 'success' && (
+            <div className="mt-6 flex justify-center">
+              <LocaleLink
+                href={callback ?? Routes.SettingsBilling}
+                className="inline-flex items-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm hover:bg-primary/90"
+              >
+                {t('success.action')}
+              </LocaleLink>
+            </div>
+          )}
         </CardHeader>
       </Card>
     </div>

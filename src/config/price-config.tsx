@@ -22,6 +22,23 @@ export function usePricePlans(): Record<string, PricePlan> {
   const plans: Record<string, PricePlan> = {};
 
   // Add translated content to each plan
+  if (priceConfig.plans.monthly) {
+    plans.monthly = {
+      ...priceConfig.plans.monthly,
+      name: t('monthly.name'),
+      description: t('monthly.description'),
+      features: [
+        t('monthly.features.feature-1'),
+        t('monthly.features.feature-2'),
+        t('monthly.features.feature-3'),
+        t('monthly.features.feature-4'),
+        t('monthly.features.feature-5'),
+        t('monthly.features.feature-6'),
+      ],
+      limits: [],
+    };
+  }
+
   if (priceConfig.plans.free) {
     plans.free = {
       ...priceConfig.plans.free,

@@ -114,7 +114,7 @@ export default async function HomePage({ params }: HomePageProps) {
                 style={{ animationDelay: '280ms' }}
               >
                 <LocaleLink
-                  href="/auth/register"
+                  href="/pricing"
                   className="inline-flex h-14 items-center gap-2 rounded-[16px] border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-7 font-bold text-[var(--cta-fg)] text-lg shadow-[var(--cta-shadow)] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#111] active:translate-x-0 active:translate-y-0 active:shadow-[var(--cta-shadow)]"
                 >
                   {t('hero.primaryCta')}
@@ -231,7 +231,7 @@ export default async function HomePage({ params }: HomePageProps) {
                 {t('scan.sub')}
               </p>
               <LocaleLink
-                href="/auth/register"
+                href="/contact"
                 className="mt-1 inline-flex h-13 items-center gap-2 rounded-[16px] border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-6 py-3.5 font-bold text-[var(--cta-fg)] shadow-[var(--cta-shadow)] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#111] active:translate-x-0 active:translate-y-0 active:shadow-[var(--cta-shadow)]"
               >
                 <QrCodeIcon className="size-[18px]" aria-hidden />

@@ -323,7 +323,7 @@ export function HeroTryScan() {
             </p>
             {errorCode === 'limit_reached' ? (
               <LocaleLink
-                href="/auth/register"
+                href="/pricing"
                 className="inline-flex h-11 items-center gap-2 rounded-[14px] border-2 border-[var(--cta-border)] bg-[var(--cta-bg)] px-5 font-bold text-[var(--cta-fg)] shadow-[var(--cta-shadow)] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#111] active:translate-x-0 active:translate-y-0 active:shadow-[var(--cta-shadow)]"
               >
                 {t('cta')}

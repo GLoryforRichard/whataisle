@@ -1,5 +1,10 @@
 /**
  * The routes for the application
+ *
+ * Standalone pivot (2026-08): the in-app store product (onboarding funnel,
+ * owner portal, per-store shopper app, platform store ops) was removed —
+ * stores now run as standalone per-store deployments. This site keeps only
+ * marketing/SEO and Stripe billing, so the route table shrank accordingly.
  */
 export enum Routes {
   Root = '/',
@@ -23,27 +28,8 @@ export enum Routes {
   // dashboard routes
   Dashboard = '/dashboard',
 
-  // onboarding
-  OnboardingPayment = '/onboarding/payment',
-
-  // store management (owner)
-  ManageVideo = '/manage/video',
-  ManageMap = '/manage/map',
-  ManageProfile = '/manage/profile',
-  ManageShelves = '/manage/shelves',
-  ManageInsights = '/manage/insights',
-  ManagePosters = '/manage/posters',
-  ManageData = '/manage/data',
-
   // admin routes
   AdminUsers = '/admin/users',
-  AdminMapping = '/admin/mapping',
-  AdminTenants = '/admin/tenants',
-  AdminOnboarding = '/admin/onboarding',
-  AdminCosts = '/admin/costs',
-  AdminTickets = '/admin/tickets',
-  AdminAnnouncements = '/admin/announcements',
-  AdminAudit = '/admin/audit',
 
   // settings routes
   SettingsProfile = '/settings/profile',
@@ -65,21 +51,7 @@ export const routesNotAllowedByLoggedInUsers = [Routes.Login, Routes.Register];
  */
 export const protectedRoutes = [
   Routes.Dashboard,
-  Routes.ManageVideo,
-  Routes.ManageMap,
-  Routes.ManageProfile,
-  Routes.ManageShelves,
-  Routes.ManageInsights,
-  Routes.ManagePosters,
-  Routes.ManageData,
   Routes.AdminUsers,
-  Routes.AdminMapping,
-  Routes.AdminTenants,
-  Routes.AdminOnboarding,
-  Routes.AdminCosts,
-  Routes.AdminTickets,
-  Routes.AdminAnnouncements,
-  Routes.AdminAudit,
   Routes.SettingsProfile,
   Routes.SettingsBilling,
   Routes.SettingsCredits,

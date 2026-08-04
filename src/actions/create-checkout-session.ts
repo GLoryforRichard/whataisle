@@ -14,10 +14,7 @@ import { z } from 'zod';
 // Checkout schema for validation
 // metadata is optional, and may contain referral information if you need
 // Where the payment page may send the user after a confirmed payment.
-const allowedCallbackUrls: string[] = [
-  Routes.SettingsBilling,
-  Routes.ManageVideo,
-];
+const allowedCallbackUrls: string[] = [Routes.SettingsBilling];
 
 const checkoutSchema = z.object({
   userId: z.string().min(1, { error: 'User ID is required' }),
