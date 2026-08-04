@@ -29,8 +29,8 @@ export default function manifest(): MetadataRoute.Manifest {
     display: 'standalone',
     // Keep in sync with --background in src/styles/globals.css (the nav is
     // cream, so the installed-app chrome matches the page).
-    background_color: '#fdf7e3',
-    theme_color: '#fdf7e3',
+    background_color: '#fcfbf7',
+    theme_color: '#fcfbf7',
     icons: [
       {
         src: '/android-chrome-192x192.png',

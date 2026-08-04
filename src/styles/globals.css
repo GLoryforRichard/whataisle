@@ -139,23 +139,23 @@
      shelf fill/stroke pair. */
   --brand-dark: #8a4a00;
   --brand-soft: #ffd6a8;
-  --brand-softer: #ffefdc;
+  --brand-softer: #faf1e6;
   --brand-chip: #ffc585;
-  --accent-bg: #fff1c2;
-  --accent-tint: #fffae6;
+  --accent-bg: #faf1d6;
+  --accent-tint: #fcf9f0;
   /* The shopper map's "your product is HERE" pin. Deliberately its own token:
      it must stay distinguishable from --destructive AND from --brand under
      every palette. Kept at the lake-blue-era red: white-on-#cf343a passes
      4.5:1 where wherebear's #e5484d (3.9:1) does not. */
   --map-target: #cf343a;
   /* Border shade paired with --accent tint fills (chips, drop zones). */
-  --accent-border: #ffe48a;
+  --accent-border: #e8dcae;
   /* Cream radial page wash (wherebear pageBg) + the sticker shadows. */
   --page-bg: radial-gradient(
     circle at 20% 10%,
-    #fefbf2 0%,
-    #fdf7e3 55%,
-    #f7eed6 100%
+    #ffffff 0%,
+    #fcfbf7 55%,
+    #f5f2e9 100%
   );
   --shadow-sticker: 4px 4px 0 #111111;
   --shadow-sticker-hover: 7px 7px 0 #111111;
@@ -172,7 +172,7 @@
   --nav-bg: var(--background);
   --nav-fg: #111111;
   --nav-shadow: 0 1px 0 0 #111111;
-  --footer-bg: #f6eed6;
+  --footer-bg: #f3f0e7;
   --footer-fg: #111111;
   --cta-bg: var(--brand);
   --cta-fg: #111111;
@@ -192,11 +192,11 @@
   --popover-foreground: #111111;
   --primary: #ff8a00;
   --primary-foreground: #111111;
-  --secondary: #ffefdc;
+  --secondary: #faf1e6;
   --secondary-foreground: #8a4a00;
-  --muted: #f6eed6;
+  --muted: #f3f0e7;
   --muted-foreground: #6a6359;
-  --accent: #fff1c2;
+  --accent: #faf1d6;
   --accent-foreground: #6b5200;
   --destructive: #c1272d;
   --destructive-foreground: #ffffff;
@@ -207,11 +207,11 @@
   --input: #111111;
   --ring: #ff8a00;
   /* Dashboard chrome — deeper cream surround, ink text, orange-tint pills. */
-  --sidebar: #f6eed6;
+  --sidebar: #f3f0e7;
   --sidebar-foreground: #111111;
   --sidebar-primary: #ff8a00;
   --sidebar-primary-foreground: #111111;
-  --sidebar-accent: #ffefdc;
+  --sidebar-accent: #faf1e6;
   --sidebar-accent-foreground: #8a4a00;
   --sidebar-border: #111111;
   --sidebar-ring: #ff8a00;
@@ -232,7 +232,7 @@
   --shadow-lg: 6px 6px 0 #111111;
   --shadow-xl: 7px 7px 0 #111111;
   --shadow-2xl: 8px 8px 0 #111111;
-  --background: #fdf7e3;
+  --background: #fcfbf7;
   --foreground: #111111;
 }
 

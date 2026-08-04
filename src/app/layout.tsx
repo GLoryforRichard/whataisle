@@ -12,7 +12,7 @@ interface Props {
  * Keep in sync with --background in src/styles/globals.css.
  */
 export const viewport: Viewport = {
-  themeColor: '#fdf7e3',
+  themeColor: '#fcfbf7',
 };
 
 /**
