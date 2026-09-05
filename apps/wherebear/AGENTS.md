@@ -15,32 +15,33 @@ The "find the aisle" search agent runs on the **Google Agent Development Kit** (
 
 Do NOT introduce LangChain, LangGraph, LlamaIndex, or any other third-party agent orchestrator — they are explicitly disallowed by the hackathon rules.
 
-# Deployment — GCP VM, NOT Vercel
+# Deployment — WhatAisle-managed GCP store runtime
 
-**Do NOT use Vercel for this project.** The user's global preference says "deploy to Vercel" — that does not apply here. This project runs on a Google Compute Engine VM behind Caddy + PM2.
+This application is maintained at `apps/wherebear` in the WhatAisle repository.
+It runs on the existing Google Compute Engine VM behind Caddy and PM2; do not
+move the long-running scan worker into the website's Cloud Run container.
 
-- Live: <https://wherebear.help>
-- Fallback: <https://34.130.157.162.nip.io>
+- Canonical live host: <https://wherebear.whataisle.com>
+- Legacy hosts: `wherebear.help`, `www.wherebear.help`, retained for redirects
+  and origin-local photo recovery. Never remove their HTTPS/API service.
 - Project: `wherebear-prod-20260902`
 - VM: `wherebear-vm`, zone `northamerica-northeast2-b`
-- Pushing to GitHub `main` does NOT auto-deploy — you must SSH in and rebuild.
+- Current release: `/home/mystery/whataisle-releases/wherebear-20260905-final`
+- Active PM2 process: `wherebear-platform-final`, loopback port 3002
+- Retained rollback checkout: `/home/mystery/wherebear`; its `wherebear` PM2
+  process is stopped. Do not deploy by pulling this old repository.
+- Main-branch pushes deploy the root website automatically. Store releases
+  require the separate VM procedure in `../../docs/WHEREBEAR-MERGE.md`.
 
-**One-shot deploy command** (run from local Mac after `git push`):
+Build and validate a separate release directory with
+`WHEREBEAR_BACKGROUND_DISABLED=1`. Never build over the live `.next` directory,
+run a second scan worker, or restart an active worker before draining its jobs.
+Keep ADK/MCP, MongoDB search indexes, Gemini configuration, asynchronous worker,
+and origin-local scan queue intact. Store secrets stay on the VM; no credentials
+belong in the platform registry or website build.
 
-```bash
-gcloud compute ssh wherebear-vm --project=wherebear-prod-20260902 --zone=northamerica-northeast2-b \
-  --command "cd ~/wherebear && git pull && npm install && npm run build && pm2 restart wherebear"
-```
-
-Full infra map, secrets, rollback, logs: see `docs/DEPLOYMENT.md`.
-
-# WhatAisle integration (2026-09-05)
-
-This application now lives at `apps/wherebear` in the WhatAisle repository.
-The original standalone deployment instructions above describe the retained
-rollback checkout, not the new release source. Canonical domain:
-`wherebear.whataisle.com`; maintained release procedure:
-`../../docs/WHEREBEAR-MERGE.md`. Keep existing ADK/MCP, MongoDB search indexes,
-Gemini configuration, asynchronous worker, and origin-local scan queue intact.
-The website and store retain separate builds and run on their existing GCP
-resources. Their source code and platform registry are maintained together.
+The deployment, backup, validation and rollback record is
+`../../docs/WHEREBEAR-MERGE.md`; store data ownership is described there and in
+`../../stores/registry.json`. Both applications retain independent builds and
+run on their existing GCP resources. This release registers customer 1 only;
+future stores require isolated databases and restricted credentials.

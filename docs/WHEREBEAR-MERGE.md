@@ -104,3 +104,53 @@ Both production builds and unit suites are required. Browser domain tests use
 mocked APIs and a synthetic local photo, so they validate routing/queue safety,
 not real Gemini accuracy. Production verification must be recorded separately;
 a successful build is not proof of all real AI or mobile-device behavior.
+
+## Production execution record — 2026-09-05 UTC
+
+- Spaceship A record `wherebear` points to `34.130.157.162`, TTL 300.
+  Authoritative DNS, Cloudflare DNS and Google DNS agreed; Caddy obtained the
+  new hostname's HTTPS certificate. Root/www and all unrelated records remain.
+- Running merged release:
+  `/home/mystery/whataisle-releases/wherebear-20260905-final`, PM2
+  `wherebear-platform-final`, loopback port 3002. Original PM2 `wherebear` and
+  intermediate `wherebear-platform` are stopped,
+  retained for rollback. Exactly one scan worker is enabled. PM2 state saved.
+- Caddy config and PM2 backups:
+  `/home/mystery/wherebear-cutover-backups/20260905/` on the existing VM.
+  Full collection snapshots, indexes and search-index definitions are in its
+  restricted `database/` directory, with SHA-256 manifest. Do not publish these
+  files. Original runtime secrets are referenced by a local symlink, not copied
+  to Git or the WhatAisle website image.
+- Post-switch product and shelf-evidence hashes equal the baseline snapshot:
+  14,482 products and 175 shelf-evidence documents. Both Atlas search indexes
+  remain READY/queryable. No product writes were used for acceptance testing.
+- Real searches returned rice at A11 and soy sauce at B4, with product photos
+  and highlighted map. Staff PIN entry, shelf list and Chinese/English controls
+  were checked in Chrome on the canonical hostname.
+- Real voice input returned `rice`; photo-identification returned
+  `Clover Leaf Tuna`. These calls use the existing live AI provider.
+- WhatAisle deployment for integration commit `648fb82` completed successfully
+  in GitHub Actions run `33939609876`. The administrator route redirects
+  unauthenticated visitors to login; authenticated owner verification is pending.
+- Root high-severity dependency checks required narrow updates and an image-size
+  parser patch (see `patches/README.md`). CI now includes the patch regression
+  tests. Builds use production canonical website URL, not localhost.
+
+- Real shelf scanning completed with 60 detected products (estimated AI cost
+  $0.038165625). The temporary acceptance job was acknowledged and removed only
+  after saving its result to the restricted local backup; it never saved new
+  products or shelf evidence to the store database.
+- Final runtime has `WHEREBEAR_DOMAIN_CUTOVER=1` and
+  `WHEREBEAR_BACKGROUND_DISABLED=0`. Legacy HEAD requests return 308, preserving
+  paths and query strings. Chrome followed the old www domain to the new
+  `/admin/queue?from=old-poster#pending` URL, retaining the fragment as well.
+  RSC navigation and old-origin APIs remain same-origin for photo recovery.
+
+- Final source commit `8754f49` passed both CI jobs in run `33940215016`: root
+  audit/lint/34 unit tests/typecheck/build and store 12 unit tests/typecheck/build
+  plus 5 Chromium tests, including same-origin legacy RSC navigation.
+- DNS propagation note: authoritative and public/ISP resolvers returned the
+  new VM address; this Mac retained an earlier OS-level cached load-balancer
+  address after `dscacheutil -flushcache`. Chrome and explicit TLS SNI checks
+  used the correct destination. No global network settings or hosts entries
+  were changed.
