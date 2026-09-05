@@ -154,3 +154,7 @@ a successful build is not proof of all real AI or mobile-device behavior.
   address after `dscacheutil -flushcache`. Chrome and explicit TLS SNI checks
   used the correct destination. No global network settings or hosts entries
   were changed.
+- Final application deployment for `8754f49` completed successfully in GitHub
+  Actions run `33940215047`. Post-deployment platform `/api/ping` and store
+  `/api/health` both returned 200. The final VM filesystem has 12 GiB free
+  (42% used); the full compressed database snapshot occupies 130 MiB.
