@@ -36,6 +36,12 @@ test('both legacy hosts preserve deep links and queries in permanent redirects',
       maxRedirects: 0,
     });
     expect(api.status()).toBe(200);
+    const navigation = await request.get('/admin/queue?_rsc=queue-recovery', {
+      headers: { Host: host, RSC: '1', Accept: 'text/x-component' },
+      maxRedirects: 0,
+    });
+    expect(navigation.status()).toBe(200);
+    expect(navigation.headers()['content-type']).toContain('text/x-component');
   }
 });
 

@@ -224,3 +224,5 @@ serve store routes. Dedicated config: `playwright.wherebear.config.ts`.
   work, write customer products, or use production credentials.
 - Staff unlock is requested again on the new origin (browser session boundary).
 - Main-site `/admin/stores` requires a real administrator, even in demo mode.
+
+WhereBear domain migration also verifies that legacy-origin Next.js client navigation remains same-origin while staff recover queued photos.
