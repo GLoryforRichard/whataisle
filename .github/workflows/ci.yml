@@ -59,6 +59,9 @@ jobs:
       - name: Check formatting and lint
         run: pnpm lint
 
+      - name: Unit tests (including patched dependency regressions)
+        run: pnpm test:unit
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -76,6 +79,7 @@ jobs:
       # Compile-only URI; no production data or credentials in CI.
       MONGODB_URI: mongodb://127.0.0.1:27017/wherebear?serverSelectionTimeoutMS=500
       MONGODB_DB: wherebear
+      GOOGLE_CLOUD_PROJECT: whataisle-ci-placeholder
       WHEREBEAR_BACKGROUND_DISABLED: '1'
     steps:
       - uses: actions/checkout@v4

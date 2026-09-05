@@ -1,0 +1,398 @@
+diff --git a/dist/detector.cjs b/dist/detector.cjs
+index 0898608dbeca36722dfd795341b1c3c1448f58aa..b7b9b418129061756f0a1b83537bfd57388e995f 100644
+--- a/dist/detector.cjs
++++ b/dist/detector.cjs
+@@ -28,8 +28,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+@@ -251,6 +252,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize = getImageSize2(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+diff --git a/dist/detector.mjs b/dist/detector.mjs
+index 67afcab02d627f95e98c938499e07a934b832a26..7b4dda48fe8c6dc6a78db20c8edc12611f360db9 100644
+--- a/dist/detector.mjs
++++ b/dist/detector.mjs
+@@ -26,8 +26,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+@@ -249,6 +250,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize = getImageSize2(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+diff --git a/dist/fromFile.cjs b/dist/fromFile.cjs
+index c226d3dac07f235db456c774b26cca88f655e1af..ffd8fbc260d26a4963295018af5719e3bed84837 100644
+--- a/dist/fromFile.cjs
++++ b/dist/fromFile.cjs
+@@ -54,8 +54,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+@@ -277,6 +278,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+diff --git a/dist/fromFile.mjs b/dist/fromFile.mjs
+index 4a3c44432982397204f7a9d04fc66ef65a8e7ba4..d94ec904a4be10cbeac730fb1e1de38e42d07861 100644
+--- a/dist/fromFile.mjs
++++ b/dist/fromFile.mjs
+@@ -31,8 +31,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+@@ -254,6 +255,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+diff --git a/dist/index.cjs b/dist/index.cjs
+index bde0210eb131db06ccca30a5c466c7252a03af50..9cf96d5bc81948daf7443acbdae8251879ca60f5 100644
+--- a/dist/index.cjs
++++ b/dist/index.cjs
+@@ -30,8 +30,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+@@ -253,6 +254,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 22c17afad4e406eba013fff7858366cb5f8e3ba4..9651da5e2eb9f6b0cf0d9e49929e9c66f192fb08 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -26,8 +26,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+@@ -249,6 +250,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+diff --git a/dist/lookup.cjs b/dist/lookup.cjs
+index 9731ad8bb0949f8fdf9297851bdb312e91282f01..f1c9068b02c0017233e4e2f4d5fd9d5e7798d610 100644
+--- a/dist/lookup.cjs
++++ b/dist/lookup.cjs
+@@ -28,8 +28,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+@@ -251,6 +252,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+diff --git a/dist/lookup.mjs b/dist/lookup.mjs
+index f787d1c8408d7b681fec8617595d058f66959869..e68cd695006677620ae3a96c3d99913ff5309a4e 100644
+--- a/dist/lookup.mjs
++++ b/dist/lookup.mjs
+@@ -26,8 +26,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+@@ -249,6 +250,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+diff --git a/dist/types/heif.cjs b/dist/types/heif.cjs
+index 1f490788ea654ea9896060a5c0253d81e348af92..d0066e13155e34e26ffda7dc3b2daac97b3e57c9 100644
+--- a/dist/types/heif.cjs
++++ b/dist/types/heif.cjs
+@@ -6,8 +6,9 @@ var toUTF8String = (input, start = 0, end = input.length) => decoder.decode(inpu
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+diff --git a/dist/types/heif.mjs b/dist/types/heif.mjs
+index 01330919e01b3c034a96a7b4b1dbf5a7f658bb2d..26ee8b23a1b96fc8994d7ee9461e1b3fc89d4da5 100644
+--- a/dist/types/heif.mjs
++++ b/dist/types/heif.mjs
+@@ -4,8 +4,9 @@ var toUTF8String = (input, start = 0, end = input.length) => decoder.decode(inpu
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+diff --git a/dist/types/icns.cjs b/dist/types/icns.cjs
+index 32c8d370dcf80a10f14a6deebfdbe04d3c70585c..231893050f27d3036630280958ce5808bfeabe40 100644
+--- a/dist/types/icns.cjs
++++ b/dist/types/icns.cjs
+@@ -72,6 +72,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize = getImageSize(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+diff --git a/dist/types/icns.mjs b/dist/types/icns.mjs
+index 8710027bc5890a79d05a7fdb87de3018e556729e..9b562c81e93c8edb54a2e431c93048c444978c94 100644
+--- a/dist/types/icns.mjs
++++ b/dist/types/icns.mjs
+@@ -70,6 +70,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize = getImageSize(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+diff --git a/dist/types/index.cjs b/dist/types/index.cjs
+index 6949cd134db7ab59dae7b804b36c7bacb4e387cf..6bee63b0b077c619861c10bee61c8e4c3d13e2ee 100644
+--- a/dist/types/index.cjs
++++ b/dist/types/index.cjs
+@@ -28,8 +28,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+@@ -251,6 +252,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize = getImageSize2(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+diff --git a/dist/types/index.mjs b/dist/types/index.mjs
+index b026dda4aa16c6077a76e4b3cfe3f54fe1d6d1d0..430c091e9cab1bf08af3e406f5bdfb9dc4289c33 100644
+--- a/dist/types/index.mjs
++++ b/dist/types/index.mjs
+@@ -26,8 +26,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+@@ -249,6 +250,9 @@ var ICNS = {
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < 8 || imageOffset + imageHeader[1] > Math.min(fileLength, inputLength)) {
++        throw new TypeError("Invalid ICNS entry length");
++      }
+       const imageSize = getImageSize2(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+diff --git a/dist/types/jp2.cjs b/dist/types/jp2.cjs
+index cdd7c884efeb940b99f69a8f1d6ed361a1979211..b49916fb9d9cd4ed4a7741f7b922ad87f4b85e95 100644
+--- a/dist/types/jp2.cjs
++++ b/dist/types/jp2.cjs
+@@ -6,8 +6,9 @@ var toUTF8String = (input, start = 0, end = input.length) => decoder.decode(inpu
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+diff --git a/dist/types/jp2.mjs b/dist/types/jp2.mjs
+index 63a537635b4f91250431a53225d4521ed60cf67d..f03a0743611be8025700e56b5cd50932e0fe38ee 100644
+--- a/dist/types/jp2.mjs
++++ b/dist/types/jp2.mjs
+@@ -4,8 +4,9 @@ var toUTF8String = (input, start = 0, end = input.length) => decoder.decode(inpu
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+diff --git a/dist/types/jxl.cjs b/dist/types/jxl.cjs
+index a12095be85c7a8fd25763895a47c46b4292ebd9c..b610ceab81f87c46d46d8da81a405016fb15595b 100644
+--- a/dist/types/jxl.cjs
++++ b/dist/types/jxl.cjs
+@@ -47,8 +47,9 @@ var toHexString = (input, start = 0, end = input.length) => input.slice(start, e
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+diff --git a/dist/types/jxl.mjs b/dist/types/jxl.mjs
+index 49b0c4cac6abb366378e5feed745f16981b441c0..d15dfdc2c2afe11a7ea843118b93cf422dd06aa0 100644
+--- a/dist/types/jxl.mjs
++++ b/dist/types/jxl.mjs
+@@ -45,8 +45,9 @@ var toHexString = (input, start = 0, end = input.length) => input.slice(start, e
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+diff --git a/dist/types/utils.cjs b/dist/types/utils.cjs
+index 23d52e4cbf271e667feb2d7f040c07f69678d3aa..23be56084382f76e641d0d09e69c57fec52c4fdf 100644
+--- a/dist/types/utils.cjs
++++ b/dist/types/utils.cjs
+@@ -28,8 +28,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+diff --git a/dist/types/utils.mjs b/dist/types/utils.mjs
+index 3f09dceb036e40be8538dbb5588d88c951339158..dec601a97c7e2c6ef00d5436115b1bfd72f43e6b 100644
+--- a/dist/types/utils.mjs
++++ b/dist/types/utils.mjs
+@@ -26,8 +26,9 @@ function readUInt(input, bits, offset = 0, isBigEndian = false) {
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
++  if (boxSize < 8) return;
+   if (input.length - offset < boxSize) return;
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),

@@ -68,7 +68,7 @@
     "jszip": "^3.10.1",
     "lucide-react": "^0.563.0",
     "motion": "^12.4.3",
-    "nanoid": "^5.1.6",
+    "nanoid": "^5.1.16",
     "next": "16.2.11",
     "next-intl": "4.13.1",
     "next-safe-action": "^8.0.11",
@@ -128,7 +128,7 @@
       "fast-uri": "3.1.4",
       "fast-xml-parser": "5.10.1",
       "hono": "4.12.28",
-      "js-yaml": "4.3.0",
+      "js-yaml": "4.3.1",
       "lodash": "4.18.1",
       "micromatch>picomatch": "2.3.2",
       "minimatch": "10.2.5",
@@ -137,7 +137,10 @@
       "postcss": "8.5.23",
       "protobufjs": "7.6.5",
       "rollup": "4.62.2",
-      "sharp": "0.35.3"
+      "sharp": "0.35.3",
+      "browserslist": "4.28.7",
+      "nanoid@<4": "3.3.18",
+      "nanoid@>=4": "5.1.16"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
@@ -150,6 +153,15 @@
       "libpq",
       "msw",
       "protobufjs"
-    ]
+    ],
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-w3rx-r6r6-pgpr",
+        "GHSA-5p2g-fcmc-qvqq"
+      ]
+    },
+    "patchedDependencies": {
+      "image-size@2.0.2": "patches/image-size@2.0.2.patch"
+    }
   }
 }

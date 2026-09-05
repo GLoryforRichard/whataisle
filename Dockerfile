@@ -16,6 +16,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY package.json pnpm-lock.yaml* ./
+COPY patches ./patches
 # Copy config files needed for fumadocs-mdx postinstall
 COPY source.config.ts ./
 COPY content ./content
