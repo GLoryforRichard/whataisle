@@ -53,6 +53,13 @@ The owner runs this product. They are not reading the code, and jargon-heavy
 updates are actively unhelpful — they have said so. **Write to them in plain
 language.** They write in Chinese, so reply in Chinese.
 
+**Presentation preference (owner decision, 2026-09-04):** Use a visual HTML
+version for owner-facing feature inventories, requirement reviews, plans, and
+architecture explanations. Lead with a compact overview, show flows and status
+visually, and reveal supporting detail on demand. Markdown may remain as the
+agent's working/reference document, but do not present a Markdown document as
+the owner's primary deliverable. Ordinary short chat replies can remain text.
+
 Say what something *does* and what it *means for the business*. Only reach for
 a technical term when there is no plain equivalent, and then say what it is in
 the same breath.
