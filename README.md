@@ -1,5 +1,19 @@
 # WhatAisle
 
+## WhereBear integration (2026-09-05)
+
+This repository now also maintains the existing WhereBear store application in
+[`apps/wherebear`](apps/wherebear/README.md). Canonical store address:
+`https://wherebear.whataisle.com`. The platform administrator's `/admin/stores`
+page registers it as customer 1. Each application retains its independent build
+and existing GCP runtime; product data stays in the existing dedicated MongoDB
+database. This is not a migration into the dormant Postgres tenant tables.
+
+Current integration and release procedure: [migration record](docs/WHEREBEAR-MERGE.md).
+Owner-facing overview: [visual overview](docs/WHEREBEAR-MERGE.zh.html).
+The historical architecture sections below predate the standalone pivot; use
+the integration record and current source for the deployed store product.
+
 An online "find the shelf" service for multilingual grocery stores.
 
 Staff snap casual photos of shelves; the system grows a product-location memory

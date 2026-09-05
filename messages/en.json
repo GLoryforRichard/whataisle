@@ -480,6 +480,9 @@
           "error": "Failed to unban user"
         },
         "close": "Close"
+      },
+      "stores": {
+        "title": "Stores"
       }
     },
     "settings": {

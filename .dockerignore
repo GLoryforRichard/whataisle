@@ -20,3 +20,6 @@ playwright-report
 test-results
 Dockerfile
 LICENSE
+
+# Store runtime is deployed to its existing GCE VM, outside the website image.
+apps

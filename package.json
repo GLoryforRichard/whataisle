@@ -29,7 +29,11 @@
     "email": "email dev --dir src/mail/templates --port 3333",
     "knip": "knip",
     "seed": "tsx scripts/seed.mts",
-    "test:unit": "node --test --import tsx tests/unit/*.test.ts"
+    "test:unit": "node --test --import tsx tests/unit/*.test.ts",
+    "store:dev": "npm --prefix apps/wherebear run dev",
+    "store:build": "npm --prefix apps/wherebear run build",
+    "store:typecheck": "npm --prefix apps/wherebear run typecheck",
+    "store:test": "npm --prefix apps/wherebear test"
   },
   "dependencies": {
     "@google-cloud/storage": "7.21.0",

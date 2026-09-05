@@ -1,0 +1,17 @@
+[
+  {
+    "id": "wherebear",
+    "customerNumber": 1,
+    "handle": "wherebear",
+    "name": "WhereBear 找货熊",
+    "url": "https://wherebear.whataisle.com",
+    "legacyUrls": ["https://wherebear.help", "https://www.wherebear.help"],
+    "runtime": "apps/wherebear",
+    "dataIsolation": "dedicated-database",
+    "database": "wherebear",
+    "cloudProject": "wherebear-prod-20260902",
+    "vm": "wherebear-vm",
+    "zone": "northamerica-northeast2-b",
+    "ownerAssignment": "platform-managed"
+  }
+]

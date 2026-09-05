@@ -480,6 +480,9 @@
           "error": "解除封禁失败"
         },
         "close": "关闭"
+      },
+      "stores": {
+        "title": "门店管理"
       }
     },
     "settings": {

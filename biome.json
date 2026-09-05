@@ -41,7 +41,8 @@
       "!src/app/\\[locale\\]/preview",
       "!src/payment/types.ts",
       "!src/credits/types.ts",
-      "!src/types/index.d.ts"
+      "!src/types/index.d.ts",
+      "!apps"
     ]
   },
   "formatter": {
@@ -52,7 +53,13 @@
     "formatWithErrors": true,
     "useEditorconfig": true
   },
-  "assist": { "actions": { "source": { "organizeImports": "off" } } },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "off"
+      }
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -87,7 +94,9 @@
         "useNodejsImportProtocol": "off",
         "useConsistentArrayType": {
           "level": "off",
-          "options": { "syntax": "shorthand" }
+          "options": {
+            "syntax": "shorthand"
+          }
         }
       },
       "a11y": {

@@ -64,3 +64,37 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  wherebear:
+    name: WhereBear store tests, typecheck, and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/wherebear
+    env:
+      # Compile-only URI; no production data or credentials in CI.
+      MONGODB_URI: mongodb://127.0.0.1:27017/wherebear?serverSelectionTimeoutMS=500
+      MONGODB_DB: wherebear
+      WHEREBEAR_BACKGROUND_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.0
+          cache: npm
+          cache-dependency-path: apps/wherebear/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+        working-directory: .
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: .
+      - run: pnpm exec playwright test --config playwright.wherebear.config.ts
+        working-directory: .

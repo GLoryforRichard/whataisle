@@ -208,3 +208,19 @@ These flows should be added after their dependencies are made deterministic:
 | Transactional email | Requires a fake mail provider or captured verification links. |
 | Real-model golden set | Runs in staging on a schedule; PR and release E2E stay on the deterministic AI stub. At the measured $0.26/scan even a 20-photo set is ~$5 per run, so it must never enter PR CI. (The old wording said "Vertex" — the repo has used OpenRouter + DashScope since `76eefdc`.) |
 | — | Invite onboarding no longer exists (invite-only signup removed). Video resume and store closure are now covered by `video-upload.spec.ts` and `store-closure.spec.ts`; neither needed the infrastructure this row assumed. |
+
+## WhereBear integration and domain cutover (2026-09-05)
+
+The maintained store app is `apps/wherebear`; the root marketing app does not
+serve store routes. Dedicated config: `playwright.wherebear.config.ts`.
+
+- New host serves shopper UI, staff gate, maps, queue, dashboard and search log.
+- Each deployment rejects a different store's Host, including all API paths.
+- Old apex and www URLs preserve the path/query in permanent non-HTML redirects.
+- Browser visits with no saved photos move to the canonical origin.
+- Browser visits with a pending/failed IndexedDB photo stay at the old origin;
+  the record survives, old same-origin APIs remain reachable, and no automatic
+  redirect hides the queue. API responses are mocked; tests do not submit AI
+  work, write customer products, or use production credentials.
+- Staff unlock is requested again on the new origin (browser session boundary).
+- Main-site `/admin/stores` requires a real administrator, even in demo mode.

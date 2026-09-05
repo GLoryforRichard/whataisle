@@ -1,0 +1,16 @@
+# Install only after preparing the merged app on port 3001. Keep the old
+# domains on the same app: it drains origin-local photos before redirecting
+# browser documents. Old API calls remain same-origin for already-open tabs.
+wherebear.whataisle.com, wherebear.help, www.wherebear.help {
+	reverse_proxy localhost:3001 {
+		flush_interval -1
+		lb_try_duration 5s
+	}
+}
+
+34.130.157.162.nip.io {
+	reverse_proxy localhost:3001 {
+		flush_interval -1
+		lb_try_duration 5s
+	}
+}

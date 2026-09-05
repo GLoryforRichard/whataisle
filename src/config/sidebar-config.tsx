@@ -12,6 +12,7 @@ import {
   Settings2Icon,
   SettingsIcon,
   UsersRoundIcon,
+  StoreIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { websiteConfig } from './website';
@@ -49,6 +50,12 @@ export function useSidebarLinks(): NestedMenuItem[] {
       icon: <SettingsIcon className="size-4 shrink-0" />,
       authorizeOnly: isDemo ? ['admin', 'user'] : ['admin'],
       items: [
+        {
+          title: t('admin.stores.title'),
+          icon: <StoreIcon className="size-4 shrink-0" />,
+          href: Routes.AdminStores,
+          external: false,
+        },
         {
           title: t('admin.users.title'),
           icon: <UsersRoundIcon className="size-4 shrink-0" />,
