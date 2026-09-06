@@ -39,6 +39,14 @@ env -i PATH=/usr/sbin:/usr/bin:/sbin:/bin runuser -u postgres -- "$pg_dump" \
 [[ -s $run/$name ]] || die 'Empty dump; local files retained.'
 (cd "$run" && sha256sum "$name" >"$name.sha256")
 
+# Disaster recovery also needs the runtime auth/payment configuration. Keep it
+# root-only locally and in the same private bucket; the VM has create, not read.
+runtime_env=/etc/whataisle-platform/platform.env
+[[ -f $runtime_env && ! -L $runtime_env ]] || die 'Missing runtime configuration.'
+[[ $(stat -c %u "$runtime_env") == 0 && $(stat -c %a "$runtime_env") == 600 ]] || die 'Runtime configuration must be root-owned mode 0600.'
+cp "$runtime_env" "$run/$name.runtime.env"
+(cd "$run" && sha256sum "$name.runtime.env" >"$name.runtime.env.sha256")
+
 # Use only the attached VM service account's short-lived metadata token.
 # Direct JSON objects.insert needs objects.create only: unlike the CLI it never
 # probes the destination with objects.get. No SDK/home directory/private key.
@@ -79,5 +87,7 @@ PY
 # never retried as an overwrite or incorrectly reported as a complete backup.
 upload "$run/$name" "$name" dump
 upload "$run/$name.sha256" "$name.sha256" checksum
+upload "$run/$name.runtime.env" "$name.runtime.env" runtime
+upload "$run/$name.runtime.env.sha256" "$name.runtime.env.sha256" runtime-checksum
 unset token
-printf 'PostgreSQL dump and checksum uploaded; local backup retained at %s\n' "$run"
+printf 'PostgreSQL and private runtime backups uploaded with checksums; local backup retained at %s\n' "$run"

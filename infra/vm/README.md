@@ -110,7 +110,8 @@ No service-account key or interactive user login is required.
 
 Each run creates a unique UTC-named root-only directory under
 `/var/backups/whataisle-postgres` (0700; files 0600), containing a custom-format
-dump and SHA256 manifest. Both upload to `postgres/` using create-only object
+dump and SHA256 manifest, plus a root-only runtime configuration copy and its
+checksum for disaster recovery. All upload to the private `postgres/` prefix using create-only object
 preconditions. Any dump/upload failure fails the service and retains the local
 copy and restricted diagnostic logs. Local backups are **never automatically
 deleted**: monitor disk capacity and review retention separately. A completed
