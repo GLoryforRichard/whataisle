@@ -6,10 +6,13 @@
 # https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines
 # https://docs.cloud.google.com/compute/docs/connect/add-ssh-keys
 # https://docs.cloud.google.com/compute/docs/access/iam
+# https://docs.cloud.google.com/iap/docs/using-tcp-forwarding
+# On macOS python.org builds lacking root certificates, use the verified system
+# bundle: SSL_CERT_FILE=/etc/ssl/cert.pem (never disable TLS verification).
 set -euo pipefail
 umask 077
 die() { printf '%s\n' "$*" >&2; exit 1; }
-[[ $# == 2 && ( $1 == --plan || $1 == --apply ) ]] || die 'Usage: configure-deploy-iam.sh --plan|--apply NEW_ACCOUNT_EMAIL'
+[[ $# == 2 && ( $1 == --plan || $1 == --apply || $1 == --iap-only ) ]] || die 'Usage: configure-deploy-iam.sh --plan|--apply|--iap-only NEW_ACCOUNT_EMAIL'
 mode=$1
 account=$2
 [[ $account == whataisle@gmail.com ]] || die 'Use the approved new-account identity.'
@@ -39,9 +42,53 @@ printf 'Project: %s (%s)\nVM: %s / %s\nDeployment SA: %s\nRuntime SA receiving s
 printf '%s\n' 'Instance-only permissions: compute.instances.get, compute.instances.setMetadata' \
   'Project read permissions: compute.projects.get, compute.zoneOperations.get, resourcemanager.projects.get' \
   'Runtime-SA-only permission: iam.serviceAccounts.actAs' \
+  'IAP: target VM tunnel resource only, destination.port == 22; no firewall change' \
   'Trust: repository_id 1291652074, owner_id 44072670, GLoryforRichard/whataisle, main only' \
   'No Compute/Run/Storage admin, no project-wide SSH key write, no token creator/key generation.'
-[[ $mode == --apply ]] || exit 0
+[[ $mode != --plan ]] || exit 0
+configure_iap() {
+  gcloud_new services enable iap.googleapis.com --quiet
+  # Instance-scoped IAP policy is a separate resource from Compute instance IAM.
+  # CLI has no VM-scoped IAP policy command; use the documented IAM REST API.
+  # Token remains in Python memory, never argv/output/files. Preserve policy
+  # version, unrelated bindings and etag; concurrent updates fail for review.
+  python3 - "$account" "$project" "$number" "$zone" "$vm" "$sa" <<'PY'
+import json, os, pathlib, subprocess, sys, tempfile, urllib.request
+account, project, number, zone, vm, sa = sys.argv[1:]
+token = subprocess.check_output(['gcloud', '--account=' + account, '--project=' + project, 'auth', 'print-access-token'], text=True).strip()
+base = 'https://iap.googleapis.com/v1/projects/' + number + '/iap_tunnel/zones/' + zone + '/instances/' + vm
+def request(method, body):
+    req = urllib.request.Request(base + ':' + method, data=json.dumps(body).encode(),
+        headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'})
+    with urllib.request.urlopen(req, timeout=30) as response:
+        return json.load(response)
+policy = request('getIamPolicy', {'options': {'requestedPolicyVersion': 3}})
+backup = pathlib.Path(tempfile.mkdtemp(prefix='whataisle-iap-policy.', dir='/tmp'))
+os.chmod(backup, 0o700)
+(backup / 'before.json').write_text(json.dumps(policy, indent=2) + '\n')
+os.chmod(backup / 'before.json', 0o600)
+member = 'serviceAccount:' + sa
+role = 'roles/iap.tunnelResourceAccessor'
+condition = {'title': 'whataisle-deploy-ssh-only', 'expression': 'destination.port == 22'}
+bindings = policy.setdefault('bindings', [])
+for binding in bindings:
+    if member in binding.get('members', []) and binding.get('role') == role:
+        if binding.get('condition') != condition:
+            raise SystemExit('Existing deployment IAP grant differs; review before changing it.')
+        break
+else:
+    bindings.append({'role': role, 'members': [member], 'condition': condition})
+    policy['version'] = 3
+    request('setIamPolicy', {'policy': policy})
+verified = request('getIamPolicy', {'options': {'requestedPolicyVersion': 3}})
+assert any(b.get('role') == role and member in b.get('members', []) and b.get('condition') == condition for b in verified.get('bindings', [])), 'IAP binding readback failed'
+print('Verified target-VM-only IAP SSH grant; policy backup: ' + str(backup))
+PY
+}
+if [[ $mode == --iap-only ]]; then
+  configure_iap
+  exit 0
+fi
 # Fail if dedicated names already exist. No accidental reuse, widening or
 # overwriting of existing identities. A partially applied run needs operator
 # inspection/resume; it must not be blindly rerun or undone by deleting grants.
@@ -87,6 +134,7 @@ gcloud_new iam roles create "$actas_role" --title='WhatAisle attached VM identit
   --permissions=iam.serviceAccounts.actAs --stage=GA --quiet
 gcloud_new iam service-accounts add-iam-policy-binding "$runtime_sa" \
   --member="serviceAccount:$sa" --role="projects/$project/roles/$actas_role" --condition=None --quiet
+configure_iap
 printf '\nGitHub secret values (identifiers, not private credentials):\nGCP_DEPLOY_SA=%s\nGCP_WIF_PROVIDER=projects/%s/locations/global/workloadIdentityPools/%s/providers/%s\n' "$sa" "$number" "$pool" "$provider"
 printf '%s\n' 'GitHub secrets are not updated by this script. Verify WIF and ephemeral SSH end-to-end before declaring CI ready.'
 # gcloud tries project SSH metadata first, then falls back to instance metadata
