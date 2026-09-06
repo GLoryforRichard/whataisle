@@ -86,11 +86,12 @@ jobs:
           service_account: ${{ secrets.GCP_DEPLOY_SA }}
       - uses: google-github-actions/setup-gcloud@v2
       - name: Upload and activate platform only
+        timeout-minutes: 10
         run: |
           set -euo pipefail
           key_dir=$(mktemp -d)
           ssh-keygen -q -t ed25519 -N '' -f "$key_dir/id"
-          common=(--project="$PROJECT_ID" --zone="$ZONE" --ssh-key-file="$key_dir/id" --quiet)
+          common=(--project="$PROJECT_ID" --zone="$ZONE" --ssh-key-file="$key_dir/id" --tunnel-through-iap --quiet)
           remote_dir="/home/mystery/platform-deploy-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           gcloud compute ssh "mystery@$VM" "${common[@]}" --ssh-key-expire-after=15m \
             --command="umask 077; mkdir '$remote_dir'"
