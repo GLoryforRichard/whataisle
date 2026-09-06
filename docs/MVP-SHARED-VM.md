@@ -228,9 +228,13 @@ its pending-decision and no-cloud-mutations statements.
   conditioned on destination port 22. No public SSH/firewall widening performed.
 - GitHub publishing credentials updated to new WIF/SA. Commit
   `8c442eedc0565f1a1a7f165dd4649aed1730419b` pushed to main; actual deployment
-  workflow now targets the new VM only. First CI/deploy run is being verified.
-  Initial complete CI passed; the corrected IAP deploy is commit `511a4f7`
-  (Actions run `34036347778`), currently being verified.
+  workflow now targets the new VM only. Initial complete CI passed; the corrected
+  IAP deploy commit `511a4f7774479dd50f55a1e61dbf45138fec5588` passed complete
+  build/checks and deployment (Actions run `34036347778`, CI `34036347707`).
+  `/srv/whataisle-platform/current` now resolves to this release; platform active
+  and HTTPS-forwarded home check 200. This proves the new deployment path, not
+  public DNS cutover: the workflow's public probe still reaches the old website.
+  Shared VM has approximately 2.7 GiB available RAM after activation.
   No unrelated cost-monitoring source changes were staged or published.
 - New Caddy configuration is prepared and validates, but is NOT installed yet.
   DNS registrar login has been requested. Old Cloud Run still serves the live

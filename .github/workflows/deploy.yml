@@ -91,15 +91,15 @@ jobs:
           set -euo pipefail
           key_dir=$(mktemp -d)
           ssh-keygen -q -t ed25519 -N '' -f "$key_dir/id"
-          common=(--project="$PROJECT_ID" --zone="$ZONE" --ssh-key-file="$key_dir/id" --tunnel-through-iap --quiet)
+          common=(--project="$PROJECT_ID" --zone="$ZONE" --ssh-key-file="$key_dir/id" --ssh-key-expire-after=15m --tunnel-through-iap --quiet)
           remote_dir="/home/mystery/platform-deploy-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          gcloud compute ssh "mystery@$VM" "${common[@]}" --ssh-key-expire-after=15m \
+          gcloud compute ssh "mystery@$VM" "${common[@]}" \
             --command="umask 077; mkdir '$remote_dir'"
           gcloud compute scp "${common[@]}" "platform-${GITHUB_SHA}.tgz" \
             infra/vm/prepare-platform-release.sh infra/vm/activate-platform-release.sh \
             "mystery@$VM:$remote_dir/"
           digest=$(cut -d ' ' -f 1 "platform-${GITHUB_SHA}.sha256")
-          gcloud compute ssh "mystery@$VM" "${common[@]}" --ssh-key-expire-after=15m \
+          gcloud compute ssh "mystery@$VM" "${common[@]}" \
             --command="sudo bash '$remote_dir/prepare-platform-release.sh' '$GITHUB_SHA' '$remote_dir/platform-${GITHUB_SHA}.tgz' '$digest' && sudo bash '$remote_dir/activate-platform-release.sh' '$GITHUB_SHA'"
           # Ephemeral runner key is never a repository secret or artifact.
       - name: Public read-only check
