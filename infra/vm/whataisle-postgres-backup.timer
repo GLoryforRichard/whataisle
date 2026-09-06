@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily WhatAisle PostgreSQL backup at 03:00 Toronto time
+
+[Timer]
+OnCalendar=*-*-* 03:00:00 America/Toronto
+Persistent=true
+Unit=whataisle-postgres-backup.service
+
+[Install]
+WantedBy=timers.target

@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy platform to shared VM
 
 on:
   push:
@@ -11,85 +11,97 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write
 
 env:
-  PROJECT_ID: whataisle-prod
-  REGION: us-central1
-  SERVICE_NAME: whataisle
-  MIGRATE_JOB_NAME: whataisle-migrate
-  IMAGE: us-central1-docker.pkg.dev/whataisle-prod/whataisle/app
-  MIGRATE_IMAGE: us-central1-docker.pkg.dev/whataisle-prod/whataisle/migrate
-  BASE_URL: https://www.whataisle.com
-  ROOT_DOMAIN: whataisle.com
+  PROJECT_ID: wherebear-prod-20260902
+  VM: wherebear-vm
+  ZONE: northamerica-northeast2-b
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    # Dispatching an arbitrary branch must not publish production code.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      DOCKER_BUILD: 'true'
+      NEXT_TELEMETRY_DISABLED: '1'
+      NEXT_PUBLIC_BASE_URL: https://www.whataisle.com
+      NEXT_PUBLIC_ROOT_DOMAIN: whataisle.com
+      NEXT_PUBLIC_PAYMENT_PROVIDER: stripe
+      NEXT_PUBLIC_STRIPE_PRICE_MONTHLY: ${{ vars.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY }}
+      NEXT_PUBLIC_STRIPE_PRICE_YEARLY: ${{ vars.NEXT_PUBLIC_STRIPE_PRICE_YEARLY }}
+      NEXT_PUBLIC_STRIPE_PRICE_LIFETIME: ${{ vars.NEXT_PUBLIC_STRIPE_PRICE_LIFETIME }}
     steps:
       - uses: actions/checkout@v4
-
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.18.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10.33.2'
+      - run: pnpm install --frozen-lockfile
+      - name: Validate production build boundary
+        run: |
+          set -euo pipefail
+          test -n "$NEXT_PUBLIC_STRIPE_PRICE_LIFETIME"
+          test -z "$(find . -maxdepth 1 -name '.env*' -print -quit)"
+          # Startup hooks need side-effect review before production credentials.
+          test -z "$(find src -maxdepth 1 -name 'instrumentation.*' -print -quit)"
+          test -z "$(find . -maxdepth 1 -name 'instrumentation.*' -print -quit)"
+      - run: pnpm lint
+      - run: pnpm test:unit
+      - run: pnpm typecheck
+      - run: pnpm build
+      - name: Package standalone runtime (no runtime secrets)
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d)
+          cp -a .next/standalone/. "$stage/"
+          cp -a public "$stage/public"
+          cp -a .next/static "$stage/.next/static"
+          test -z "$(find "$stage" -name '.env*' -print -quit)"
+          test ! -e "$stage/apps"
+          test -f "$stage/server.js"
+          test -f "$stage/.next/BUILD_ID"
+          # Operator approves schema compatibility separately; never db:migrate.
+          git ls-files -z src/db | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d ' ' -f 1 > "$stage/schema.sha256"
+          tar -czf "platform-${GITHUB_SHA}.tgz" -C "$stage" .
+          sha256sum "platform-${GITHUB_SHA}.tgz" > "platform-${GITHUB_SHA}.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: platform-${{ github.sha }}
+          retention-days: 7
+          path: |
+            platform-${{ github.sha }}.tgz
+            platform-${{ github.sha }}.sha256
+      # Auth only after packaging: generated credentials cannot enter artifact.
+      # These secrets must target the NEW project's WIF and service account.
       - uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SA }}
-
       - uses: google-github-actions/setup-gcloud@v2
-
-      - name: Configure docker auth
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
-
-      - uses: docker/setup-buildx-action@v3
-
-      - name: Build and push app image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ${{ env.IMAGE }}:${{ github.sha }}
-            ${{ env.IMAGE }}:latest
-          build-args: |
-            NEXT_PUBLIC_BASE_URL=${{ env.BASE_URL }}
-            NEXT_PUBLIC_ROOT_DOMAIN=${{ env.ROOT_DOMAIN }}
-            NEXT_PUBLIC_STRIPE_PRICE_MONTHLY=${{ vars.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY }}
-            NEXT_PUBLIC_STRIPE_PRICE_YEARLY=${{ vars.NEXT_PUBLIC_STRIPE_PRICE_YEARLY }}
-            NEXT_PUBLIC_STRIPE_PRICE_LIFETIME=${{ vars.NEXT_PUBLIC_STRIPE_PRICE_LIFETIME }}
-          cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
-          cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
-
-      - name: Build and push migrate image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile.migrate
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ${{ env.MIGRATE_IMAGE }}:${{ github.sha }}
-            ${{ env.MIGRATE_IMAGE }}:latest
-
-      - name: Run migrations
+      - name: Upload and activate platform only
         run: |
-          gcloud run jobs update ${{ env.MIGRATE_JOB_NAME }} \
-            --region=${{ env.REGION }} \
-            --image=${{ env.MIGRATE_IMAGE }}:${{ github.sha }}
-          gcloud run jobs execute ${{ env.MIGRATE_JOB_NAME }} \
-            --region=${{ env.REGION }} --wait
-
-      - name: Deploy Cloud Run service
-        # --update-env-vars merges with the env already on the service.
-        # AI keys live in GitHub secrets because local gcloud access to
-        # whataisle-prod is org-restricted; ADMIN_TASK_TOKEN authorizes
-        # machine calls to /api/admin/re-embed after embedding-model changes.
-        # Scan photos are memory-heavy (sharp + 3072px band slices). Cap
-        # per-instance concurrency at 2 and scale out so a 10-photo staff
-        # batch can run in parallel without OOMing a single box.
+          set -euo pipefail
+          key_dir=$(mktemp -d)
+          ssh-keygen -q -t ed25519 -N '' -f "$key_dir/id"
+          common=(--project="$PROJECT_ID" --zone="$ZONE" --ssh-key-file="$key_dir/id" --quiet)
+          remote_dir="/home/mystery/platform-deploy-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          gcloud compute ssh "mystery@$VM" "${common[@]}" --ssh-key-expire-after=15m \
+            --command="umask 077; mkdir '$remote_dir'"
+          gcloud compute scp "${common[@]}" "platform-${GITHUB_SHA}.tgz" \
+            infra/vm/prepare-platform-release.sh infra/vm/activate-platform-release.sh \
+            "mystery@$VM:$remote_dir/"
+          digest=$(cut -d ' ' -f 1 "platform-${GITHUB_SHA}.sha256")
+          gcloud compute ssh "mystery@$VM" "${common[@]}" --ssh-key-expire-after=15m \
+            --command="sudo bash '$remote_dir/prepare-platform-release.sh' '$GITHUB_SHA' '$remote_dir/platform-${GITHUB_SHA}.tgz' '$digest' && sudo bash '$remote_dir/activate-platform-release.sh' '$GITHUB_SHA'"
+          # Ephemeral runner key is never a repository secret or artifact.
+      - name: Public read-only check
         run: |
-          gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --region=${{ env.REGION }} \
-            --image=${{ env.IMAGE }}:${{ github.sha }} \
-            --cpu=2 --memory=4Gi --concurrency=2 \
-            --min-instances=0 --max-instances=20 \
-            --update-env-vars='^@^DASHSCOPE_API_KEY=${{ secrets.DASHSCOPE_API_KEY }}@DASHSCOPE_BASE_URL=${{ secrets.DASHSCOPE_BASE_URL }}@OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}@ADMIN_TASK_TOKEN=${{ secrets.ADMIN_TASK_TOKEN }}@AI_STUB=false@AI_MAX_CONCURRENT=36'
+          curl --fail --silent --show-error --max-time 20 https://www.whataisle.com/api/ping
+          # Availability only, not database/business acceptance.

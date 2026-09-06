@@ -1,0 +1,25 @@
+[Unit]
+Description=WhatAisle SaaS platform (shared new-account VM)
+After=network-online.target postgresql@17-main.service
+Wants=network-online.target
+Requires=postgresql@17-main.service
+
+[Service]
+Type=simple
+User=whataisle-platform
+Group=whataisle-platform
+WorkingDirectory=/srv/whataisle-platform/current
+EnvironmentFile=/etc/whataisle-platform/platform.env
+Environment=NODE_ENV=production HOSTNAME=localhost PORT=3000
+ExecStart=/opt/whataisle-platform/node-v24.18.0-linux-x64/bin/node server.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+KillSignal=SIGTERM
+NoNewPrivileges=true
+PrivateTmp=true
+MemoryMax=1200M
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,59 @@
+# DRAFT ONLY. Not loaded by Actions; replace the old deploy workflow only after
+# cutover acceptance. This builds an artifact, and never deploys or migrates DB.
+name: Build platform VM artifact
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    env:
+      DOCKER_BUILD: 'true'
+      NEXT_TELEMETRY_DISABLED: '1'
+      NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
+      NEXT_PUBLIC_ROOT_DOMAIN: ${{ vars.NEXT_PUBLIC_ROOT_DOMAIN }}
+      NEXT_PUBLIC_PAYMENT_PROVIDER: ${{ vars.NEXT_PUBLIC_PAYMENT_PROVIDER }}
+      NEXT_PUBLIC_STRIPE_PRICE_LIFETIME: ${{ vars.NEXT_PUBLIC_STRIPE_PRICE_LIFETIME }}
+      NEXT_PUBLIC_STRIPE_PRICE_MONTHLY: ${{ vars.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY }}
+      NEXT_PUBLIC_STRIPE_PRICE_YEARLY: ${{ vars.NEXT_PUBLIC_STRIPE_PRICE_YEARLY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.18.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10.33.2'
+      - run: pnpm install --frozen-lockfile
+      - name: Validate public build configuration
+        run: |
+          test "$NEXT_PUBLIC_BASE_URL" = 'https://www.whataisle.com'
+          test "$NEXT_PUBLIC_ROOT_DOMAIN" = 'whataisle.com'
+          test "$NEXT_PUBLIC_PAYMENT_PROVIDER" = 'stripe'
+          test -n "$NEXT_PUBLIC_STRIPE_PRICE_LIFETIME"
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+      - run: pnpm build
+      - name: Package only standalone runtime and static assets
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d)
+          cp -a .next/standalone/. "$stage/"
+          cp -a public "$stage/public"
+          cp -a .next/static "$stage/.next/static"
+          # Fail closed: never upload an environment file or store checkout.
+          test -z "$(find "$stage" -name '.env*' -print -quit)"
+          test ! -e "$stage/apps"
+          test -f "$stage/server.js"
+          test -f "$stage/.next/BUILD_ID"
+          tar -czf "platform-${GITHUB_SHA}.tgz" -C "$stage" .
+          sha256sum "platform-${GITHUB_SHA}.tgz" > "platform-${GITHUB_SHA}.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: platform-${{ github.sha }}
+          retention-days: 7
+          path: |
+            platform-${{ github.sha }}.tgz
+            platform-${{ github.sha }}.sha256
