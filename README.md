@@ -1,12 +1,21 @@
 # WhatAisle
 
+## Shared-VM MVP hosting (2026-09-06)
+
+One SaaS, one new-account GCP project, one shared application VM for the first
+five stores; WhereBear is customer 1. Revisit splitting after MVP validation
+with more than five stores. Cloud cutover is complete: both apps use
+`wherebear-prod-20260902 / wherebear-vm`, with PostgreSQL on that VM and daily
+private off-VM backups. Billing is disabled on both old projects. See the
+[migration record](docs/MVP-SHARED-VM.md) for evidence and verification limits.
+
 ## WhereBear integration (2026-09-05)
 
 This repository now also maintains the existing WhereBear store application in
 [`apps/wherebear`](apps/wherebear/README.md). Canonical store address:
 `https://wherebear.whataisle.com`. The platform administrator's `/admin/stores`
 page registers it as customer 1. Each application retains its independent build
-and existing GCP runtime; product data stays in the existing dedicated MongoDB
+on the shared GCP VM; product data stays in the existing dedicated MongoDB
 database. This is not a migration into the dormant Postgres tenant tables.
 
 Current integration and release procedure: [migration record](docs/WHEREBEAR-MERGE.md).
@@ -23,7 +32,7 @@ highlighted floor map. Zero manual data entry, ever.
 
 - Main site: `www.whataisle.com`
 - Per-store page: `<store-handle>.whataisle.com`
-- **Live in production** on Google Cloud (project `whataisle-prod`)
+- **Live in production** on Google Cloud (project `wherebear-prod-20260902`)
 
 Built on [mksaas-template](https://mksaas.com) (imported at `7b295cd9`) —
 Next.js 16, React 19, Better Auth, Drizzle + Postgres (pgvector), next-intl
@@ -133,11 +142,15 @@ cookies are host-only and bound to `(storeId, pinVersion)`.
 
 ## Deployment
 
-Cloud Run + Cloud SQL behind a global load balancer with wildcard TLS for
-`*.whataisle.com`. Every push to `main` triggers
-`.github/workflows/deploy.yml` (keyless via Workload Identity Federation),
-which builds the app and migration images, runs the migration job, then
-deploys. One-time provisioning scripts live in `infra/gcp/`.
+One Compute Engine VM behind Caddy: the platform runs as systemd service
+`whataisle-platform` on loopback 3000; WhereBear retains its PM2 worker on 3002.
+Platform PostgreSQL 17 is local; store product data stays in MongoDB Atlas.
+Main-branch `.github/workflows/deploy.yml` builds/checks and deploys only the
+platform through keyless Workload Identity Federation and IAP to the new VM.
+Schema changes require operator approval; the pipeline does not run migrations.
+Store releases use a separate worker-aware procedure. See [the VM runbook](infra/vm/README.md).
+`infra/gcp/` describes the retired source infrastructure; do not rerun it.
+Future store hosts need explicit Caddy/TLS and tenant configuration, not DNS alone.
 
 ## Open items
 

@@ -1,9 +1,10 @@
-# Platform release preparation (operator reference)
+# Shared-VM platform deployment (operator reference)
 
 `.github/workflows/deploy.yml` builds and activates the platform on the new VM
 only. These release scripts never change DNS, Caddy, Cloud Run, PostgreSQL or
 Wherebear. Database compatibility requires an operator-approved schema digest;
-the pipeline does not run migrations. Public traffic cutover is separate.
+the pipeline does not run migrations. Public traffic cutover was completed on
+2026-09-06 (Toronto); subsequent releases must preserve existing DNS/Caddy.
 
 ## Prerequisites
 
@@ -85,8 +86,10 @@ Compatible schemas and a verified backup are prerequisites, not an assumption.
 `bash -n infra/vm/*.sh` checks shell syntax (also check each file individually).
 Prepare/activation have passed target-VM integration checks. A separate private
 database-password connection verified all 32 restored table counts and the VM
-identity read all four media objects. DNS cutover and live business acceptance
-remain separate; do not infer migration completion from these checks.
+identity read all four media objects. Final cutover subsequently verified all
+32 table counts/content digests, public DNS, valid TLS and platform/store routes;
+see `../../docs/MVP-SHARED-VM.md`. These checks do not constitute a new real
+purchase, authenticated browser login, scan or load test.
 
 The technical runbook follows the documentation skill's prerequisites,
 procedure and rollback structure. Next-specific behavior was checked against
@@ -128,4 +131,5 @@ future backups, disable/stop the timer; this does not delete existing copies.
 
 2026-09-06: upload/download/checksum/restore drill passed against all 32 tables;
 the disposable drill database was removed after verification. Timer enabled for
-03:00 America/Toronto. This is still a pre-cutover snapshot, not the final sync.
+03:00 America/Toronto. A fresh successful backup followed the final synchronized
+restore on 2026-09-07 UTC (2026-09-06 Toronto).

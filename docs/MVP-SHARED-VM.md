@@ -1,9 +1,13 @@
 # Shared-VM MVP decision and migration checklist
 
 Decision date: 2026-09-06 (America/Toronto).
-Status: migration in progress; owner approved same-VM PostgreSQL with daily
-off-VM backups. Initial data restore, media transfer, private platform startup
-and off-VM restore drill passed. Production DNS/final-sync cutover NOT performed.
+Status: cloud cutover completed 2026-09-06 evening (America/Toronto;
+2026-09-07 UTC). Final database sync, production DNS/TLS, new-account deployment,
+media and daily off-VM backup are active. Both old projects have billing disabled.
+The local Mac still had stale DNS and Chrome blocked the website; neither browser
+security settings nor password-protected system settings were bypassed.
+See the final execution record for evidence and acceptance limits. Earlier
+execution records below describe historical intermediate states.
 
 ## Approved boundary
 
@@ -27,17 +31,17 @@ and off-VM restore drill passed. Production DNS/final-sync cutover NOT performed
   Access to old resources is limited to migration, verification, and separately
   verified cleanup. Do not restart the stopped old WhereBear VM.
 
-## Source versus target
+## Historical source versus current production
 
-| Component | Verified source | Required target |
+| Component | Historical source | Current production |
 | --- | --- | --- |
 | Platform website/account/billing app | `whataisle-prod` Cloud Run | Separate platform process on shared new VM |
 | WhereBear store/scan worker | New VM, PM2 `wherebear-platform-final`, port 3002 | Preserve existing runtime and data |
-| Platform PostgreSQL | Old Cloud SQL `whataisle-pg` still authoritative until cutover | PostgreSQL 17 on shared VM, initial restore verified; daily off-VM backup enabled |
+| Platform PostgreSQL | Old Cloud SQL `whataisle-pg` | PostgreSQL 17 on shared VM, final counts/content verified; daily off-VM backup enabled |
 | Store product/search data | MongoDB Atlas `wherebear` | Unchanged |
 | Platform media | Old GCS bucket `whataisle-prod-whataisle-media` | New-account storage with preserved keys and verified access |
 | Platform HTTPS entry | Old global load balancer | Shared VM/Caddy for apex and `www`; preserve store/legacy routes |
-| Main deployment workflow | Old Cloud Run/Artifact Registry/WIF | New target only, after validation and source authorization |
+| Main deployment workflow | Old Cloud Run/Artifact Registry/WIF | New VM only, real main-branch deployment passed |
 
 Application routing after cutover: `www.whataisle.com` and the apex reach the
 platform process; `wherebear.whataisle.com` reaches the existing store process.
@@ -241,3 +245,90 @@ its pending-decision and no-cloud-mutations statements.
   platform; do not shut it or SQL down before write-freeze/final-sync/DNS checks.
   Initial snapshot is not a final synchronization, and old-resource charges are
   not yet resolved. Current app co-location is private readiness, not cutover.
+
+## Resume — 2026-09-06 evening (America/Toronto)
+
+- Owner reported DNS registrar login complete. Browser connection is blocked at
+  Chrome's `Allow remote debugging?` permission sheet; user action requested.
+  No DNS change, writer freeze or final database restore has occurred.
+- New VM platform release remains `511a4f7`, service/PostgreSQL active, private
+  HTTPS-forwarded platform probe 200.
+- Paused obsolete old-project scheduler `whataisle-jobs-tick` in us-central1;
+  readback `PAUSED`. Its `/api/jobs/tick` target is absent from current platform
+  code and must not continue hitting the domain after cutover. Pausing a job
+  does not establish zero billing for the old project.
+- Prepared `/tmp/whataisle-migration.Pd8hQP/final-export.cjs`: maintenance/drain
+  guard, consistent exported snapshot, dump plus all-table content digests.
+  Script not executed. Temporary source Cloud SQL proxy was stopped while
+  waiting for browser permission; source website and SQL remain operational.
+
+## Final execution — 2026-09-06 evening Toronto / 2026-09-07 UTC
+
+This record supersedes all pending cutover/browser statements above.
+
+- Used the owner's retained Spaceship Chrome profile (`用户1`), not the unrelated
+  Chrome instance that requested remote debugging. Exported the eight existing
+  DNS records before changing them; unrelated mail records were preserved.
+- Put the old Cloud Run source into explicit HTTP 503 maintenance revision
+  `whataisle-00025-8bc`, confirmed the maintenance response, and waited over
+  310 seconds for in-flight requests before the final consistent export.
+  No old WhereBear VM was started. The obsolete scheduler remained paused.
+- Final custom-format dump: 81,168 bytes, SHA256
+  `da182fa1d1cd7a85b14f5e04e4c60953731cf047b8f4436652a9ad2470117b32`.
+  Export used one PostgreSQL snapshot for dump, all 32 table counts and sorted
+  row-content digests. Restored into a fresh target DB and verified every count
+  and digest before switching the platform database. Initial target database
+  retained as `whataisle_initial_20260907`; production database is `whataisle`.
+  Application-role TCP/password reads repeated the 32 count checks successfully.
+- Rechecked all four original media objects against the preserved inventory;
+  names, sizes, hashes and content metadata matched. Actual new VM identity
+  reads passed. WhereBear Atlas data, PM2 worker and scan queues were unchanged.
+- Installed validated Caddy configuration for apex and `www` on loopback 3000,
+  retaining the existing store/legacy routes on 3002. Prior Caddy configuration
+  is retained root-only as `/etc/caddy/Caddyfile.pre-platform-20260906`.
+  Spaceship `@` and `*` A records now point to `34.130.157.162`, TTL 300;
+  `wherebear` was already correct. Removed only the obsolete Google certificate
+  `_acme-challenge` CNAME. MX/SPF/DKIM/DMARC are unchanged.
+- Authoritative DNS, 1.1.1.1 and 8.8.8.8 returned the new IP. Local curl pinned
+  to the new IP verified valid HTTPS: www 200, apex 308, store 200. From the VM,
+  real public hostnames returned www/login/Chinese page 200 and legacy store
+  redirect-to-canonical 200. Platform, PostgreSQL, Caddy and backup timer are
+  active; actual platform release remains `511a4f7774479dd50f55a1e61dbf45138fec5588`.
+- A fresh daily-backup job after final restore exited successfully (status 0).
+  The new private backup bucket also holds the final dump/manifest, source
+  service/SQL/bucket configuration and DNS backup at `migration-20260907/`.
+  Source configuration includes secrets intentionally kept private, never in Git.
+  Existing 32-table off-VM restore drill passed earlier; no external backup
+  failure alert has been configured.
+- Archived the stopped old WhereBear VM disk into the new project's snapshot
+  `archived-old-wherebear-20260907`: READY, source disk ID
+  `8900725077177245886`, logical 10 GB, stored bytes 4,702,498,496.
+  This verifies snapshot service completion/source identity, not a disk boot or
+  mount restore drill. Snapshot storage now belongs to the new billing project.
+  Temporary old-account IAM binding on the destination was removed and verified.
+- Disabled project billing on BOTH `whataisle-prod` and
+  `acoustic-cargo-498500-q3`; independent readbacks show `billingEnabled: false`
+  and empty `billingAccountName`. New project billing remains enabled on
+  `018F6C-4D4BBD-35BA5E`. This is a billing/service shutdown, not a claim that
+  every old resource was individually deleted or that prior charges vanished.
+  Google may remove resources after disabling billing, hence backups were
+  secured first. Prior accrued charges can appear later (reporting up to two
+  days): [Google's project billing documentation](https://docs.cloud.google.com/billing/docs/how-to/modify-project#disable_billing_for_a_project).
+- Removed only obsolete firewall rule `wherebear-allow-old-proxy` (old source
+  IP `34.130.97.67/32` to TCP 3000); retained its metadata in the private migration
+  directory. Existing SSH/IAP and store rules were preserved. Stopped the
+  temporary local Cloud SQL proxy. No production rollback to the old account.
+- Local-machine limitation: native macOS DNS still cached `34.54.221.115` at
+  20:39 Toronto (remaining TTL 2,252 seconds), although DNS queries already
+  resolved correctly. Nonprivileged cache flush did not clear mDNS; privileged
+  flush required the owner's password. Chrome separately showed
+  `ERR_BLOCKED_BY_CLIENT`. No browser security/extension setting was bypassed.
+  These observations are separate from verified new-server DNS/TLS health.
+- Verification did not create a purchase, signup, upload, AI scan or production
+  database row. Preserved account/payment/session records and runtime secrets
+  were checked, but no new authenticated browser flow or payment webhook replay
+  was exercised. Co-location is not unified tenant-auth/provisioning completion.
+- Owner's continuous-execution preference is now in global Codex `AGENTS.md`:
+  continue authorized work without repeated confirmations; pause only for a
+  necessary permission, missing key information, new risk decision or explicit
+  user stop. This does not broaden authority or remove safety checks.

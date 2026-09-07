@@ -17,6 +17,15 @@ Do NOT introduce LangChain, LangGraph, LlamaIndex, or any other third-party agen
 
 # Deployment — WhatAisle-managed GCP store runtime
 
+Owner decision (2026-09-06): WhatAisle and its first five stores share the new
+account's existing VM and GCP project. Consider splitting only after MVP
+validation with more than five stores. Separate app processes do not imply
+separate products or VMs. Preserve store-specific data credentials, queues,
+and access boundaries. Cloud cutover completed: the platform uses systemd/3000,
+local PostgreSQL/5432 and the same Caddy; WhereBear remains on PM2/3002.
+Both old projects have billing disabled; never restart or deploy to them.
+See `../../docs/MVP-SHARED-VM.md` for the migration and verification record.
+
 This application is maintained at `apps/wherebear` in the WhatAisle repository.
 It runs on the existing Google Compute Engine VM behind Caddy and PM2; do not
 move the long-running scan worker into the website's Cloud Run container.

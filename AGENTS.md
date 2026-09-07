@@ -5,6 +5,24 @@ with code in this repository. It is kept deliberately identical to `CLAUDE.md`
 from the "What This Is" section down, so any divergence between the two shows
 up as a diff.
 
+## MVP deployment decision — owner approved 2026-09-06
+
+WhatAisle is one SaaS product; WhereBear is customer 1, not a separate product.
+Through the first five stores, the platform and store applications are to share
+one VM and one GCP project in the new account: `wherebear-vm`,
+`wherebear-prod-20260902`, `northamerica-northeast2-b`. Revisit splitting after
+MVP validation with **more than five stores**; do not provision a VM per customer
+by default. Separate processes, per-store credentials/data/queue directories,
+and server-side access controls remain required on shared infrastructure.
+
+Cloud cutover completed 2026-09-06 (Toronto): platform systemd on loopback 3000,
+WhereBear PM2 on 3002, local PostgreSQL 17 on 5432, shared Caddy at
+`34.130.157.162`. Platform media and daily private off-VM backups use the new
+project. Both old projects (`whataisle-prod`, `acoustic-cargo-498500-q3`) have
+billing disabled. Never deploy to, re-enable billing for, or restart them.
+See [the migration record](docs/MVP-SHARED-VM.md) and [VM runbook](infra/vm/README.md).
+Cloud Run instructions below are historical source information, not production.
+
 ## What This Is
 
 WhatAisle — an online "find the shelf" service for multilingual grocery stores.
@@ -17,7 +35,7 @@ WhatAisle — an online "find the shelf" service for multilingual grocery stores
 - **Owners** manage shelves, read "what did shoppers fail to find" insights, and
   print QR posters.
 
-Live in production at `www.whataisle.com` (GCP project `whataisle-prod`);
+Live in production at `www.whataisle.com` (GCP project `wherebear-prod-20260902`);
 per-store subdomains are `<handle>.whataisle.com`. Every push to `main`
 auto-deploys via `.github/workflows/deploy.yml`.
 
