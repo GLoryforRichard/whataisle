@@ -147,14 +147,16 @@ index, billing setting or credential was created or changed.
 | Connections | `16 / 500` at inspection; a sample, not a capacity test |
 | Search/vector allowance | UI explicitly showed **2 of 3** cluster-wide indexes used |
 | Existing text index | `wherebear.products.text_index`, Search with dynamic mapping, `READY`, queryable checked, `14,482 / 14,482` documents (`100%`), size `365.81 MB` |
-| Existing vector index | `wherebear.products.vector_index`, Vector Search displaying `search_text` and `latest_aisle`, `READY`, queryable checked, `14,482 / 14,482` documents (`100%`), size `14.7 MB` (recommended memory also `14.7 MB`) |
+| Existing vector index | `wherebear.products.vector_index`, `READY` and queryable. Visible JSON confirms an `autoEmbed` text field at `search_text` with `voyage-4-large`, plus a `filter` at `latest_aisle`. The UI reports defaults: scalar quantization, 1024 dimensions and cosine similarity. Indexed `14,482 / 14,482` documents (`100%`), size/recommended memory `14.7 MB`. |
 | Current-month embedding usage | Model `voyage-4-large`: query `748` tokens / `302` requests; indexing usage displayed `0`. This is a point-in-time usage snapshot, not a monthly allowance or full workload test. |
 | Free Usage snapshot | Organization-wide one-time model balances, not monthly: `voyage-4-large` used `609,073 / 200,000,000` tokens (`0.3%`); `voyage-4` used `0 / 200,000,000` tokens |
 | Signed-in human role | `Project Owner`; this does not establish the worker service account's access |
 | User-managed service accounts | The project's Applications → Service Accounts → User Managed page displayed “No service accounts yet”. No account was created. This does not inventory System Managed accounts or legacy API keys. |
 | Organization resource policies | The organization's Resource Policies page showed the empty state and Create Policy action on 2026-09-08. No organization resource policy was configured at this read-only check. |
 | Payment method | The organization's Billing Overview displayed “Payment Method Not added yet.” No payment information was entered or saved. A paid upgrade therefore also requires a payment method. |
-| Still unverified / to configure | Worker permissions/credentials, restricted DB-user access, API/data IP access, remaining billing details, and the existing Vector Search index's complete model/field definition. |
+| Database IP access | The project's IP Access List showed active `0.0.0.0/0` plus one operator `/32` entry. Authentication remains required; the network list currently permits connection attempts from any address. Before activation, review actual VM egress and required operator access, add explicit permitted addresses, verify connectivity, then remove the broad rule only under the approved deployment scope. No access rule was changed. |
+| Local index-definition snapshot | Both complete definitions were read from their visible JSON editors; Save stayed disabled and Cancel returned to READY/queryable overviews. Private files and hashes are in `/Users/mystery/Desktop/dev/whataisle-atlas-review-20260908-d7jbzhoe` outside both Git worktrees (directory 0700/files 0600). Text uses only `mappings.dynamic: true`; the vector definition retains the existing model and field paths. This is configuration preparation, not a database-content backup; refresh/compare at the authorized backup window. |
+| Still unverified / to configure | Worker permissions/credentials and API IP access, restricted runtime DB-user access, reviewed database IP restrictions, and remaining billing details. |
 
 **Confirmed isolation prerequisite, later 2026-09-08 UTC check:** the actual
 WhereBear process on port `3002` authenticated with role `atlasAdmin` on `admin`.

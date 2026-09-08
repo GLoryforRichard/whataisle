@@ -7,6 +7,11 @@ Atlas permission change, live payment or external AI scan has been performed.**
 
 - Base commit: `4271722`.
 - Candidate branch: `codex/customer-onboarding-release`.
+- The read-only remote-main check on 2026-09-08 still returned `4271722`.
+  The known serving-platform commit `511a4f7` is its ancestor; both are ancestors
+  of this candidate. No upstream application change is missing. The accepted
+  store artifact's `8ae15a2` source remains identical to the candidate store tree;
+  subsequent changes only record release evidence and deployment prerequisites.
 - Candidate working directory: `/Users/mystery/Desktop/dev/whataisle-onboarding-release-20260908`.
 - The original `/Users/mystery/Desktop/dev/whataisle` working tree retains the
   owner's pre-existing uncommitted work. This candidate excludes the earlier AI
@@ -116,7 +121,11 @@ used to register customer accounts.
    requires separate recurring-cost and existing-store downtime approval. The
    User Managed service-account list is empty. Organization resource policies
    showed an empty state, and Billing Overview explicitly showed no payment
-   method. Finish checking network access and the remaining billing details.
+   method. The database IP list includes active `0.0.0.0/0`; authentication is
+   still required, but network reachability should be narrowed to verified VM
+   egress and required operator addresses under the reviewed deployment scope.
+   Finish configuring restricted worker API access and the remaining billing
+   details.
    The paid cluster upgrade requires a payment method; restricted worker access
    remains separately unconfigured.
    The existing WhereBear runtime currently authenticates with `atlasAdmin`.
@@ -126,6 +135,10 @@ used to register customer accounts.
    serving process uses the restricted role after restart. The current private
    daily backup covers PostgreSQL only: a MongoDB backup, separately saved
    Search definitions and an isolated restore check must precede the upgrade.
+   Both definitions have now been captured privately from the visible Atlas
+   JSON editors in `/Users/mystery/Desktop/dev/whataisle-atlas-review-20260908-d7jbzhoe`; no definition was
+   changed. This preparation does not replace the pending database-content
+   backup or its restore check.
 2. Review exact account permissions, new-runtime AI credentials, test-only Stripe
    prices/email allowlist and a bounded AI test budget. Keep secrets out of chat,
    Git and release artifacts. No cluster upgrade or additional VM is implied.
