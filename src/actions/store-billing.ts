@@ -7,7 +7,7 @@ import {
   getStoreBillingService,
   hasLegacyStoreSubscription,
 } from '@/payment/store-billing';
-import { billingAccess } from '@/payment/store-billing/model';
+import { StoreOfferError, billingAccess } from '@/payment/store-billing/model';
 import { z } from 'zod';
 
 export const getStoreBillingAction = userActionClient
@@ -35,7 +35,7 @@ export const createStoreCheckoutAction = userActionClient
     z.object({
       requestId: z.uuid(),
       plan: z.enum(['month', 'year']),
-      promoCode: z.string().max(32).optional(),
+      promoCode: z.string().max(96).optional(),
       locale: z.enum(['en', 'zh']).optional(),
     })
   )
@@ -53,6 +53,33 @@ export const createStoreCheckoutAction = userActionClient
       parsedInput
     );
     return { success: true, ...checkout };
+  });
+
+export const previewStoreOfferAction = userActionClient
+  .inputSchema(
+    z.object({
+      plan: z.enum(['month', 'year']),
+      promoCode: z.string().max(96).optional(),
+    })
+  )
+  .action(async ({ parsedInput, ctx }) => {
+    try {
+      return {
+        success: true as const,
+        offer: await getStoreBillingService().previewOffer(
+          ctx.user,
+          parsedInput
+        ),
+      };
+    } catch (error) {
+      return {
+        success: false as const,
+        error:
+          error instanceof StoreOfferError
+            ? error.message
+            : 'Unable to preview offer; please try again',
+      };
+    }
   });
 
 export const scheduleStorePlanAction = userActionClient

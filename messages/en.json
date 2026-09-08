@@ -2,7 +2,7 @@
   "Metadata": {
     "name": "WhatAisle",
     "title": "WhatAisle — \"What Aisle Is It In?\" Answered for Grocery Stores",
-    "description": "WhatAisle lets grocery shoppers ask \"what aisle is it in?\" and get the exact shelf with a map — type, speak, snap a photo, or just describe what it's for, in English or Chinese. Staff just snap shelf photos. No app, no data entry."
+    "description": "WhatAisle is self-service software for grocery stores: create your store page, draw its floor map, and upload shelf photos so shoppers can find products with a shelf location and map in English or Chinese."
   },
   "Common": {
     "premium": "Premium",
@@ -46,8 +46,8 @@
   },
   "PricingPage": {
     "title": "Pricing",
-    "description": "US$199/month or US$1,999/year. New stores receive two bonus months.",
-    "subtitle": "US$199/month or US$1,999/year. New stores receive two bonus months.",
+    "description": "Self-service store software: US$199 for one month or US$1,999 for twelve months.",
+    "subtitle": "Self-service store software: US$199 for one month or US$1,999 for twelve months.",
     "monthly": "Monthly",
     "yearly": "Yearly",
     "PricingCard": {
@@ -71,48 +71,46 @@
     "steps": {
       "title": "How it starts",
       "s1t": "Subscribe online",
-      "s1d": "Checkout takes two minutes.",
-      "s2t": "We come and install",
-      "s2d": "Floor map, shelf memory, QR posters — all set up by us.",
-      "s3t": "Your store just works",
-      "s3d": "Staff snap shelves; shoppers find any product in seconds."
+      "s1d": "Choose monthly or annual billing, then set your store name, web address and workspace password.",
+      "s2t": "Draw your store map",
+      "s2d": "Open your store page on a tablet, add shelves and confirm the map with your workspace password.",
+      "s3t": "Build your shelf memory",
+      "s3d": "When photo upload is ready, staff select a shelf and take or upload photos to help shoppers find products."
     },
-    "finePrint": "Formal prices exclude tax. Enter promotion codes before checkout. Cancellation preserves paid and bonus time.",
+    "finePrint": "Prices exclude applicable tax. Valid promotions, currency and the next charge date are shown before payment. Canceling renewal preserves access until the confirmed service end date.",
     "tiles": {
-      "t1": "We install everything",
-      "d1": "Map, shelf memory, posters — done for you",
-      "t2": "Cancel anytime",
-      "d2": "Monthly billing, no long-term contract",
+      "t1": "Set up your store online",
+      "d1": "Your store page, map editor and shelf-photo workspace",
+      "t2": "Control your renewal",
+      "d2": "Choose monthly or annual billing; cancel future renewals anytime",
       "t3": "English + 中文",
       "d3": "Shoppers ask in either language"
     },
     "faq": {
       "title": "Pricing questions",
-      "q1": "Is there a contract or setup fee?",
-      "a1": "No setup fee. US$199 monthly or US$1,999 annually, before tax. Cancellation preserves your paid and bonus time; refunds are reviewed manually.",
+      "q1": "What does the subscription include?",
+      "a1": "Self-service store software costs US$199 for one month or US$1,999 for twelve months, before tax. You create the store map and staff upload shelf photos. Canceling renewal preserves access through your confirmed service period; refunds are reviewed manually.",
       "q2": "What do we need to do on our side?",
-      "a2": "Almost nothing. We visit your store, build the floor map, set up the shelf memory and hang the QR posters. Staff just snap shelf photos as they restock.",
+      "a2": "Create your store page after payment, draw its floor map and confirm it with your workspace password. Once photo upload is ready, staff select shelves and upload photos. Display your store QR code where shoppers can scan it.",
       "q3": "How do shoppers use it?",
       "a3": "They scan the QR poster and ask in English or Chinese — typing, speaking, or snapping a photo — and get the exact shelf with a map."
     },
     "annual": {
-      "hint": "US$1,999 annually; 14 months for eligible new stores",
-      "save": "Save US$389 against 12 monthly payments",
-      "promoTitle": "Two bonus months for new stores",
-      "promoDesc": "The first monthly term lasts 3 months; the first annual term lasts 14. Once per store; switching plans does not grant another bonus."
+      "hint": "US$1,999 for twelve months",
+      "save": "Save US$389 compared with US$2,388 for twelve monthly payments"
     }
   },
   "PricePlans": {
     "monthly": {
       "name": "WhatAisle for your store",
-      "description": "We install everything in your store. Cancel anytime.",
+      "description": "Create your store page, draw its map and upload shelf photos online.",
       "features": {
-        "feature-1": "We install and set up everything in your store",
-        "feature-2": "Two bonus months on first activation, once per store",
+        "feature-1": "Your own store page and tablet floor-map editor",
+        "feature-2": "Password-protected workspace for shelf photos",
         "feature-3": "Shoppers type, speak, or snap a photo to find items",
         "feature-4": "Works in English and Chinese",
         "feature-5": "Search reports: what shoppers want, what's missing",
-        "feature-6": "Cancel anytime — no long-term contract"
+        "feature-6": "Manage billing and cancel future renewals in your account"
       }
     },
     "free": {
@@ -146,10 +144,10 @@
       }
     },
     "lifetime": {
-      "name": "Store Setup",
-      "description": "Pay once and your store is live for good.",
+      "name": "Legacy lifetime plan",
+      "description": "An existing-customer plan that is no longer sold.",
       "features": {
-        "feature-1": "Send us a store video — we draw your floor map",
+        "feature-1": "Your store floor map and shelf locations",
         "feature-2": "Your store's own web address + QR posters",
         "feature-3": "Shoppers type, speak, or snap a photo to find items",
         "feature-4": "Works in English and Chinese",
@@ -190,8 +188,8 @@
   "AboutPage": {
     "title": "About us",
     "description": "WhatAisle helps neighborhood grocery stores answer the question they hear most: “where is it?”",
-    "p1": "WhatAisle is a find-it service for neighborhood grocery stores. Shoppers scan a QR code in the store, ask where something is, and their phone shows the exact shelf — with a map.",
-    "p2": "The store's side is simple: staff photograph shelves now and then. No product entry, no data upkeep, no special training.",
+    "p1": "WhatAisle is self-service product-finding software for neighborhood grocery stores. Shoppers scan a store QR code, ask where something is, and see the shelf with a map.",
+    "p2": "Owners create their store page and draw the floor map online. Staff then select shelves and upload photos to keep product locations current, without typing product lists.",
     "p3": "Our customers are mostly overseas Chinese supermarkets, along with neighborhood markets of every kind. We build only what's useful, and make it work without a manual.",
     "contactTitle": "Questions?",
     "contactBody": "Email us directly, or leave a message on the contact page — we answer both."
@@ -421,14 +419,14 @@
     "dashboard": {
       "title": "Dashboard",
       "welcomeTitle": "Welcome to WhatAisle",
-      "welcomeDescription": "We install and set up WhatAisle in your store ourselves — there is nothing to configure here. Your account is for managing your subscription; for anything about your store's setup, just get in touch.",
+      "welcomeDescription": "Manage your subscription and store here. After payment, choose your store name and web address, set a workspace password, then open the store page to draw and confirm its floor map. The workspace shows when shelf-photo upload is ready.",
       "billingCard": {
         "title": "Subscription & billing",
         "description": "View your plan, invoices, and payment method"
       },
       "contactCard": {
         "title": "Contact us",
-        "description": "Questions about your store's setup? We're happy to help"
+        "description": "Questions about your account or store workspace? Contact support"
       }
     },
     "admin": {
@@ -763,9 +761,9 @@
     "hero": {
       "badge": "For neighborhood grocery stores",
       "title": "Ask in any language, any words — find the exact shelf",
-      "description": "Shoppers ask in English or Chinese, with whatever name they know — typos included. They can snap a photo of a picture or a package, hold to talk, or just describe what the thing is for. Staff only ever snap shelf photos; the system remembers where every product sits.",
+      "description": "Create your store page and draw its floor map online. Staff upload shelf photos, and shoppers ask in English or Chinese by typing, speaking or taking a photo to find the right shelf.",
       "primaryCta": "Get started",
-      "priceNote": "$199/month — we install everything in your store. Cancel anytime.",
+      "priceNote": "US$199/month or US$1,999/year. Set up your store online.",
       "secondaryCta": "Visit the demo store",
       "howItWorksCta": "See how it works"
     },
@@ -828,7 +826,7 @@
     "scan": {
       "tag": "IN-STORE POSTER",
       "title": "One QR code in your store, and shoppers find things themselves",
-      "sub": "We install everything and put your store's own QR poster at the door or the register — shoppers scan it and ask.",
+      "sub": "Display your store QR code at the door or register so shoppers can open its page and ask where products are.",
       "cta": "Talk to us",
       "caption": "scan to find any product",
       "demoCaption": "Scan to visit the demo store"
@@ -836,7 +834,7 @@
     "seo": {
       "title": "“What aisle is it in?” — answered for every product",
       "intro1": "Shoppers ask the same questions all day: “What aisle is the soy sauce in?” “Which shelf has the rice vinegar?” With WhatAisle they scan a QR code and ask — and the shelf number plus a marked map comes back in seconds, without waiting for staff.",
-      "intro2": "You don't enter products or maintain spreadsheets, and shoppers don't install anything. Staff simply photograph shelves now and then, and the system remembers what sits where.",
+      "intro2": "Create your store page and draw the floor map online. Staff select shelves and upload photos to build product locations, without spreadsheets. Shoppers use their browser, with nothing to install.",
       "examples": {
         "title": "The “what aisle” questions shoppers ask every day",
         "q1": "What aisle is soy sauce in?",
@@ -870,7 +868,7 @@
         "q1": "Does WhatAisle answer the aisle or the shelf?",
         "a1": "The shelf. A typical answer is “Shelf B4, left side”, with that shelf marked in red on the map — much more precise than an aisle number.",
         "q2": "How much work is it to set up?",
-        "a2": "None on your side — we come in and install everything ourselves: the floor map, the shelf memory, and the QR posters. Once it's live, staff just keep snapping shelf photos.",
+        "a2": "After payment, choose your store name and web address, set a workspace password, and draw the floor map on your store page. Confirm the map with your password. Once photo upload is ready, staff select shelves and take or upload photos.",
         "q3": "Do shoppers need to download anything?",
         "a3": "No. The QR code opens right in the phone's browser. Nothing to install, for shoppers or staff.",
         "q4": "What languages does it support?",
@@ -880,7 +878,7 @@
         "q6": "Is shopper data private?",
         "a6": "Yes. Faces are blurred before shelf photos are saved, shopper photos are only used to recognize the product and are not kept, and searches are only viewed as totals, never tied to a person.",
         "q7": "How much does it cost?",
-        "a7": "It's $199 per month, we install everything in your store, and you can cancel anytime. Details on the pricing page."
+        "a7": "The standard price is US$199 for one month or US$1,999 for twelve months, before tax. Annual billing saves US$389 compared with twelve monthly payments. You can cancel future renewals anytime. See the pricing page for details."
       },
       "outro": "Don't let shoppers wander the store, and don't make staff walk them there every time. Print one QR poster and have staff start photographing shelves today."
     }
@@ -1041,8 +1039,8 @@
   },
   "Manage": {
     "video": {
-      "title": "Send us a store walk-through",
-      "subtitle": "Film one lap of your store and we'll turn it into your floor map.",
+      "title": "Store video archive",
+      "subtitle": "Store videos are reference material. Create and confirm your floor map in the store page editor.",
       "dropHint": "Drag a video here, or",
       "formats": "MP4 or MOV, any length",
       "keepOpen": "You can leave this page — the upload keeps going and picks up where it left off.",
@@ -1053,14 +1051,14 @@
       "pick": "Choose video",
       "uploading": "Uploading… {percent}%",
       "received": "Got it! We've received your video.",
-      "receivedNote": "We'll draw your store map from it and email you the moment your store is open for scanning. Nothing else is needed from you right now.",
+      "receivedNote": "Your video has been received. Manage the floor map from your store page and check the workspace for photo-upload availability.",
       "startScanning": "Back to dashboard",
       "error": "Upload failed. Please try again — it will resume where it stopped.",
       "tooBig": "That video is very large. It will upload in the background; keep this page open.",
       "nav": "Store video",
       "instructions": {
         "title": "How to film your store",
-        "subtitle": "The video becomes your product map — anything you skip will be missing from the map.",
+        "subtitle": "Record shelves and their labels clearly if you keep a reference video of your store.",
         "entrance": {
           "title": "Start at the entrance",
           "detail": "Begin recording at the store entrance and film your way in."
@@ -1085,8 +1083,8 @@
     },
     "map": {
       "title": "Your store map",
-      "statusNone": "No map yet. Send us a walk-through video to get started.",
-      "statusBuilding": "We're drawing your map. We'll email you the moment your store is open.",
+      "statusNone": "No map yet. Open your store page to draw and confirm the floor map.",
+      "statusBuilding": "The map is not yet confirmed. Open your store page to check its progress.",
       "awaitingConfirm": "Your store is already open — this map is live. Have a look: do the shelf numbers match the signs in your aisles?",
       "published": "Your map is live. Shoppers see it in search results.",
       "confirm": "Yes, the numbers match",
@@ -1095,9 +1093,9 @@
       "returnPlaceholder": "e.g. Aisle B4 and B5 are swapped",
       "returnSend": "Send back",
       "confirmed": "Thanks — confirmed.",
-      "returned": "Thanks — we'll redraw it. Your store stays open in the meantime.",
-      "layoutUpdate": "Shelves moved? Request a layout update",
-      "layoutPrompt": "Describe the change (or send a new video):",
+      "returned": "Map feedback received.",
+      "layoutUpdate": "Shelves moved? Review your floor map",
+      "layoutPrompt": "Describe the change:",
       "layoutSend": "Request update",
       "layoutSent": "Request sent.",
       "nav": "Store map"
@@ -1219,7 +1217,7 @@
       "shelfCode": "Shelf code",
       "shelfLabel": "Label (optional)",
       "add": "Add",
-      "noShelves": "No shelves yet. Add one, or send a store video and we’ll map it.",
+      "noShelves": "No shelves yet. Open your store map to add shelves.",
       "products": "{count} products",
       "empty": "No products on this shelf yet.",
       "clearShelf": "Clear this shelf",
@@ -1243,8 +1241,8 @@
       "mapStatus": "Floor map",
       "mapStates": {
         "none": "Not started",
-        "awaiting_map": "We're drawing it",
-        "draft": "Being redrawn",
+        "awaiting_map": "Awaiting a floor map",
+        "draft": "Draft",
         "awaiting_confirm": "Live — please check the numbers",
         "published": "Live"
       },
@@ -1255,7 +1253,7 @@
       "actionVideo": "Send your store video",
       "noStore": "No store yet.",
       "payBannerTitle": "Finish setup: activate your store",
-      "payBannerSubtitle": "Pay once to unlock video upload and start your store mapping."
+      "payBannerSubtitle": "Choose a subscription to create your store page and draw its floor map."
     }
   },
   "TermsReconfirm": {
@@ -1341,15 +1339,15 @@
   },
   "OnboardingPayment": {
     "title": "Activate your store",
-    "subtitle": "One payment away from putting {store} on the map",
-    "oneTime": "one-time",
+    "subtitle": "Choose a subscription to set up {store}",
+    "oneTime": "subscription",
     "features": {
-      "mapping": "We turn your walkthrough video into a searchable product map",
+      "mapping": "Draw and confirm your floor map online",
       "subdomain": "Your own store page and printable QR posters",
       "search": "Shoppers find any product by text, voice, or photo",
-      "updates": "Lifetime access — no subscription, no renewal"
+      "updates": "Manage your subscription and renewal in your account"
     },
     "cta": "Pay {price} and continue",
-    "note": "Secure checkout by Stripe. You will be guided to upload your store video right after payment."
+    "note": "Secure checkout by Stripe. After payment, create your store page and draw its floor map."
   }
 }

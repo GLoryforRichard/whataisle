@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { E2E_STORE_OFFER_ENV } from './tests/e2e/fixtures/store-offers';
 
 const port = Number(process.env.E2E_PORT ?? 3100);
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${port}`;
@@ -31,6 +32,11 @@ export default defineConfig({
       // independent of developer secrets and cannot authorize Stripe calls.
       'STRIPE_SECRET_KEY=sk_test_e2e_no_network',
       'STRIPE_WEBHOOK_SECRET=whsec_e2e_no_network',
+      // Preview validates actual server policy; these values cannot create a
+      // real Stripe Checkout and never reuse the production offline code.
+      ...Object.entries(E2E_STORE_OFFER_ENV).map(
+        ([key, value]) => `${key}=${value}`
+      ),
       'MAIL_PROVIDER=smtp',
       'SMTP_HOST=127.0.0.1',
       'SMTP_PORT=1025',

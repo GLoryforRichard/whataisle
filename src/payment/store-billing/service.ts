@@ -21,6 +21,7 @@ import {
   billingAccess,
   pendingBilling,
   periodMonths,
+  previewOffer,
   resolveOffer,
 } from './model';
 
@@ -38,6 +39,26 @@ export class StoreBillingService {
 
   getOwnerBilling(ownerId: string) {
     return this.repository.getBilling(ownerId);
+  }
+
+  async previewOffer(
+    owner: BillingOwner,
+    request: Pick<CheckoutRequest, 'plan' | 'promoCode'>
+  ) {
+    const [billing, hasPriorPayment] = await Promise.all([
+      this.repository.getBilling(owner.id),
+      this.repository.hasPriorPayment(owner.id),
+    ]);
+    return previewOffer(
+      resolveOffer(
+        request.plan,
+        request.promoCode,
+        owner.email,
+        this.env,
+        billing,
+        hasPriorPayment
+      )
+    );
   }
 
   async getStoreServiceAccess(storeId: string) {
@@ -92,6 +113,14 @@ export class StoreBillingService {
         await this.reconcileOne(tx, billing);
         billing = await tx.getBilling(owner.id);
       }
+      const offer = resolveOffer(
+        request.plan,
+        request.promoCode,
+        owner.email,
+        this.env,
+        billing,
+        await tx.hasPriorPayment(owner.id)
+      );
       if (
         billing &&
         billing.status !== 'pending' &&
@@ -113,17 +142,18 @@ export class StoreBillingService {
           item.ownerUserId === owner.id &&
           (item.status === 'open' || item.status === 'reserved')
       );
-      const offer = resolveOffer(
-        request.plan,
-        request.promoCode,
-        owner.email,
-        this.env,
-        billing?.status === 'pending' ? null : billing
-      );
       // Refreshes reuse the same payable session. An explicit offer change
       // first expires the previous one so only one of them can ever be paid.
       if (current) {
-        if (current.priceId === offer.priceId) return current.id;
+        if (
+          current.priceId === offer.priceId &&
+          current.giftEligible === offer.giftEligible &&
+          current.plan === offer.plan &&
+          current.currency === offer.currency &&
+          current.isTest === offer.isTest &&
+          current.amount === offer.amount
+        )
+          return current.id;
         if (current.id === request.requestId)
           throw new Error(
             'Use a new checkout request when changing the selected offer'
@@ -179,8 +209,6 @@ export class StoreBillingService {
         id: request.requestId,
         ownerUserId: owner.id,
         ...offer,
-        giftEligible:
-          !offer.isTest && !billing.giftUsedAt && !billing.lastPaidAt,
         status: 'reserved',
         sessionId: null,
         sessionUrl: null,

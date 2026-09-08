@@ -33,6 +33,7 @@ const env = {
   STRIPE_PRICE_CAD_TEST_MONTH: 'price_cad_test',
   STORE_BILLING_TEST_EMAILS:
     'one@example.test,two@example.test,three@example.test,four@example.test',
+  STORE_BILLING_BONUS_CODE: 'FIELD2',
 };
 
 class MemoryRepository implements BillingRepository {
@@ -45,6 +46,7 @@ class MemoryRepository implements BillingRepository {
     owners: new Map<string, BillingOwner>(),
     closedStores: new Set<string>(),
     legacySubscriptions: new Set<string>(),
+    priorPayments: new Set<string>(),
     capacity: {
       registryHandles: ['wherebear'],
       stores: [],
@@ -63,6 +65,9 @@ class MemoryRepository implements BillingRepository {
   }
   async hasLegacySubscription(id: string) {
     return this.state.legacySubscriptions.has(id);
+  }
+  async hasPriorPayment(id: string) {
+    return this.state.priorPayments.has(id);
   }
 
   async transaction<T>(
@@ -97,8 +102,9 @@ class MemoryRepository implements BillingRepository {
       saveEvent: async (id) => {
         state.events.add(id);
       },
-      savePayment: async (_billing, invoice) => {
+      savePayment: async (billing, invoice) => {
         state.payments.add(invoice.id);
+        state.priorPayments.add(billing.ownerUserId);
       },
       enqueueNotice: async (item) => {
         if (!state.notices.has(item.id)) state.notices.set(item.id, copy(item));
@@ -111,6 +117,7 @@ class MemoryRepository implements BillingRepository {
       getOwner: async (id) => copy(state.owners.get(id) ?? null),
       isStorePermanentlyClosed: async (id) => state.closedStores.has(id),
       hasLegacySubscription: async (id) => state.legacySubscriptions.has(id),
+      hasPriorPayment: async (id) => state.priorPayments.has(id),
     };
     try {
       const result = await run(tx);
@@ -476,18 +483,25 @@ test('registry deduplication, paid unbuilt stores, legacy runtimes and failed cl
   );
 });
 
-test('formal monthly/annual USD and CAD charge once and grant exactly 3/14 calendar months from payment', async () => {
+test('formal monthly/annual USD and CAD start with 1/12 calendar months unless the offline bonus is explicitly applied', async () => {
   for (const plan of ['month', 'year'] as const) {
-    for (const promo of [undefined, 'INCAD']) {
+    for (const promo of [undefined, 'INCAD', 'FIELD2', 'INCAD FIELD2']) {
       const f = fixture();
       const { billing } = await purchase(f, 'one', plan, promo);
-      assert.equal(billing.currency, promo ? 'cad' : 'usd');
+      const bonus = !!promo?.includes('FIELD2');
+      assert.equal(billing.currency, promo?.includes('INCAD') ? 'cad' : 'usd');
       assert.equal(
         billing.entitlementEnd!.toISOString(),
         plan === 'month'
-          ? '2026-04-30T16:15:00.000Z'
-          : '2027-03-31T16:15:00.000Z'
+          ? bonus
+            ? '2026-04-30T16:15:00.000Z'
+            : '2026-02-28T16:15:00.000Z'
+          : bonus
+            ? '2027-03-31T16:15:00.000Z'
+            : '2027-01-31T16:15:00.000Z'
       );
+      assert.equal(!!billing.giftUsedAt, bonus);
+      assert.equal(f.stripe.attempts.get('one-first')!.giftEligible, bonus);
       assert.equal(
         f.stripe.attempts.get('one-first')!.amount,
         plan === 'month' ? 19900 : 199900
@@ -504,6 +518,7 @@ test('payment time, not opening checkout or completing setup, starts the introdu
   await f.service.createCheckout(f.owner(), {
     requestId: 'late',
     plan: 'month',
+    promoCode: 'FIELD2',
   });
   f.advance(new Date('2026-09-01T00:03:00Z'));
   await f.service.handleEvent(f.stripe.paidCheckout('late', f.now()));
@@ -758,9 +773,9 @@ test('renewal failures get seven days, then stop collection; recovery starts a f
   );
 });
 
-test('canceled first annual keeps fourteen months; retention starts at actual service end and cleanup blocks new charges', async () => {
+test('canceled first annual with the offline bonus keeps fourteen months; retention starts at actual service end and cleanup blocks new charges', async () => {
   const f = fixture();
-  const { billing } = await purchase(f, 'one', 'year');
+  const { billing } = await purchase(f, 'one', 'year', 'FIELD2');
   await f.service.attachStore('one', 'store-one');
   await f.service.cancelRenewal('one');
   assert.equal((await f.service.getOwnerBilling('one'))!.retentionUntil, null);
@@ -789,7 +804,7 @@ test('canceled first annual keeps fourteen months; retention starts at actual se
 
 test('switching to annual after introductory monthly period buys twelve months; stale failure cannot regress renewed entitlement', async () => {
   const f = fixture();
-  const { billing, event } = await purchase(f);
+  const { billing, event } = await purchase(f, 'one', 'month', 'FIELD2');
   await f.service.schedulePlan('one', 'year');
   const renewal: BillingInvoice = {
     ...event.invoice!,
@@ -854,6 +869,272 @@ test('changing the selected offer expires the old session before creating a seco
   assert.equal(f.stripe.sessions.get('cs_annual')!.status, 'open');
   assert.equal(f.repo.state.checkouts.get('monthly')!.status, 'expired');
   assert.equal(f.repo.state.checkouts.get('annual')!.amount, 199900);
+});
+
+test('offer previews use the checkout eligibility rules without transactions, writes, reservations or Stripe calls', async () => {
+  const f = fixture();
+  const owner = f.owner();
+  const before = structuredClone(f.repo.state);
+  f.repo.transaction = async () => {
+    throw new Error('Preview must not acquire the mutation lock');
+  };
+  const service = new StoreBillingService(
+    f.repo,
+    new Proxy({} as BillingGateway, {
+      get() {
+        throw new Error('Preview must not call Stripe');
+      },
+    }),
+    env,
+    f.now
+  );
+  for (const plan of ['month', 'year'] as const) {
+    for (const promoCode of [undefined, 'INCAD', 'FIELD2', 'incad, field2']) {
+      const offer = await service.previewOffer(owner, { plan, promoCode });
+      const bonus = !!promoCode?.toUpperCase().includes('FIELD2');
+      assert.deepEqual(offer, {
+        plan,
+        currency: promoCode?.toUpperCase().includes('INCAD') ? 'cad' : 'usd',
+        amount: plan === 'month' ? 19900 : 199900,
+        isTest: false,
+        bonusMonths: bonus ? 2 : 0,
+        serviceMonths: (plan === 'month' ? 1 : 12) + (bonus ? 2 : 0),
+      });
+      assert.equal('priceId' in offer, false);
+      assert.equal('promoCode' in offer, false);
+    }
+  }
+  assert.deepEqual(f.repo.state, before);
+});
+
+test('promotion combinations, unknown codes, length limits and test eligibility are rejected identically by preview and checkout', async () => {
+  for (const [promoCode, pattern] of [
+    ['FIELD2 UNKNOWN', /Unknown promotion/],
+    ['INCAD 1CADTEST', /cannot be combined/],
+    ['FIELD2+1CADTEST', /cannot be combined/],
+    ['INCAD INCAD', /repeat/],
+    ['FIELD2 INCAD UNKNOWN', /at most two/],
+    ['X'.repeat(97), /at most 96/],
+  ] as const) {
+    const f = fixture();
+    const owner = f.owner();
+    await assert.rejects(
+      f.service.previewOffer(owner, { plan: 'month', promoCode }),
+      pattern
+    );
+    await assert.rejects(
+      f.service.createCheckout(owner, {
+        requestId: 'invalid',
+        plan: 'month',
+        promoCode,
+      }),
+      pattern
+    );
+    assert.equal(f.repo.state.checkouts.size, 0);
+    assert.equal(f.stripe.sessions.size, 0);
+  }
+  const f = fixture();
+  for (const separator of [' ', ',', '，', '+']) {
+    assert.equal(
+      (
+        await f.service.previewOffer(f.owner(), {
+          plan: 'month',
+          promoCode: `field2${separator}incad`,
+        })
+      ).serviceMonths,
+      3
+    );
+  }
+  await assert.rejects(
+    f.service.previewOffer(f.owner('outsider'), {
+      plan: 'month',
+      promoCode: '1CADTEST',
+    }),
+    /designated accounts/
+  );
+  assert.deepEqual(
+    await f.service.previewOffer(f.owner(), {
+      plan: 'month',
+      promoCode: '1CADTEST',
+    }),
+    {
+      plan: 'month',
+      currency: 'cad',
+      amount: 100,
+      isTest: true,
+      bonusMonths: 0,
+      serviceMonths: 1,
+    }
+  );
+  const unconfigured = new StoreBillingService(
+    f.repo,
+    f.stripe,
+    { ...env, STORE_BILLING_BONUS_CODE: undefined },
+    f.now
+  );
+  await assert.rejects(
+    unconfigured.previewOffer(f.owner(), {
+      plan: 'month',
+      promoCode: 'FIELD2',
+    }),
+    /Unknown promotion/
+  );
+  assert.equal(
+    (await unconfigured.previewOffer(f.owner(), { plan: 'year' }))
+      .serviceMonths,
+    12
+  );
+});
+
+test('a normal paid purchase cannot claim the bonus later, and a used bonus or legacy paid record also blocks it', async () => {
+  for (const promoCode of [undefined, 'FIELD2']) {
+    const f = fixture();
+    const owner = f.owner();
+    const stalePreview = await f.service.previewOffer(owner, {
+      plan: 'month',
+      promoCode: 'FIELD2',
+    });
+    assert.equal(stalePreview.bonusMonths, 2);
+    const { billing } = await purchase(f, 'one', 'month', promoCode);
+    await assert.rejects(
+      f.service.previewOffer(owner, { plan: 'year', promoCode: 'FIELD2' }),
+      /before your first successful payment/
+    );
+    await assert.rejects(
+      f.service.createCheckout(owner, {
+        requestId: 'stale-preview',
+        plan: 'year',
+        promoCode: 'FIELD2',
+      }),
+      /before your first successful payment/
+    );
+    assert.deepEqual(
+      (await f.service.getOwnerBilling(owner.id))!.entitlementEnd,
+      billing.entitlementEnd
+    );
+    assert.equal(f.stripe.sessions.size, 1);
+  }
+  const legacy = fixture();
+  const owner = legacy.owner();
+  legacy.repo.state.priorPayments.add(owner.id);
+  await assert.rejects(
+    legacy.service.previewOffer(owner, { plan: 'month', promoCode: 'FIELD2' }),
+    /before your first successful payment/
+  );
+  await assert.rejects(
+    legacy.service.createCheckout(owner, {
+      requestId: 'legacy-bonus',
+      plan: 'month',
+      promoCode: 'FIELD2',
+    }),
+    /before your first successful payment/
+  );
+  assert.equal(legacy.stripe.sessions.size, 0);
+});
+
+test('adding or removing a bonus at the same price expires the previous session and concurrent requests retain one payable checkout', async () => {
+  const f = fixture();
+  const owner = f.owner();
+  await f.service.createCheckout(owner, {
+    requestId: 'standard',
+    plan: 'month',
+  });
+  await assert.rejects(
+    f.service.createCheckout(owner, {
+      requestId: 'standard',
+      plan: 'month',
+      promoCode: 'FIELD2',
+    }),
+    /new checkout request/
+  );
+  assert.equal(f.stripe.sessions.get('cs_standard')!.status, 'open');
+  const results = await Promise.all(
+    Array.from({ length: 4 }, (_, index) =>
+      f.service.createCheckout(owner, {
+        requestId: `bonus-${index}`,
+        plan: 'month',
+        promoCode: 'FIELD2',
+      })
+    )
+  );
+  assert.equal(new Set(results.map((result) => result.sessionId)).size, 1);
+  assert.equal(f.stripe.sessions.get('cs_standard')!.status, 'expired');
+  const bonus = [...f.repo.state.checkouts.values()].find(
+    (attempt) => attempt.status === 'open'
+  )!;
+  assert.equal(bonus.giftEligible, true);
+  assert.equal(bonus.priceId, f.repo.state.checkouts.get('standard')!.priceId);
+  await f.service.createCheckout(owner, {
+    requestId: 'standard-again',
+    plan: 'month',
+  });
+  assert.equal(f.stripe.sessions.get(bonus.sessionId!)!.status, 'expired');
+  assert.equal(
+    f.repo.state.checkouts.get('standard-again')!.giftEligible,
+    false
+  );
+  assert.equal(
+    [...f.stripe.sessions.values()].filter(
+      (session) => session.status === 'open'
+    ).length,
+    1
+  );
+});
+
+test('an uncertain expiration cannot replace a standard checkout with a same-price bonus checkout', async () => {
+  const f = fixture();
+  const owner = f.owner();
+  await f.service.createCheckout(owner, {
+    requestId: 'standard',
+    plan: 'month',
+  });
+  const expire = f.stripe.expireCheckout.bind(f.stripe);
+  f.stripe.expireCheckout = async () => {
+    throw new Error('Expiration response lost');
+  };
+  await assert.rejects(
+    f.service.createCheckout(owner, {
+      requestId: 'bonus',
+      plan: 'month',
+      promoCode: 'FIELD2',
+    }),
+    /Expiration response lost/
+  );
+  assert.equal(f.repo.state.checkouts.size, 1);
+  assert.equal(f.stripe.sessions.size, 1);
+  assert.equal(f.repo.state.checkouts.get('standard')!.status, 'open');
+  f.stripe.expireCheckout = expire;
+  await f.service.createCheckout(owner, {
+    requestId: 'bonus',
+    plan: 'month',
+    promoCode: 'FIELD2',
+  });
+  assert.equal(f.repo.state.checkouts.get('standard')!.status, 'expired');
+  assert.equal(f.repo.state.checkouts.get('bonus')!.giftEligible, true);
+});
+
+test('historical payable checkout gift snapshots survive code removal and webhook retries', async () => {
+  const f = fixture();
+  await f.service.createCheckout(f.owner(), {
+    requestId: 'historical',
+    plan: 'year',
+    promoCode: 'FIELD2',
+  });
+  const afterConfigurationChange = new StoreBillingService(
+    f.repo,
+    f.stripe,
+    { ...env, STORE_BILLING_BONUS_CODE: undefined },
+    f.now
+  );
+  const event = f.stripe.paidCheckout('historical', f.now());
+  await afterConfigurationChange.handleEvent(event);
+  await afterConfigurationChange.handleEvent(event);
+  const billing = (await f.service.getOwnerBilling('one'))!;
+  assert.deepEqual(billing.entitlementEnd, addCalendarMonths(f.now(), 14));
+  assert.deepEqual(billing.giftUsedAt, f.now());
+  assert.equal(f.repo.state.checkouts.get('historical')!.giftEligible, true);
+  assert.equal(f.repo.state.payments.size, 1);
+  assert.equal(f.stripe.extensions.length, 1);
 });
 
 test('an existing legacy subscription blocks a second purchase before creating a new payable session', async () => {

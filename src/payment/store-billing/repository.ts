@@ -54,6 +54,15 @@ async function serializeWriter<T>(run: () => Promise<T>): Promise<T> {
 }
 
 export const billingRepository: BillingRepository = {
+  async hasPriorPayment(ownerId) {
+    const db = await getDb();
+    const [row] = await db
+      .select({ id: payment.id })
+      .from(payment)
+      .where(and(eq(payment.userId, ownerId), eq(payment.paid, true)))
+      .limit(1);
+    return !!row;
+  },
   async hasLegacySubscription(ownerId) {
     const db = await getDb();
     const [row] = await db
@@ -231,6 +240,14 @@ export const billingRepository: BillingRepository = {
               .select({ id: payment.id })
               .from(payment)
               .where(legacySubscriptionPredicate(ownerId))
+              .limit(1);
+            return !!row;
+          },
+          async hasPriorPayment(ownerId) {
+            const [row] = await database
+              .select({ id: payment.id })
+              .from(payment)
+              .where(and(eq(payment.userId, ownerId), eq(payment.paid, true)))
               .limit(1);
             return !!row;
           },

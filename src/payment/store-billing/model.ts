@@ -2,6 +2,9 @@ export type StorePlan = 'month' | 'year';
 export type StoreCurrency = 'usd' | 'cad';
 export type BillingStatus = 'pending' | 'active' | 'grace' | 'suspended';
 
+/** Only controlled offer failures are safe to show in a public-facing quote. */
+export class StoreOfferError extends Error {}
+
 export interface OwnerBilling {
   ownerUserId: string;
   storeId: string | null;
@@ -58,6 +61,17 @@ export interface BillingOffer {
   isTest: boolean;
   amount: number;
   priceId: string;
+  giftEligible: boolean;
+}
+
+/** Public quote deliberately omits the private promotion and Stripe price ID. */
+export interface StoreOfferPreview {
+  plan: StorePlan;
+  currency: StoreCurrency;
+  isTest: boolean;
+  amount: number;
+  bonusMonths: 0 | 2;
+  serviceMonths: 1 | 3 | 12 | 14;
 }
 
 export const TEST_CHECKOUT_LIMIT = 3;
@@ -77,8 +91,11 @@ export function addCalendarMonths(date: Date, months: number): Date {
   return result;
 }
 
-export function periodMonths(plan: StorePlan, gift: boolean): number {
-  return (plan === 'month' ? 1 : 12) + (gift ? 2 : 0);
+export function periodMonths(
+  plan: StorePlan,
+  gift: boolean
+): StoreOfferPreview['serviceMonths'] {
+  return plan === 'month' ? (gift ? 3 : 1) : gift ? 14 : 12;
 }
 
 export function billingAccess(billing: OwnerBilling | null, now: Date) {
@@ -124,42 +141,125 @@ export function resolveOffer(
   promoCode: string | undefined,
   email: string,
   env: Record<string, string | undefined>,
-  existing: OwnerBilling | null
+  existing: OwnerBilling | null,
+  hasPriorPayment = false
 ): BillingOffer {
-  const promo = promoCode?.trim().toUpperCase() || '';
-  if (promo && promo !== 'INCAD' && promo !== '1CADTEST') {
-    throw new Error('Unknown promotion code');
+  if (promoCode && promoCode.length > 96)
+    throw new StoreOfferError(
+      'Promotion codes must contain at most 96 characters'
+    );
+  const promos = (promoCode?.trim().toUpperCase() || '')
+    .split(/[\s,，+]+/)
+    .filter(Boolean);
+  if (promos.length > 2)
+    throw new StoreOfferError('Apply at most two promotion codes');
+  if (new Set(promos).size !== promos.length)
+    throw new StoreOfferError('Do not repeat a promotion code');
+  const bonusCode = env.STORE_BILLING_BONUS_CODE?.trim().toUpperCase();
+  if (
+    promos.length &&
+    bonusCode &&
+    (!/^[A-Z0-9_-]{1,64}$/.test(bonusCode) ||
+      ['INCAD', '1CADTEST'].includes(bonusCode))
+  )
+    throw new StoreOfferError(
+      'The offline promotion is not configured correctly'
+    );
+  if (
+    promos.some(
+      (promo) =>
+        promo !== 'INCAD' && promo !== '1CADTEST' && promo !== bonusCode
+    )
+  ) {
+    throw new StoreOfferError('Unknown promotion code');
   }
-  const isTest = existing?.isTest ?? promo === '1CADTEST';
+  const cadRequested = promos.includes('INCAD');
+  const testRequested = promos.includes('1CADTEST');
+  const bonusRequested = !!bonusCode && promos.includes(bonusCode);
+  if (cadRequested && testRequested)
+    throw new StoreOfferError(
+      'The currency and test promotion codes cannot be combined'
+    );
+  // Unpaid drafts may change offers; any paid history keeps its original
+  // currency/test identity and permanently prevents claiming a later bonus.
+  const committed =
+    existing &&
+    (existing.status !== 'pending' ||
+      existing.lastPaidAt ||
+      existing.giftUsedAt)
+      ? existing
+      : null;
+  const isTest = committed?.isTest ?? testRequested;
+  if (bonusRequested && (isTest || testRequested))
+    throw new StoreOfferError(
+      'The test offer cannot be combined with the offline bonus'
+    );
+  if (
+    bonusRequested &&
+    (hasPriorPayment || existing?.giftUsedAt || existing?.lastPaidAt)
+  )
+    throw new StoreOfferError(
+      'The offline bonus is only valid before your first successful payment and cannot be claimed again'
+    );
   if (isTest) {
     const allowed = (env.STORE_BILLING_TEST_EMAILS ?? '')
       .split(',')
       .map((value) => value.trim().toLowerCase())
       .filter(Boolean);
     if (!allowed.includes(email.trim().toLowerCase())) {
-      throw new Error('This test offer is restricted to designated accounts');
+      throw new StoreOfferError(
+        'This test offer is restricted to designated accounts'
+      );
     }
     if (plan !== 'month')
-      throw new Error('Test subscriptions are monthly only');
+      throw new StoreOfferError('Test subscriptions are monthly only');
   }
-  const currency = existing?.currency ?? (promo ? 'cad' : 'usd');
-  if (existing && promo && (promo === '1CADTEST') !== existing.isTest) {
-    throw new Error('An existing subscription cannot change its test status');
+  const currency =
+    committed?.currency ?? (cadRequested || testRequested ? 'cad' : 'usd');
+  if (
+    committed &&
+    (cadRequested || testRequested) &&
+    testRequested !== committed.isTest
+  ) {
+    throw new StoreOfferError(
+      'An existing subscription cannot change its test status'
+    );
   }
-  if (existing && promo === 'INCAD' && existing.currency !== 'cad') {
-    throw new Error('An existing subscription keeps its original currency');
+  if (committed && cadRequested && committed.currency !== 'cad') {
+    throw new StoreOfferError(
+      'An existing subscription keeps its original currency'
+    );
   }
   const amount = isTest ? 100 : plan === 'month' ? 19900 : 199900;
   const envName = isTest
     ? 'STRIPE_PRICE_CAD_TEST_MONTH'
     : `STRIPE_PRICE_${currency.toUpperCase()}_${plan.toUpperCase()}`;
   const priceId = env[envName];
-  if (!priceId) throw new Error(`Billing is not configured: ${envName}`);
-  return { plan, currency, isTest, amount, priceId };
+  if (!priceId)
+    throw new StoreOfferError(`Billing is not configured: ${envName}`);
+  return {
+    plan,
+    currency,
+    isTest,
+    amount,
+    priceId,
+    giftEligible: bonusRequested,
+  };
+}
+
+export function previewOffer(offer: BillingOffer): StoreOfferPreview {
+  return {
+    plan: offer.plan,
+    currency: offer.currency,
+    isTest: offer.isTest,
+    amount: offer.amount,
+    bonusMonths: offer.giftEligible ? 2 : 0,
+    serviceMonths: periodMonths(offer.plan, offer.giftEligible),
+  };
 }
 
 export function pendingBilling(
-  offer: BillingOffer,
+  offer: Omit<BillingOffer, 'giftEligible'>,
   ownerId: string,
   now: Date
 ) {

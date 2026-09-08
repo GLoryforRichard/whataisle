@@ -86,6 +86,7 @@ export interface BillingTransaction {
   getOwner(id: string): Promise<BillingOwner | null>;
   isStorePermanentlyClosed(storeId: string): Promise<boolean>;
   hasLegacySubscription(ownerId: string): Promise<boolean>;
+  hasPriorPayment(ownerId: string): Promise<boolean>;
 }
 
 export interface BillingReader {
@@ -93,6 +94,7 @@ export interface BillingReader {
   getBilling(ownerId: string): Promise<OwnerBilling | null>;
   getBillingByStore(storeId: string): Promise<OwnerBilling | null>;
   hasLegacySubscription(ownerId: string): Promise<boolean>;
+  hasPriorPayment(ownerId: string): Promise<boolean>;
 }
 
 export interface BillingRepository extends BillingReader {

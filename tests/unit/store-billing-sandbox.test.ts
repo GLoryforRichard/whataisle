@@ -349,7 +349,9 @@ test(
       gateway: StripeStoreBillingGateway;
       service: StoreBillingService;
     }
-    const environments: Record<string, string | undefined> = {};
+    const environments: Record<string, string | undefined> = {
+      STORE_BILLING_BONUS_CODE: 'FIELD2',
+    };
     function scopedRepository(ownerId: string): BillingRepository {
       // Use the real PostgreSQL implementation while restricting maintenance to
       // this fixture; never call Stripe on pre-existing local development rows.
@@ -358,6 +360,7 @@ test(
         getBillingByStore: (id) => billingRepository.getBillingByStore(id),
         hasLegacySubscription: (id) =>
           billingRepository.hasLegacySubscription(id),
+        hasPriorPayment: (id) => billingRepository.hasPriorPayment(id),
         transaction: <T>(run: (tx: BillingTransaction) => Promise<T>) =>
           billingRepository.transaction((tx) =>
             run({
@@ -645,10 +648,10 @@ test(
         persist();
       }
       await check(
-        'USD monthly first payment grants three calendar months and writes the successful Checkout callback record',
+        'USD monthly offline bonus grants three calendar months and writes the successful Checkout callback record',
         async () => {
-          const ctx = await context('usd', 'month');
-          const initial = await checkout(ctx, 'month');
+          const ctx = await context('usd', 'month', 'FIELD2');
+          const initial = await checkout(ctx, 'month', 'FIELD2');
           assert.deepEqual(
             initial.entitlementEnd,
             addCalendarMonths(initial.lastPaidAt!, 3)
@@ -692,10 +695,10 @@ test(
         }
       );
       await check(
-        'INCAD annual grants fourteen months then switches to CAD monthly without a second gift',
+        'INCAD plus offline bonus grants fourteen months then switches to CAD monthly without a second gift',
         async () => {
-          const ctx = await context('cad', 'year', 'INCAD');
-          const initial = await checkout(ctx, 'year', 'INCAD');
+          const ctx = await context('cad', 'year', 'INCAD FIELD2');
+          const initial = await checkout(ctx, 'year', 'INCAD FIELD2');
           assert.equal(initial.currency, 'cad');
           assert.deepEqual(
             initial.entitlementEnd,

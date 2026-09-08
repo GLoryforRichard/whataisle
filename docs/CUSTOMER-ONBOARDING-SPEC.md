@@ -2,8 +2,18 @@
 
 This specification records the owner's confirmed conversation decisions and
 supersedes the historical manual-install, video-first and lifetime-payment
-descriptions in `REQUIREMENTS.*` and `AGENTS.md` for this work. It does not
-assert that features are deployed. Existing customer data must be preserved.
+descriptions in `REQUIREMENTS.*` and `AGENTS.md` for this work. The two-stage
+onboarding release `d2f5d76` was deployed on 2026-09-08 and its first Stripe TEST
+store completed real map confirmation. This revision implements the later
+same-day self-service/offline promotion policy below; verify its production
+rollout separately from release evidence.
+Existing customer data and confirmed service periods must be preserved.
+
+WhatAisle is sold online as self-service software: owners create their store,
+draw its map and manage shelf photos with staff. Public marketing, metadata and
+terms must not promise founder visits, installation, map drawing, poster hanging
+or other staffed setup. A founder may assist an offline customer using the same
+tools, but that does not create a standard subscription service commitment.
 
 ## Purchase and store creation
 
@@ -28,8 +38,8 @@ assert that features are deployed. Existing customer data must be preserved.
    This confirmation is durable across browser closure and devices; it is not
    only a local draft. The same URL then shows that the store is being prepared
    until search activation completes. No map or shelf recreation is required.
-7. After the founder leaves the site, an explicitly authorized Atlas upgrade can
-   provide Search/vector capacity. Upgrade costs are not triggered by payment,
+7. When additional Search/vector capacity is needed, an explicitly authorized
+   Atlas upgrade can provide it. Upgrade costs are not triggered by payment,
    map confirmation or a provisioning retry. The founder separately requests
    search activation in the platform back office. The worker uses the existing
    store identity, verifies its confirmed map and both ready/queryable search
@@ -45,8 +55,8 @@ assert that features are deployed. Existing customer data must be preserved.
    previously issued sessions. Rate-limit failed password attempts.
 
 The 2026-09-08 revision deliberately separates mapping from search activation
-so the first new customer can pay and finish onsite mapping before the founder
-starts paying for a larger Atlas cluster. Saving the small map/shelf document in
+so a new customer can pay and save a map before additional Atlas capacity is
+purchased. Saving the small map/shelf document in
 the existing free cluster avoids a second temporary store or a later map import.
 Every store still has its own database credentials and files. This revision does
 not change payment-date entitlement, the five-store capacity ceiling, or require
@@ -54,18 +64,43 @@ the founder's presence for subsequent staff uploads.
 
 ## Prices and entitlement
 
-| Plan | First eligible service period | Later service periods |
+| Plan | Standard first service period | Later service periods |
 | --- | --- | --- |
-| USD monthly | US$199 / 3 calendar months | US$199 / month |
-| INCAD monthly | CA$199 / 3 calendar months | CA$199 / month |
-| USD annual | US$1,999 / 14 calendar months | US$1,999 / 12 months |
-| INCAD annual | CA$1,999 / 14 calendar months | CA$1,999 / 12 months |
+| USD monthly | US$199 / 1 calendar month | US$199 / month |
+| INCAD monthly | CA$199 / 1 calendar month | CA$199 / month |
+| USD annual | US$1,999 / 12 calendar months | US$1,999 / 12 months |
+| INCAD annual | CA$1,999 / 12 calendar months | CA$1,999 / 12 months |
 | 1CADTEST | CA$1 / month, no bonus | CA$1 / month |
 
 Formal prices exclude applicable tax. Checkout displays currency, taxes, total
 and next charge date. Service starts on the actual successful payment date.
-Bonus months are automatic, once per store, and must survive cancellation,
-reactivation, plan changes and ordinary store-data cleanup. Test access is
+Annual US$1,999 is a US$389 saving against twelve US$199 payments (US$2,388),
+not an automatic extension beyond twelve months.
+
+The offline offer `BONUS2` is explicitly applied before the first eligible
+formal payment and adds two calendar months to that payment's service period:
+monthly becomes three months, annual becomes fourteen. It can combine with
+`INCAD` to keep the selected CAD price/currency while extending that first term.
+`INCAD` alone changes currency/prices and never adds time. `1CADTEST` cannot
+combine with `BONUS2` and always covers one month. An invalid, ineligible or
+conflicting offer must be rejected clearly rather than silently removed.
+
+No entered bonus offer means a standard one- or twelve-month first term. The
+bonus is available only for the first successful formal payment, once per store
+and its permanent owner billing ledger. A prior successful payment without the
+offer also makes it ineligible: customers cannot claim it later by renewing,
+switching plans, canceling/recovering or recreating an archived store. Persist
+the applied offer and granted term with checkout/payment state; webhook retries
+must not add months again. Existing checkout eligibility snapshots and already
+confirmed paid/promotional periods from the earlier policy remain valid and
+must not be shortened or recalculated. Bonus history survives ordinary
+store-data cleanup. The code is resolved from server-only configuration; never
+embed it in public site content, metadata, browser bundles or examples. The
+public checkout can accept codes and display a valid offer's resulting term;
+public terms say applicable offers follow checkout, without advertising the
+offline code or specific extra months.
+
+Test access is
 allowlisted and limited to three successful subscription openings in total;
 renewals do not consume quota. Failed/expired checkouts cannot burn quota.
 No test-code expiry was requested. Never silently upgrade a test subscription
@@ -119,7 +154,9 @@ Any future account-deletion process needs an explicit separate design.
   revocation. Before activation, direct search/upload calls must reject without
   AI or queued-photo side effects; the same map/shelf IDs survive activation and
   retries. Two fresh stores must prove data and cookie isolation.
-- Exercise billing first periods, renewals, both plan switches, cancel override,
+- Exercise standard first periods, explicit bonus alone/with INCAD, rejection
+  with 1CADTEST, ineligible repeat/late use and preservation of historical
+  checkout grants, renewals, both plan switches, cancel override,
   grace/suspend/recovery, quota concurrency and webhook retries/ordering with
   deterministic service tests, then Stripe sandbox/time-clock verification.
 - Provisioning dry-run and failure-retry checks must not mutate production.

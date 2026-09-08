@@ -243,6 +243,7 @@ test('schedule applies the new price only at the entitlement boundary, and cance
       plan: 'year',
       currency: 'usd',
       isTest: false,
+      giftEligible: false,
     },
     'change-v1'
   );

@@ -6,4 +6,4 @@
  * Bump this date string whenever content/pages/terms-of-service*.mdx changes
  * materially.
  */
-export const TERMS_VERSION = '2026-09-07';
+export const TERMS_VERSION = '2026-09-08';

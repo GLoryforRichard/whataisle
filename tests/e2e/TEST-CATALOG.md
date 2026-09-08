@@ -31,13 +31,22 @@ external acceptance; the fixtures never claim real Search index creation.
 
 ### Maintained checks for the current architecture
 
-The root suite currently has six spec files and 49 browser tests. It serves
+The offline-promotion revision adds real server-validated offer previews. Public
+pricing shows standard one-month/twelve-month terms and no coupon input. Signed-in
+owners must apply a nonempty code successfully before checkout; monthly/annual
+bonus terms and CAD combinations appear only from the server response. Editing
+the code or changing plans clears the old preview. Invalid, restricted and
+conflicting codes keep checkout disabled. Test-only coupon/Price configuration
+is confined to the dedicated E2E subprocess; these checks do not submit hosted
+checkout, call Stripe, or embed the production offline code in client assets.
+
+The root suite currently has six spec files and 54 browser tests. It serves
 the platform; store behavior is exercised in the separate WhereBear runtime.
 
 | Coverage | Maintained entry point |
 | --- | --- |
 | Auth, public EN/ZH pages, account settings, owner/admin route access | `specs/auth.spec.ts`, `public-pages.spec.ts`, `protected-pages.spec.ts`, `settings-profile.spec.ts` |
-| USD/CAD monthly/annual/test offers; payment-first setup; reserved domain rejection; persistent provisioning; name/PIN changes; cancel/switch review; payment return ownership and safe destination | `specs/owner-onboarding.spec.ts` |
+| Standard public terms; authenticated USD/CAD monthly/annual/test previews, verified bonus combinations, invalid/conflicting codes and preview reset; payment-first setup; reserved domain rejection; persistent provisioning; name/PIN changes; cancel/switch review; payment return ownership and safe destination | `specs/owner-onboarding.spec.ts` |
 | Missing/forged Stripe signatures return 400 without granting access | `specs/stripe-webhook.spec.ts` |
 | Account deletion rejects before deleting credentials or billing records; eight deletion cases plus login/cleanup verification, ten checks passed 2026-09-08 | `scripts/auth-deletion-integration.mts` (separate real local HTTP/PostgreSQL check) |
 | Billing calendar periods, bonus once, quota concurrency, failures, plan switches, callback compatibility and real PostgreSQL read/write isolation | `tests/unit/store-billing-*.test.ts` |
@@ -91,7 +100,7 @@ than Next's default of half the host RAM; production configuration is unchanged.
 The same guarded E2E development server disables Turbopack's filesystem cache;
 normal development and production retain their defaults. Disposable acceptance
 runs do not need cache persistence that can contend with browser requests.
-Before the 49 tests, `global-setup.ts` visits each covered development route
+Before the 54 tests, `global-setup.ts` visits each covered development route
 and loads its browser scripts with a separate synthetic account. This bounded
 preparation measures cold compilation separately from business-operation
 deadlines; it is not a passing test. First-load console/page errors still fail

@@ -6,6 +6,7 @@ import {
   createStoreBillingPortalAction,
   createStoreCheckoutAction,
   getStoreBillingAction,
+  previewStoreOfferAction,
   resumeStoreRenewalAction,
   scheduleStorePlanAction,
 } from '@/actions/store-billing';
@@ -15,7 +16,10 @@ import { Label } from '@/components/ui/label';
 import { useMounted } from '@/hooks/use-mounted';
 import { LocaleLink } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
-import type { StorePlan } from '@/payment/store-billing/model';
+import type {
+  StoreOfferPreview,
+  StorePlan,
+} from '@/payment/store-billing/model';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale } from 'next-intl';
 import { useRef, useState } from 'react';
@@ -31,16 +35,26 @@ export function StoreSubscriptionCard({
   // input disabled until hydration so an early tap cannot silently disappear.
   const mounted = useMounted();
   const { data: session } = authClient.useSession();
+  const signedIn = mounted && !!session?.user;
+  const userId = session?.user?.id ?? null;
   const client = useQueryClient();
   const [plan, setPlan] = useState<StorePlan>('month');
   const [promoCode, setPromoCode] = useState('');
   const [busy, setBusy] = useState(false);
+  const [checkingPromotion, setCheckingPromotion] = useState(false);
+  const [preview, setPreview] = useState<{
+    userId: string;
+    plan: StorePlan;
+    promoCode: string;
+    offer: StoreOfferPreview;
+  } | null>(null);
   const [error, setError] = useState('');
   const [confirm, setConfirm] = useState<'cancel' | 'switch' | null>(null);
   const requestId = useRef<string | null>(null);
+  const previewRevision = useRef(0);
   const { data, isPending, isError } = useQuery({
-    queryKey: ['store-billing'],
-    enabled: !!session?.user,
+    queryKey: ['store-billing', userId],
+    enabled: signedIn,
     refetchInterval: 30_000,
     queryFn: async () => {
       const result = await getStoreBillingAction({});
@@ -48,25 +62,82 @@ export function StoreSubscriptionCard({
       return result.data;
     },
   });
-  const billing = data?.billing;
+  const billing = signedIn ? data?.billing : undefined;
   const committedBilling = billing?.status === 'pending' ? null : billing;
-  const active = billing && data?.access.accessAllowed;
-  const test =
-    committedBilling?.isTest ?? promoCode.trim().toUpperCase() === '1CADTEST';
+  const active = signedIn && billing && data?.access.accessAllowed;
+  // No client interpretation of codes: prices and bonus terms come only from
+  // this signed-in owner's successful server preview of the current inputs.
+  const validatedOffer =
+    signedIn &&
+    !committedBilling &&
+    preview?.userId === userId &&
+    preview?.plan === plan &&
+    preview?.promoCode === promoCode
+      ? preview.offer
+      : null;
+  const test = committedBilling?.isTest ?? validatedOffer?.isTest ?? false;
   const currency =
-    committedBilling?.currency ??
-    (['INCAD', '1CADTEST'].includes(promoCode.trim().toUpperCase())
-      ? 'cad'
-      : 'usd');
+    committedBilling?.currency ?? validatedOffer?.currency ?? 'usd';
   const prefix = currency === 'cad' ? 'CA$' : 'US$';
-  const selectedPlan = test ? 'month' : plan;
-  const amount = test ? '1' : selectedPlan === 'month' ? '199' : '1,999';
+  const selectedPlan = validatedOffer?.plan ?? (test ? 'month' : plan);
+  const amount = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 2,
+  }).format(
+    (validatedOffer?.amount ??
+      (test ? 100 : selectedPlan === 'month' ? 19900 : 199900)) / 100
+  );
+  const checkoutPromoCode = committedBilling ? '' : promoCode;
+  const promotionNeedsValidation =
+    !!checkoutPromoCode.trim() && !validatedOffer;
   const date = (value: string | Date | null | undefined) =>
     value
       ? new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(
           new Date(value)
         )
       : '—';
+
+  function clearOfferPreview() {
+    // Invalidate an in-flight response as well as a previously rendered offer.
+    // Editing inputs must never restore an older price when that request ends.
+    previewRevision.current += 1;
+    setPreview(null);
+    setCheckingPromotion(false);
+    setError('');
+    requestId.current = null;
+  }
+
+  async function applyPromotion() {
+    if (!signedIn || !userId || !promoCode.trim() || busy) return;
+    const revision = ++previewRevision.current;
+    setCheckingPromotion(true);
+    setPreview(null);
+    setError('');
+    requestId.current = null;
+    try {
+      const result = await previewStoreOfferAction({ plan, promoCode });
+      if (revision !== previewRevision.current) return;
+      if (!result?.data?.success || !result.data.offer) {
+        setError(
+          result?.data && 'error' in result.data && result.data.error
+            ? result.data.error
+            : zh
+              ? '优惠码未能验证，请检查后重新应用。'
+              : 'The promotion code could not be verified. Check it and apply again.'
+        );
+        return;
+      }
+      setPreview({ userId, plan, promoCode, offer: result.data.offer });
+    } catch {
+      if (revision !== previewRevision.current) return;
+      setError(
+        zh
+          ? '优惠码未能验证，请稍后重新应用。'
+          : 'The promotion code could not be verified. Apply it again later.'
+      );
+    } finally {
+      if (revision === previewRevision.current) setCheckingPromotion(false);
+    }
+  }
 
   async function mutate(action: () => Promise<boolean>) {
     setBusy(true);
@@ -109,11 +180,11 @@ export function StoreSubscriptionCard({
             : 'Subscription could not be loaded. Refresh to retry.'}
         </p>
       )}
-      {session?.user && isPending && !publicOffer ? (
+      {signedIn && isPending && !publicOffer ? (
         <p aria-live="polite">
           {zh ? '正在读取订阅…' : 'Loading subscription…'}
         </p>
-      ) : data?.legacySubscription ? (
+      ) : signedIn && data?.legacySubscription ? (
         <>
           <p>
             {zh
@@ -255,16 +326,20 @@ export function StoreSubscriptionCard({
             <div className="space-y-3 border-t pt-4">
               <p>
                 {confirm === 'cancel' ? (
-                  zh ? (
-                    '取消后不会再续费扣款，已付费和赠送时间继续有效。预约切换也会取消，已付费用不自动退款。'
-                  ) : (
-                    'No more renewal charges. Paid and bonus time remain. Any scheduled switch is canceled. Payments are not automatically refunded.'
-                  )
+                  <>
+                    {zh
+                      ? '取消后不会再续费扣款，服务保留至 '
+                      : 'No more renewal charges. Access remains until '}
+                    {date(billing.entitlementEnd)}
+                    {zh
+                      ? '。预约切换也会取消，已付费用不自动退款。'
+                      : '. Any scheduled switch is canceled. Payments are not automatically refunded.'}
+                  </>
                 ) : (
                   <>
                     {zh
                       ? '当前使用期用完后，再扣'
-                      : 'After your current paid and bonus time ends, charge '}
+                      : 'After your current service period ends, charge '}
                     {prefix}
                     {billing.plan === 'month' ? '1,999' : '199'} /{' '}
                     {billing.plan === 'month'
@@ -274,9 +349,7 @@ export function StoreSubscriptionCard({
                       : zh
                         ? '月'
                         : 'month'}
-                    {zh
-                      ? '。现在不扣款，不重复赠送。'
-                      : '. No charge today and no repeat bonus.'}
+                    {zh ? '。现在不扣款。' : '. No charge today.'}
                   </>
                 )}
               </p>
@@ -336,7 +409,7 @@ export function StoreSubscriptionCard({
                   variant={selectedPlan === value ? 'default' : 'outline'}
                   onClick={() => {
                     setPlan(value);
-                    requestId.current = null;
+                    clearOfferPreview();
                   }}
                 >
                   {value === 'month'
@@ -364,56 +437,100 @@ export function StoreSubscriptionCard({
                   : 'year'}
             </span>
           </p>
-          <p>
+          <p aria-live="polite" data-testid="store-offer-term">
             {test
               ? zh
-                ? '指定测试账号专用，不送月份；每月 CA$1，直到取消。'
-                : 'Designated test accounts only. CA$1/month until canceled, without bonus months.'
-              : billing?.giftUsedAt
+                ? '指定测试账号专用，每月 CA$1，直到取消。'
+                : 'Designated test accounts only. CA$1/month until canceled.'
+              : validatedOffer?.bonusMonths
                 ? zh
-                  ? '恢复服务从本次付款当天起算，不重复赠送月份。'
-                  : 'Restored service starts on this payment date, without another bonus.'
+                  ? `优惠包含 ${validatedOffer.bonusMonths} 个月赠送时间，首次共用 ${validatedOffer.serviceMonths} 个月；之后按${selectedPlan === 'month' ? '月' : '年'}续费。`
+                  : `Includes ${validatedOffer.bonusMonths} bonus months: ${validatedOffer.serviceMonths} months total. Renews ${selectedPlan === 'month' ? 'monthly' : 'annually'} after the first term.`
                 : selectedPlan === 'month'
                   ? zh
-                    ? '新店首次付一个月，送两个月，共用 3 个月；第 4 个月开始每月续费。'
-                    : 'New stores pay for one month and receive two bonus months: 3 months total. Monthly renewals start in month 4.'
+                    ? '本次付款包含 1 个月服务，之后按月自动续费，直到取消。'
+                    : 'Payment covers 1 month. Renews monthly until canceled.'
                   : zh
-                    ? '新店首次年付送两个月，共用 14 个月；以后每 12 个月续费。'
-                    : 'New annual stores receive 2 bonus months: 14 months total. Renew every 12 months thereafter.'}
+                    ? '本次付款包含 12 个月服务，之后按年自动续费，直到取消。'
+                    : 'Payment covers 12 months. Renews annually until canceled.'}
           </p>
-          {!committedBilling && (
+          {signedIn && !committedBilling && (
             <div className="max-w-sm space-y-2">
               <Label htmlFor="store-promo">
                 {zh ? '优惠码（可选）' : 'Promotion code (optional)'}
               </Label>
-              <Input
-                id="store-promo"
-                disabled={!mounted || busy}
-                value={promoCode}
-                onChange={(e) => {
-                  setPromoCode(e.target.value.toUpperCase());
-                  requestId.current = null;
-                }}
-                maxLength={32}
-                autoComplete="off"
-                placeholder="INCAD"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="store-promo"
+                  disabled={!mounted || busy}
+                  value={promoCode}
+                  onChange={(e) => {
+                    setPromoCode(e.target.value);
+                    clearOfferPreview();
+                  }}
+                  maxLength={96}
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  placeholder={zh ? '输入优惠码' : 'Enter promotion code'}
+                  aria-describedby="store-promo-status"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={
+                    !mounted || busy || checkingPromotion || !promoCode.trim()
+                  }
+                  onClick={applyPromotion}
+                >
+                  {checkingPromotion
+                    ? zh
+                      ? '验证中…'
+                      : 'Checking…'
+                    : zh
+                      ? '应用'
+                      : 'Apply'}
+                </Button>
+              </div>
+              <p
+                id="store-promo-status"
+                className="text-muted-foreground text-sm"
+                aria-live="polite"
+              >
+                {validatedOffer
+                  ? zh
+                    ? '优惠码已应用。'
+                    : 'Promotion applied.'
+                  : promotionNeedsValidation
+                    ? zh
+                      ? '请先应用并验证优惠码，再继续付款。'
+                      : 'Apply your promotion code before continuing to payment.'
+                    : zh
+                      ? '多个优惠码用空格或逗号分隔。'
+                      : 'Separate multiple codes with spaces or commas.'}
+              </p>
             </div>
           )}
           <p className="text-muted-foreground text-sm">
             {zh
-              ? '正式套餐为税前价格，适用税费和最终金额会在付款前显示。服务从付款当天开始，赠送每家店仅一次。'
-              : 'Formal prices exclude applicable tax, shown with the final total before payment. Service begins on payment. Each store receives the bonus once.'}
+              ? '正式套餐为税前价格，适用税费和最终金额会在付款前显示。服务从付款当天开始。'
+              : 'Formal prices exclude applicable tax, shown with the final total before payment. Service begins on payment.'}
           </p>
-          {session?.user ? (
+          {signedIn ? (
             <Button
-              disabled={!mounted || busy || isPending || isError}
+              disabled={
+                !mounted ||
+                busy ||
+                isPending ||
+                isError ||
+                checkingPromotion ||
+                promotionNeedsValidation
+              }
               onClick={() =>
                 mutate(async () => {
                   requestId.current ??= crypto.randomUUID();
                   const result = await createStoreCheckoutAction({
                     plan: selectedPlan,
-                    promoCode,
+                    promoCode: checkoutPromoCode,
                     requestId: requestId.current,
                     locale,
                   });
@@ -446,8 +563,8 @@ export function StoreSubscriptionCard({
       )}
       <p className="text-muted-foreground text-sm">
         {zh
-          ? '取消续费不影响已购买和赠送的使用期。需要退款请联系 '
-          : 'Canceling renewal preserves paid and bonus time. For refund requests, contact '}
+          ? '取消续费不影响当前剩余使用期。需要退款请联系 '
+          : 'Canceling renewal preserves your remaining service period. For refund requests, contact '}
         <a href="mailto:support@whataisle.com" className="underline">
           support@whataisle.com
         </a>

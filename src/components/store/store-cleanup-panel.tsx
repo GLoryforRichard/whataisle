@@ -86,8 +86,8 @@ export function StoreCleanupPanel() {
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">
                     {zh
-                      ? '完成现场地图后手动开启。此操作只准备搜索和照片上传，不会自动升级套餐或付款。'
-                      : 'Enable after finishing the on-site map. This prepares search and photo uploads without upgrading a plan or making a payment.'}
+                      ? '确认平面图后手动开启。此操作只准备搜索和照片上传，不会自动升级套餐或付款。'
+                      : 'Enable after confirming the map. This prepares search and photo uploads without upgrading a plan or making a payment.'}
                   </p>
                   <Button
                     disabled={busy}

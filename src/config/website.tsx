@@ -122,7 +122,7 @@ export const websiteConfig: WebsiteConfig = {
   price: {
     plans: {
       // Display metadata only. Server-side store-billing resolves the five
-      // fixed prices and the once-per-store introductory service period.
+      // fixed prices, standard 1/12-month terms and explicitly applied offers.
       monthly: {
         id: 'monthly',
         prices: [

@@ -1,9 +1,7 @@
 # AGENTS.md
 
-This file provides guidance to code agents (Codex, Cursor, etc.) when working
-with code in this repository. It is kept deliberately identical to `CLAUDE.md`
-from the "What This Is" section down, so any divergence between the two shows
-up as a diff.
+This file is the authoritative project guidance for code agents.
+`CLAUDE.md` imports it with `@AGENTS.md`; maintain shared rules here only.
 
 ## MVP deployment decision — owner approved 2026-09-06
 
@@ -23,52 +21,67 @@ billing disabled. Never deploy to, re-enable billing for, or restart them.
 See [the migration record](docs/MVP-SHARED-VM.md) and [VM runbook](infra/vm/README.md).
 Cloud Run instructions below are historical source information, not production.
 
-## Customer onboarding candidate sync — 2026-09-08, not deployed
+## Customer onboarding and offline promotion sync — 2026-09-08
 
 For the new-customer flow, [CUSTOMER-ONBOARDING-SPEC.md](docs/CUSTOMER-ONBOARDING-SPEC.md)
 records the accepted requirements and supersedes conflicting descriptions below
 and the 2026-07-25 sync notes in `docs/REQUIREMENTS.zh.md` / `.en.md`.
-In particular, the $999 lifetime offer, create-store-before-payment funnel,
-video-first onboarding, "no floor-map editor" and separate platform scan-unlock
-step describe the earlier flow, not this release candidate. Existing customer
-data and legacy billing records remain protected; do not delete them to align
-documentation. Unrelated requirements and the approved shared-VM limit remain.
+The $999 lifetime offer, create-store-before-payment funnel, video-first
+onboarding, "no floor-map editor" and separate platform scan-unlock step are
+historical. Preserve existing customer data, confirmed service periods and
+legacy billing records. Unrelated rules and the approved shared-VM limit remain.
 
-The candidate implements verified-owner payment first, then display name,
-permanent handle confirmation and a six-digit store password. Provisioning
-creates an empty isolated runtime. Its public URL initially shows a tablet map
-editor with device-local drafts; server-verified password confirmation durably
-saves the map and stable shelf identities before search is available. The
-2026-09-08 revision separates a map-only runtime from founder-requested Search
-activation, so Atlas capacity can be upgraded after onsite mapping. The worker
-must confirm search readiness before public search and photo upload open; it
-must never upgrade a paid cloud tier automatically. Staff use the same
-password-protected workspace to scan/upload. Only the owner can
-reopen a published map; password changes revoke prior sessions. The founder may
-draw and scan on site using this flow; booking/scheduling and a separate staffed
-onboarding service are not reinstated.
+The two-stage onboarding release `d2f5d76` was deployed on 2026-09-08 to the
+approved VM. A real Stripe TEST checkout created `teststore1`; its map and two
+stable shelf identities were confirmed through the public tablet editor with a
+server-verified six-digit password. Its runtime is ready while Search activation
+remains off. This evidence does not establish live-money payments, Search/AI
+activation or an Atlas paid upgrade. Consult the release and private acceptance
+reports for the scope of completed checks.
+
+Owners pay first, then choose a display name, confirm a permanent handle and set
+a workspace password. Provisioning creates an empty isolated runtime with a
+public map editor and device-local drafts. Password confirmation durably saves
+the map and shelf identities. Founder-requested Search activation verifies ready
+indexes before public search/photo uploads open; it never upgrades a paid cloud
+tier automatically. Staff use the password-protected workspace to scan/upload.
+Only the owner can reopen a published map; password changes revoke old sessions.
+
+This revision implements the owner's later 2026-09-08 policy update: online
+sales are self-service software, with no promised visit, installation or staffed
+mapping.
+Owners create the page/map and staff maintain shelf photos. Public marketing,
+metadata, FAQs and terms must reflect that scope. Founder assistance to an
+offline customer uses the same tools and is not a standard subscription service.
+Confirm its production rollout from release evidence, not this policy summary.
 
 New billing lives in `src/payment/store-billing/` with five server-only
 `STRIPE_PRICE_*` settings: USD 199 monthly / 1,999 annual, equivalent CAD amounts
-via INCAD, and allowlisted, limited CA$1 monthly 1CADTEST without a bonus. First
-eligible formal payments cover three monthly or fourteen annual calendar months;
-later renewals cover one or twelve. See the specification for tax, switches,
-grace/recovery, once-only gifts and three-month data retention followed by
-founder-confirmed cleanup. New subscriptions are not the dormant template feature.
+via INCAD, and allowlisted, limited CA$1 monthly 1CADTEST. Standard first payments
+and renewals cover one or twelve calendar months; annual saves USD389 against
+USD2,388 for twelve monthly payments. The explicit server-configured offline
+BONUS2 offer adds two months only to the first eligible formal payment and may
+combine with INCAD; INCAD alone never adds time, and 1CADTEST cannot combine with
+the bonus. No offer on the first payment means no later bonus claim. Never embed
+the offline code in public copy, browser code or examples. The public checkout
+may display the service period returned by a validated offer. Preserve existing
+checkout eligibility and previously confirmed periods from the prior policy.
+See the specification for once-only history, tax, switches, grace/recovery and
+three-month data retention followed by founder-confirmed cleanup.
 
 New store domains are served by isolated `apps/wherebear` processes with separate
-Mongo databases/credentials and files; the platform keeps owner, billing and
-provisioning state in PostgreSQL. The platform-only routing/AI/table descriptions
-below must not be assumed to describe these runtimes. Checkout reserves capacity
-before payment, including WhereBear, pending setups and retained stores.
+Mongo databases/credentials and files; PostgreSQL keeps owner, billing and
+provisioning state. The platform-only routing/AI/table descriptions below do not
+fully describe these runtimes. Checkout reserves capacity before payment,
+including WhereBear, pending setups and retained stores. New subscriptions are
+not the dormant template feature. Pushing main deploys the platform only; the
+store worker/runtime use their reviewed installation flow. Do not modify
+WhereBear data or secrets outside the explicitly authorized deployment scope.
 
-These are candidate-code changes, **not a production deployment assertion**.
-Consult [release evidence](docs/CUSTOMER-ONBOARDING-RELEASE.md) and the current
-test catalog for completed checks, and [bootstrap review](docs/STORE-BOOTSTRAP-REVIEW.md)
-for remaining credentials, Atlas capability/fees, migration and activation.
-Pushing main deploys the platform only; it does not install the store worker or
-runtime. Existing WhereBear, its secrets and the approved VM remain untouched
-until the corresponding reviewed production actions are authorized.
+See [release evidence](docs/CUSTOMER-ONBOARDING-RELEASE.md), the current test
+catalog and [bootstrap review](docs/STORE-BOOTSTRAP-REVIEW.md). Historical
+candidate-only statements in those records describe their observation time;
+verify current production before assuming a step is still pending.
 
 ## What This Is
 
