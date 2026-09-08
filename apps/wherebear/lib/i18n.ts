@@ -42,7 +42,7 @@ export const STRINGS = {
     home_find_desc: 'Search by name, brand, or description in any language.',
     home_recent: 'Recent activity',
     home_no_activity: 'No activity yet. Snap a shelf to get started.',
-    home_smarter: 'The more you snap, the smarter Wherebear gets.',
+    home_smarter: 'The more you snap, the easier it is to find products.',
     home_judges_hint: '👋 First time here? Try Find item with a sample query — or Snap shelf with the built-in sample photo.',
     home_stat_products: 'in memory',
     home_stat_today: 'helped today',
@@ -79,7 +79,7 @@ export const STRINGS = {
 
     // ProgressScreen
     progress_title: 'Building memory',
-    progress_running: (n: number) => `Wherebear is processing ${n} items…`,
+    progress_running: (n: number) => `Processing ${n} items…`,
     progress_done: 'All set — memory saved.',
     progress_error: 'Something went wrong.',
     progress_saved_chat: 'Saved! 🐾',

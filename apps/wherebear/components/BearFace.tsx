@@ -14,7 +14,7 @@ export default function BearFace({ size = 56 }: BearFaceProps) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/bear-flat.png"
-      alt="Wherebear"
+      alt="Store assistant"
       width={size}
       height={size}
       style={{ display: 'block', objectFit: 'contain', mixBlendMode: 'multiply' }}

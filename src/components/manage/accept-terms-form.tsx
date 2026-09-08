@@ -2,6 +2,7 @@
 
 import { acceptTermsAction } from '@/actions/accept-terms';
 import { Button } from '@/components/ui/button';
+import { useMounted } from '@/hooks/use-mounted';
 import { LocaleLink } from '@/i18n/navigation';
 import { Routes } from '@/routes';
 import { useTranslations } from 'next-intl';
@@ -9,6 +10,8 @@ import { useState } from 'react';
 
 export function AcceptTermsForm() {
   const t = useTranslations('TermsReconfirm');
+  // The acceptance action has no native form fallback before hydration.
+  const mounted = useMounted();
   const [busy, setBusy] = useState(false);
 
   async function accept() {
@@ -34,7 +37,7 @@ export function AcceptTermsForm() {
       >
         {t('review')}
       </LocaleLink>
-      <Button size="lg" onClick={accept} disabled={busy}>
+      <Button size="lg" onClick={accept} disabled={!mounted || busy}>
         {busy ? t('accepting') : t('accept')}
       </Button>
     </div>

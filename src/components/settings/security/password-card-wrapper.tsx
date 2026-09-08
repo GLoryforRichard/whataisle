@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useHasCredentialProvider } from '@/hooks/use-auth';
+import { useMounted } from '@/hooks/use-mounted';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
@@ -24,20 +25,23 @@ import { useTranslations } from 'next-intl';
  * - Nothing: if the user has no credential provider and no email
  */
 export function PasswordCardWrapper() {
-  const { data: session } = authClient.useSession();
+  const mounted = useMounted();
+  const { data: session, isPending: isLoadingSession } =
+    authClient.useSession();
   const { hasCredentialProvider, isLoading, error } = useHasCredentialProvider(
     session?.user?.id
   );
+
+  // Browser auth/query caches can already be populated when SSR has no session.
+  // Keep SSR and the first client render identical before reading that state.
+  if (!mounted || isLoadingSession || isLoading) {
+    return <PasswordSkeletonCard />;
+  }
 
   // Handle error state
   if (error) {
     console.error('check credential provider error:', error);
     return null;
-  }
-
-  // Don't render anything while loading
-  if (isLoading) {
-    return <PasswordSkeletonCard />;
   }
 
   // If user has credential provider, show UpdatePasswordCard

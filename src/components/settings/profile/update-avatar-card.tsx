@@ -23,17 +23,24 @@ import { toast } from 'sonner';
 
 interface UpdateAvatarCardProps {
   className?: string;
+  initialName: string;
+  initialImage: string | null;
 }
 
 /**
  * Update the user's avatar
  */
-export function UpdateAvatarCard({ className }: UpdateAvatarCardProps) {
+export function UpdateAvatarCard({
+  className,
+  initialName,
+  initialImage,
+}: UpdateAvatarCardProps) {
   const t = useTranslations('Dashboard.settings.profile');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | undefined>('');
   const { data: session, refetch } = authClient.useSession();
-  const [avatarUrl, setAvatarUrl] = useState('');
+  // Render the server's profile snapshot before session refresh effects run.
+  const [avatarUrl, setAvatarUrl] = useState(initialImage ?? '');
 
   useEffect(() => {
     if (session?.user?.image) {
@@ -46,11 +53,6 @@ export function UpdateAvatarCard({ className }: UpdateAvatarCardProps) {
     !websiteConfig.storage.enable ||
     !websiteConfig.features.enableUpdateAvatar
   ) {
-    return null;
-  }
-
-  const user = session?.user;
-  if (!user) {
     return null;
   }
 
@@ -156,7 +158,7 @@ export function UpdateAvatarCard({ className }: UpdateAvatarCardProps) {
         <div className="flex flex-col items-center sm:flex-row gap-4 sm:gap-8">
           {/* avatar */}
           <Avatar className="h-16 w-16 border">
-            <AvatarImage src={avatarUrl ?? ''} alt={user.name} />
+            <AvatarImage src={avatarUrl ?? ''} alt={initialName} />
             <AvatarFallback>
               <User2Icon className="h-8 w-8 text-muted-foreground" />
             </AvatarFallback>

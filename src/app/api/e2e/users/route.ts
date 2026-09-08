@@ -6,12 +6,22 @@ import {
   session,
   user,
   userCredit,
+  store,
+  storeRuntime,
+  storeOwnerEntry,
+  storeSubscription,
+  storeCheckout,
+  storeBillingNotice,
 } from '@/db/schema';
 import { getDb } from '@/db';
 import { isValidE2ETestRequest } from '@/lib/e2e';
 import { PaymentScenes, PaymentTypes } from '@/payment/types';
 import { inArray, like, eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import {
+  addCalendarMonths,
+  pendingBilling,
+} from '@/payment/store-billing/model';
 
 const TEST_EMAIL_PATTERN = 'e2e-%@example.test';
 
@@ -69,8 +79,8 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  // Seed a completed lifetime payment so specs can cross the paywall
-  // without a Stripe round-trip.
+  // Seed confirmed subscription entitlement for isolated UI journeys. Stripe's
+  // real gateway/service is covered separately; no external payment is sent.
   if (body.hasPaid === true) {
     const priceId =
       process.env.NEXT_PUBLIC_STRIPE_PRICE_LIFETIME ?? 'price_e2e_lifetime';
@@ -87,13 +97,41 @@ export async function PATCH(request: Request) {
         scene: PaymentScenes.LIFETIME,
         userId: updatedUser.id,
         customerId: 'e2e-customer',
+        sessionId: `cs_e2e_${updatedUser.id}`,
         status: 'completed',
         paid: true,
       });
     }
+    const now = new Date();
+    const initial = pendingBilling(
+      {
+        plan: 'month',
+        currency: 'usd',
+        isTest: false,
+        amount: 19900,
+        priceId: 'price_e2e_month',
+      },
+      updatedUser.id,
+      now
+    );
+    await db
+      .insert(storeSubscription)
+      .values({
+        ...initial,
+        status: 'active',
+        periodStart: now,
+        entitlementEnd: addCalendarMonths(now, 3),
+        giftUsedAt: now,
+        lastPaidAt: now,
+      })
+      .onConflictDoNothing();
   }
 
-  return NextResponse.json({ user: updatedUser });
+  return NextResponse.json({
+    user: updatedUser,
+    checkoutSessionId:
+      body.hasPaid === true ? `cs_e2e_${updatedUser.id}` : null,
+  });
 }
 
 export async function DELETE(request: Request) {
@@ -101,11 +139,22 @@ export async function DELETE(request: Request) {
     return notFound();
   }
 
+  const email = new URL(request.url).searchParams.get('email');
+  // Preparation fixtures delete only their own account. A present but invalid
+  // filter must never fall through to the legacy all-E2E cleanup below.
+  if (email !== null && !isE2EEmail(email)) {
+    return NextResponse.json({ error: 'Invalid test email' }, { status: 400 });
+  }
+
   const db = await getDb();
   const rows = await db
     .select({ id: user.id })
     .from(user)
-    .where(like(user.email, TEST_EMAIL_PATTERN));
+    .where(
+      email === null
+        ? like(user.email, TEST_EMAIL_PATTERN)
+        : eq(user.email, email)
+    );
   const userIds = rows.map((row) => row.id);
 
   if (userIds.length === 0) {
@@ -120,6 +169,28 @@ export async function DELETE(request: Request) {
     .where(inArray(creditTransaction.userId, userIds));
   await db.delete(userCredit).where(inArray(userCredit.userId, userIds));
   await db.delete(payment).where(inArray(payment.userId, userIds));
+  const tenantRows = await db
+    .select({ id: store.id })
+    .from(store)
+    .where(inArray(store.ownerUserId, userIds));
+  const storeIds = tenantRows.map((row) => row.id);
+  if (storeIds.length) {
+    await db
+      .delete(storeOwnerEntry)
+      .where(inArray(storeOwnerEntry.storeId, storeIds));
+    await db
+      .delete(storeRuntime)
+      .where(inArray(storeRuntime.storeId, storeIds));
+  }
+  await db
+    .delete(storeCheckout)
+    .where(inArray(storeCheckout.ownerUserId, userIds));
+  await db
+    .delete(storeBillingNotice)
+    .where(inArray(storeBillingNotice.ownerUserId, userIds));
+  await db
+    .delete(storeSubscription)
+    .where(inArray(storeSubscription.ownerUserId, userIds));
   await db.delete(user).where(inArray(user.id, userIds));
 
   return NextResponse.json({ deleted: userIds.length });

@@ -1,3 +1,5 @@
+import { storeShelfExists } from '@/lib/store-map';
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 /**
  * Async shelf-intake: submit a photo as a scan job.
  *
@@ -30,6 +32,8 @@ export const maxDuration = 30;
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   try {
     let formData: FormData;
     try {
@@ -43,6 +47,8 @@ export async function POST(req: NextRequest) {
     }
     const file = formData.get('image');
     const aisle = (formData.get('aisle') as string | null)?.trim() ?? '';
+
+    if (!await storeShelfExists(aisle)) return Response.json({ok:false,error:'Select an existing shelf.'},{status:400});
 
     // Duck-type Blob: some runtimes hand back a Blob that isn't `instanceof File`.
     if (!(file instanceof Blob) || file.size === 0) {

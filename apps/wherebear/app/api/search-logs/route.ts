@@ -1,10 +1,14 @@
+import { NextRequest } from 'next/server';
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 import { NextResponse } from 'next/server';
 import { getRecentSearches } from '@/lib/ops';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   try {
     const logs = await getRecentSearches(100);
     return NextResponse.json({ ok: true, logs });

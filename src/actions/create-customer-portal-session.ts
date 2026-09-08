@@ -5,6 +5,10 @@ import { user } from '@/db/schema';
 import { userActionClient } from '@/lib/safe-action';
 import { getUrlWithLocale } from '@/lib/urls';
 import { createCustomerPortal } from '@/payment';
+import {
+  getOwnerBilling,
+  getStoreBillingService,
+} from '@/payment/store-billing';
 import type { CreatePortalParams } from '@/payment/types';
 import { eq } from 'drizzle-orm';
 import { getLocale } from 'next-intl/server';
@@ -26,6 +30,10 @@ export const createPortalAction = userActionClient
     const currentUser = ctx.user;
 
     try {
+      if ((await getOwnerBilling(currentUser.id))?.lastPaidAt) {
+        const url = await getStoreBillingService().createPortal(currentUser.id);
+        return { success: true, data: { url } };
+      }
       // Get the user's customer ID from the database
       const db = await getDb();
       const customerResult = await db

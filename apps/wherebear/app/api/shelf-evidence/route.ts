@@ -1,3 +1,5 @@
+import { storeShelfExists } from '@/lib/store-map';
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 import { NextRequest } from 'next/server';
 import { DetectedProduct } from '@/lib/gemini';
 import { saveShelfDirect, enhanceShelfBackground } from '@/lib/shelf-save';
@@ -43,6 +45,8 @@ function sanitizeProduct(raw: unknown): DetectedProduct | null {
 }
 
 export async function POST(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   const body = (await req.json()) as SaveBody;
   const aisle = body.aisle?.trim();
   const allProducts = Array.isArray(body.products) ? body.products : [];
@@ -57,6 +61,8 @@ export async function POST(req: NextRequest) {
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
+
+  if (!await storeShelfExists(aisle)) return Response.json({ok:false,error:'Select an existing shelf.'},{status:400});
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({

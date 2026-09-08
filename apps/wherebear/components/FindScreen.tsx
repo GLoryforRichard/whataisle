@@ -10,6 +10,7 @@ import { AgentEvent } from '@/lib/agents/types';
 import { useTranslation } from '@/lib/i18n';
 import { useVoiceRecorder, getVoiceSupported } from '@/lib/voice';
 import StoreMap from './StoreMap';
+import {useShelfCatalog} from './StoreRuntimeProvider';
 
 type Screen = 'home' | 'snap' | 'progress' | 'find';
 type Phase = 'input' | 'searching' | 'result';
@@ -146,6 +147,7 @@ function viaTag(result: unknown): 'mcp' | 'sdk' | 'driver' | null {
  * the result card stays compact; expand one at a time to locate it.
  */
 function ResultMap({ aisles }: { aisles: string[] }) {
+  const {labelFor}=useShelfCatalog();
   const { t } = useTranslation();
   const single = aisles.length === 1;
   const [open, setOpen] = useState<string | null>(single ? aisles[0] : null);
@@ -186,7 +188,7 @@ function ResultMap({ aisles }: { aisles: string[] }) {
                     }}
                   >
                     <Icon name="pin" size={16} style={{ color: '#e5484d', flexShrink: 0 }} />
-                    <span style={{ flex: 1, textAlign: 'left', fontWeight: 800, fontSize: 15, color: C.text, fontFamily: 'ui-monospace, monospace' }}>{code}</span>
+                    <span style={{ flex: 1, textAlign: 'left', fontWeight: 800, fontSize: 15, color: C.text, fontFamily: 'ui-monospace, monospace' }}>{labelFor(code)}</span>
                     <Icon name="chevron-down" size={18} style={{ color: C.textMuted, transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
                   </button>
                   {isOpen && (
@@ -215,6 +217,7 @@ function ResultCard({
   go: (s: Screen) => void;
 }) {
   const { t, lang } = useTranslation();
+  const {labelFor,labelText}=useShelfCatalog();
   const [zoomSrc, setZoomSrc] = useState<string | null>(null);
   const [openGuess, setOpenGuess] = useState<number | null>(null);
   const found = candidates.length > 0;
@@ -257,7 +260,7 @@ function ResultCard({
         }}>
           {answerEn && (
             <div style={{ fontSize: 15, color: C.primaryDark, fontWeight: 600, lineHeight: 1.4 }}>
-              {answerEn}
+              {labelText(answerEn)}
             </div>
           )}
           {showZh && (
@@ -267,7 +270,7 @@ function ResultCard({
               paddingTop: answerEn ? 6 : 0,
               borderTop: answerEn ? `1px dashed ${C.primary}33` : 'none',
             }}>
-              {answerZh}
+              {labelText(answerZh)}
             </div>
           )}
         </div>
@@ -317,7 +320,7 @@ function ResultCard({
                           padding: '2px 9px', borderRadius: 999,
                           fontSize: 12.5, fontWeight: 700,
                           fontFamily: 'ui-monospace, monospace', letterSpacing: 0.3,
-                        }}>{code}</span>
+                        }}>{labelFor(code)}</span>
                       ))}
                       {stale.map((code, i) => (
                         <span key={`stale-${code}-${i}`} style={{
@@ -328,7 +331,7 @@ function ResultCard({
                           fontSize: 12.5, fontWeight: 700,
                           fontFamily: 'ui-monospace, monospace', letterSpacing: 0.3,
                           textDecoration: 'line-through', opacity: 0.75,
-                        }}>{code}</span>
+                        }}>{labelFor(code)}</span>
                       ))}
                     </div>
                     {stale.length > 0 && (
@@ -403,7 +406,7 @@ function ResultCard({
                           padding: '2px 9px', borderRadius: 999,
                           fontSize: 12.5, fontWeight: 700,
                           fontFamily: 'ui-monospace, monospace', letterSpacing: 0.3,
-                        }}>{a}</span>
+                        }}>{labelFor(a)}</span>
                       ))}
                       <Icon name="chevron-down" size={18} style={{
                         color: C.accentDark, flexShrink: 0, marginLeft: 'auto',

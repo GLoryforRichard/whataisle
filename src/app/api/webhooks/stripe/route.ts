@@ -1,5 +1,6 @@
 import { handleWebhookEvent } from '@/payment';
 import { type NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
 
 /**
  * Stripe webhook handler
@@ -33,13 +34,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   } catch (error) {
     console.error('Error in webhook route:', error);
 
-    // IMPORTANT: Return 200 to acknowledge receipt even on processing errors.
-    // Stripe interprets 4xx/5xx as delivery failure and will retry the event
-    // indefinitely (up to 3 days), which can cause duplicate processing and
-    // unnecessary load. The error has already been logged for investigation.
+    // Failed fulfillment must be retried: acknowledging it loses paid orders.
+    // The subscription service commits its event key together with fulfillment.
+    const invalidSignature =
+      error instanceof Stripe.errors.StripeSignatureVerificationError;
     return NextResponse.json(
-      { error: 'Webhook handler failed', received: true },
-      { status: 200 }
+      {
+        error: invalidSignature
+          ? 'Invalid signature'
+          : 'Webhook processing failed; retry required',
+      },
+      { status: invalidSignature ? 400 : 503 }
     );
   }
 }

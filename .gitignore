@@ -17,6 +17,7 @@
 
 # next.js
 /.next/
+/.next-*/
 /.next-e2e/
 /.next-build/
 /out/
@@ -86,3 +87,7 @@ logs/security/
 
 # Local file storage (dev)
 .storage/
+
+# Task-owned browser snapshots and local authentication fixtures
+.playwright-cli/
+output/playwright/

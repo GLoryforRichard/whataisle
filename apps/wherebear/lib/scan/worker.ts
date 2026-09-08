@@ -1,3 +1,4 @@
+import { getStoreRuntime, isManagedStore } from '@/lib/store-runtime';
 /**
  * In-process scan-job worker: drains the `scan_jobs` queue with photo-level
  * concurrency. Started once from instrumentation.ts (pm2 runs a single fork
@@ -46,6 +47,7 @@ const HEARTBEAT_MS = 30_000;
 const SWEEP_MS = 6 * 3_600_000;
 
 let inFlight = 0;
+let tickRunning = false;
 
 export function startScanWorker(): void {
   // Dev HMR / double-import guard.
@@ -70,19 +72,32 @@ export function startScanWorker(): void {
 }
 
 async function tick(): Promise<void> {
-  while (inFlight < PHOTO_CONCURRENCY) {
-    let job: ScanJobDoc | null;
-    try {
-      job = await claimNextJob();
-    } catch (err) {
-      console.warn('[scan-worker] claim failed:', err instanceof Error ? err.message : err);
-      return;
+  // Keep the permission check and claim reservation in one scheduler turn.
+  // A slow platform/DB response must not allow overlapping timers to claim
+  // more photos than PHOTO_CONCURRENCY. Processing itself remains parallel.
+  if (tickRunning) return;
+  tickRunning = true;
+  try {
+    // A suspended store cannot start fresh paid recognition work. Existing leases may finish.
+    if (isManagedStore()) {
+      try { if (!(await getStoreRuntime()).accessAllowed) return; } catch { return; }
     }
-    if (!job) return;
-    inFlight++;
-    void runJob(job).finally(() => {
-      inFlight--;
-    });
+    while (inFlight < PHOTO_CONCURRENCY) {
+      let job: ScanJobDoc | null;
+      try {
+        job = await claimNextJob();
+      } catch (err) {
+        console.warn('[scan-worker] claim failed:', err instanceof Error ? err.message : err);
+        return;
+      }
+      if (!job) return;
+      inFlight++;
+      void runJob(job).finally(() => {
+        inFlight--;
+      });
+    }
+  } finally {
+    tickRunning = false;
   }
 }
 

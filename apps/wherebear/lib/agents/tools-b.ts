@@ -8,7 +8,7 @@ import {
 import { UsageTotals, extractGeminiUsage } from '@/lib/cost';
 import { SearchLog } from '@/lib/types';
 import { mcpAggregate, mcpInsertMany } from '@/lib/mcp/mongo-ops';
-import { SHELVES } from '@/lib/shelves';
+import { getStoreShelfCatalog } from '@/lib/store-map';
 import { getAisleLastScans, classifyAisles } from '@/lib/aisle-freshness';
 
 // ─────────────────────────────────────────────────────────────
@@ -358,13 +358,13 @@ interface CategorySuggestion {
 export async function execSuggestByCategory(
   args: { query_text: string }
 ): Promise<{ matches: CategorySuggestion[]; total_searched: number }> {
+  const SHELVES = await getStoreShelfCatalog();
   const q = (args.query_text || '').toLowerCase().trim();
   if (!q) return { matches: [], total_searched: SHELVES.length };
 
-  // Only consider main shelves (A1-A12, B1-B11) for category lookup — the
-  // L/R side faces and C-zone entries inherit (or have no) categories.
+  // Managed stores may use any stable shelf ID, not only legacy A/B labels.
   const mainShelves = SHELVES.filter(
-    s => /^[AB]\d+$/.test(s.code) && s.categories.length > 0
+    s => s.categories.length > 0
   );
 
   const matches: CategorySuggestion[] = [];

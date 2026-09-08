@@ -1,0 +1,17 @@
+{
+  "platformUrl": "https://www.whataisle.com",
+  "workerId": "wherebear-vm-1",
+  "workerToken": "REPLACE_WITH_AT_LEAST_32_RANDOM_BYTES",
+  "atlasProjectId": "REPLACE_WITH_ATLAS_PROJECT_ID",
+  "atlasClientId": "REPLACE_WITH_ATLAS_SERVICE_ACCOUNT_CLIENT_ID",
+  "atlasClientSecret": "REPLACE_WITH_ATLAS_SERVICE_ACCOUNT_CLIENT_SECRET",
+  "atlasClusterName": "REPLACE_WITH_EXISTING_APPROVED_CLUSTER_NAME",
+  "atlasHost": "REPLACE_WITH_APPROVED_CLUSTER.mongodb.net",
+  "embeddingModel": "voyage-4",
+  "maxStores": 5,
+  "commonRuntimeEnv": {
+    "GOOGLE_CLOUD_PROJECT": "wherebear-prod-20260902",
+    "GOOGLE_CLOUD_LOCATION": "global",
+    "OPENROUTER_API_KEY": "REPLACE_WITH_APPROVED_KEY"
+  }
+}

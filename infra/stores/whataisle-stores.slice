@@ -1,0 +1,8 @@
+[Unit]
+Description=Combined resource ceiling for automatically provisioned stores
+
+[Slice]
+MemoryHigh=1400M
+MemoryMax=2000M
+CPUQuota=150%
+TasksMax=512

@@ -1,0 +1,16 @@
+[Unit]
+Description=Reconcile WhatAisle subscription access and retention
+After=network-online.target whataisle-platform.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/opt/whataisle-platform/node-v24.18.0-linux-x64/bin/node /opt/whataisle-provisioning/scripts/store-provisioning.mjs --reconcile --apply --config /etc/whataisle-provisioning/worker.json
+UMask=0077
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/run/lock

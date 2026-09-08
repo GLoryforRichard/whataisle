@@ -7,6 +7,10 @@ export function proxy(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Store not found' }, { status: 421 });
   }
   const path = req.nextUrl.pathname;
+  const managed = STORE_ID !== 'wherebear' || Boolean(process.env.STORE_RUNTIME_TOKEN);
+  if (managed && ['/cost-lab', '/compare', '/vision-test', '/api/cost-lab', '/api/compare', '/cost-lab-results', '/sample-shelf.jpg'].some(prefix => path === prefix || path.startsWith(`${prefix}/`))) {
+    return NextResponse.json({ok:false,error:'Not found'},{status:404});
+  }
   // Old open tabs must finish same-origin uploads/SSE without cross-origin
   // redirects. Documents use the browser outbox guard on their first visit;
   // once drained the browser moves itself, retaining path and query.

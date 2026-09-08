@@ -8,6 +8,14 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const nextConfig: NextConfig = {
   ...(process.env.NEXT_DIST_DIR && { distDir: process.env.NEXT_DIST_DIR }),
 
+  // E2E servers are disposable. Persisting their development cache competes
+  // with browser requests; measured writes/compaction took 12–23 seconds.
+  // Keep ordinary development and production at the framework defaults.
+  ...(process.env.NODE_ENV === 'development' &&
+    process.env.E2E_TEST_SECRET === 'mksaas-e2e-secret' && {
+      experimental: { turbopackFileSystemCacheForDev: false },
+    }),
+
   // Docker standalone output
   ...(process.env.DOCKER_BUILD === 'true' && { output: 'standalone' }),
 

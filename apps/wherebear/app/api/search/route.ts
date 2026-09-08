@@ -1,3 +1,4 @@
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 import { NextRequest } from 'next/server';
 import { runAgentB } from '@/lib/agents/agent-b';
 import { runAgentBAdk } from '@/lib/agents/adk/run-search';
@@ -12,6 +13,8 @@ interface SearchBody {
 }
 
 export async function POST(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   const body = (await req.json()) as SearchBody;
   const query = body.query?.trim();
 

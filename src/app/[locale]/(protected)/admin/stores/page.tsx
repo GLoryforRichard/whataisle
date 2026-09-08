@@ -1,4 +1,5 @@
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import { StoreCleanupPanel } from '@/components/store/store-cleanup-panel';
 import { getManagedStoreStatus, managedStores } from '@/data/managed-stores';
 import { getSession } from '@/lib/server';
 import { Routes } from '@/routes';
@@ -96,6 +97,7 @@ export default async function ManagedStoresPage() {
             </div>
           </section>
         ))}
+        <StoreCleanupPanel />
       </div>
     </>
   );

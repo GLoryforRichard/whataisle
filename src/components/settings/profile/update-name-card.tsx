@@ -22,23 +22,28 @@ import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
 interface UpdateNameCardProps {
   className?: string;
+  initialName: string;
 }
 
 /**
  * update user name
  */
-export function UpdateNameCard({ className }: UpdateNameCardProps) {
+export function UpdateNameCard({
+  className,
+  initialName,
+}: UpdateNameCardProps) {
   const t = useTranslations('Dashboard.settings.profile');
   const [isSaving, setIsSaving] = useState(false);
+  const [savedName, setSavedName] = useState(initialName);
   const [error, setError] = useState<string | undefined>('');
-  const { data: session, refetch } = authClient.useSession();
+  const { refetch } = authClient.useSession();
 
   // Create a schema for name validation
   const formSchema = z.object({
@@ -48,30 +53,19 @@ export function UpdateNameCard({ className }: UpdateNameCardProps) {
       .max(30, { message: t('name.maxLength') }),
   });
 
-  // Initialize the form with empty string as fallback if user.name is undefined
+  // Use the same server snapshot during SSR and hydration. The browser session
+  // store can already be populated while its server counterpart is still empty.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: session?.user?.name || '',
+      name: initialName,
     },
   });
-
-  useEffect(() => {
-    if (session?.user?.name) {
-      form.setValue('name', session.user.name);
-    }
-  }, [session, form]);
-
-  // Check if user exists after all hooks are initialized
-  const user = session?.user;
-  if (!user) {
-    return null;
-  }
 
   // Handle form submission
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // Don't update if the name hasn't changed
-    if (values.name === session?.user?.name) {
+    if (values.name === savedName) {
       return;
     }
 
@@ -93,8 +87,10 @@ export function UpdateNameCard({ className }: UpdateNameCardProps) {
           // update name success, user information stored in ctx.data
           // console.log("update name, success:", ctx.data);
           toast.success(t('name.success'));
+          // Session refreshes must not overwrite a name the user is editing.
+          setSavedName(values.name);
+          form.reset(values);
           refetch();
-          form.reset();
         },
         onError: (ctx) => {
           // update name fail, display the error message

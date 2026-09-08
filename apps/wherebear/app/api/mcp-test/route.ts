@@ -1,3 +1,5 @@
+import { NextRequest } from 'next/server';
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 import { NextResponse } from 'next/server';
 import { listMongoMcpTools, callMongoMcp, extractMcpText } from '@/lib/mcp/mongo-mcp';
 
@@ -5,7 +7,9 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   try {
     const tools = await listMongoMcpTools();
     const toolNames = (tools.tools || []).map(t => ({ name: t.name, desc: t.description?.slice(0, 80) }));

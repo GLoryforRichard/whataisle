@@ -20,7 +20,7 @@ import Icon from './Icon';
 import ScreenHeader from './ScreenHeader';
 import ShelfScanner from './ShelfScanner';
 import type { DetectedProduct } from '@/lib/gemini';
-import { getShelf } from '@/lib/shelves';
+import {useShelfCatalog,useStoreRuntime} from './StoreRuntimeProvider';
 import StoreMapModal from './StoreMapModal';
 import { useTranslation } from '@/lib/i18n';
 import { type QueueItem, useScanQueue } from '@/lib/scan-queue/store';
@@ -50,6 +50,8 @@ function Label({ children, action }: { children: React.ReactNode; action?: React
 }
 
 export default function SnapScreen({ go }: SnapScreenProps) {
+  const {getShelf,labelFor}=useShelfCatalog();
+  const {store}=useStoreRuntime();
   const { t } = useTranslation();
   // Empty until the worker picks a shelf — this gates the whole capture area,
   // so the shelf picker is the first (and only) thing they see on arrival.
@@ -78,6 +80,7 @@ export default function SnapScreen({ go }: SnapScreenProps) {
   const [filterPhotoId, setFilterPhotoId] = useState<string | null>(null);
 
   useEffect(() => {
+    if(store.managed)return;
     fetch('/sample-shelf.jpg', { method: 'HEAD' })
       .then(r => setSampleAvailable(r.ok))
       .catch(() => {});
@@ -166,7 +169,7 @@ export default function SnapScreen({ go }: SnapScreenProps) {
               background: C.primary, color: C.text, border: `2px solid ${C.border}`, borderRadius: 8,
               fontWeight: 800, fontSize: 14,
               fontFamily: 'ui-monospace, monospace',
-            }}>{location}</span>
+            }}>{labelFor(location)}</span>
             <span style={{
               fontSize: 13, color: C.textMuted, fontWeight: 500,
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',

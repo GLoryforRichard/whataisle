@@ -4,7 +4,7 @@ import { getDb } from '@/lib/mongodb';
 import { AGENT_A_TOOLS, dispatchToolA } from './tools-a';
 import { AgentEvent } from './types';
 import { temperatureConfigForModel } from '@/lib/gemini-model.mjs';
-import { buildShelfContext } from '@/lib/shelves';
+import { buildStoreShelfContext } from '@/lib/store-map';
 
 export interface AgentAInput {
   aisle: string;
@@ -66,7 +66,7 @@ export async function* runAgentA(input: AgentAInput): AsyncGenerator<AgentEvent>
     message: `Got ${input.products.length} products for ${input.aisle}. Building memory…`,
   };
 
-  const shelfContext = buildShelfContext(input.aisle);
+  const shelfContext = await buildStoreShelfContext(input.aisle);
   // IMPORTANT: name and metadata are kept on separate labeled lines so the
   // model never confuses category/confidence with the canonical_name. Previously
   // `${name} (${category}) [${confidence}]` was on one line and Gemini saved

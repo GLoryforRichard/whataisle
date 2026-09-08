@@ -1,5 +1,39 @@
 # E2E Test Catalog
 
+## Current subscription and automatic-store acceptance (2026-09-07)
+
+`docs/CUSTOMER-ONBOARDING-SPEC.md` supersedes the historical paywall, manual
+installation, video-first and immediate-closure journeys below. New coverage
+must exercise payment before setup; fixed domain and six-digit password;
+recoverable provisioning; device-local map draft; authenticated map confirmation;
+immediate public search; isolated staff upload; owner map/name/PIN changes;
+revoked sessions; USD/CAD monthly/annual and limited test pricing; first-period
+bonus; scheduled plan changes; cancel override; seven-day grace; suspended-time
+no-billing; three-month retention and founder-confirmed cleanup. Browser tests
+use isolated synthetic stores. Hosted Stripe and real mailbox verification are
+separate final checks after all feature implementation and local gates pass.
+
+### Maintained checks for the current architecture
+
+The root suite currently has six spec files and 49 browser tests. It serves
+the platform; store behavior is exercised in the separate WhereBear runtime.
+
+| Coverage | Maintained entry point |
+| --- | --- |
+| Auth, public EN/ZH pages, account settings, owner/admin route access | `specs/auth.spec.ts`, `public-pages.spec.ts`, `protected-pages.spec.ts`, `settings-profile.spec.ts` |
+| USD/CAD monthly/annual/test offers; payment-first setup; reserved domain rejection; persistent provisioning; name/PIN changes; cancel/switch review; payment return ownership and safe destination | `specs/owner-onboarding.spec.ts` |
+| Missing/forged Stripe signatures return 400 without granting access | `specs/stripe-webhook.spec.ts` |
+| Account deletion rejects before deleting credentials or billing records; eight deletion cases plus login/cleanup verification, ten checks passed 2026-09-08 | `scripts/auth-deletion-integration.mts` (separate real local HTTP/PostgreSQL check) |
+| Billing calendar periods, bonus once, quota concurrency, failures, plan switches, callback compatibility and real PostgreSQL read/write isolation | `tests/unit/store-billing-*.test.ts` |
+| Durable provisioning leases, retries, restricted Mongo users/indexes and cleanup | `scripts/store-provisioning.test.mjs`, `scripts/store-onboarding-integration.mts` |
+| Actual two-store HTTP/Mongo map, PIN, staff upload and isolation | `apps/wherebear/tests/runtime-integration.mjs` |
+| Tablet browser drawing/moving/resizing, local draft recovery, PIN publication, public search entry, staff photo queue and owner edit continuity; seven checks passed 2026-09-08 | `scripts/store-browser-integration.mts`, `docs/STORE-BROWSER-ACCEPTANCE.md` |
+
+The historical sections below describe an earlier root-hosted store app.
+In particular, sections 5–9 and 11 do not represent active root specs; their
+old video-first/lifetime/instant-deletion behavior must not be reintroduced.
+Existing WhereBear cost and deletion coverage at the end remains separate.
+
 This catalog is the acceptance checklist for Playwright E2E coverage. Update it
 before or alongside feature work, then use the implemented spec files to lock in
 the verified behavior.
@@ -31,6 +65,29 @@ and `AI_STUB=true` so it never calls a paid AI provider.
 - Fixtures: `tests/e2e/fixtures/`
 - Test-only API: `src/app/api/e2e/users/route.ts`
 
+The dedicated browser-test server uses `next dev --turbopack`, local SMTP, and
+fixed fake Stripe API/webhook credentials; it retains the development-only
+fixture guard and never depends on a developer's Stripe credentials.
+Only that development subprocess caps its JavaScript heap at 3 GiB, rather
+than Next's default of half the host RAM; production configuration is unchanged.
+The same guarded E2E development server disables Turbopack's filesystem cache;
+normal development and production retain their defaults. Disposable acceptance
+runs do not need cache persistence that can contend with browser requests.
+Before the 49 tests, `global-setup.ts` visits each covered development route
+and loads its browser scripts with a separate synthetic account. This bounded
+preparation measures cold compilation separately from business-operation
+deadlines; it is not a passing test. First-load console/page errors still fail
+preparation. It closes both browser contexts and deletes only its own account
+in `finally`; logs and timings are saved under `output/playwright/e2e-prepare-*`.
+Each public/protected route and locale has an independent smoke test, retaining the
+45-second navigation and 60-second test limits. Release acceptance runs with
+`--retries=0`. Owner onboarding clicks terms acceptance and billing controls as
+soon as Playwright considers them enabled, guarding against clicks lost before
+React hydration; it does not add fixed sleeps or retry the business action.
+The smoke helper waits for automatic page reads to settle before navigation and
+before its final error assertion. This avoids prematurely aborting development
+server actions; it does not claim to test production rapid-navigation behavior.
+
 For a deterministic local run, start PostgreSQL and apply the same preparation
 used by release CI:
 
@@ -61,7 +118,7 @@ browser console errors or page errors.
 | 4 | Chinese browsers land on Chinese | With a `zh-CN` browser context, open `/`; require a redirect to `/zh` and `html[lang="zh"]`. Locale resolution order is URL prefix → NEXT_LOCALE cookie → Accept-Language (`localeDetection: true` in `src/i18n/routing.ts`). |
 | 5 | English browsers stay on English | With the default (en-US) context, open `/`; require the URL to stay `/` and `html[lang="en"]`. Regression guard: search bots must keep receiving the English page at the bare domain. |
 | 6 | A manual language choice is remembered | From `/`, click the navbar 中文 switcher; require `/zh`. Open `/` again in the same context; require the NEXT_LOCALE cookie to redirect back to `/zh`. |
-| 7 | Homepage links to the demo store | Open `/`; require the hero "Visit the demo store" link to point at the `demo.localhost` subdomain (`websiteConfig.demoStoreHandle` + `getStoreUrl()`; the seeded `demo` tenant serves it locally). |
+| 7 | Homepage avoids an unconfigured demo | Open `/`; with no configured demo handle, require that no demo-store link is advertised. |
 
 ## 2. Authentication And Protected Routes
 
@@ -86,7 +143,7 @@ without browser console errors or page errors.
 
 | # | Test name | Flow |
 |---|---|---|
-| 1 | Protected pages render successfully | Sign in as an owner E2E user, then open `/dashboard`, the shelves, insights, profile, posters, and data management pages, the tenants/costs/users admin pages, and profile/security settings for `en` and `zh`. Verify each returns 2xx, renders a visible body, remains light-only, and emits no browser errors. |
+| 1 | Protected pages render successfully | Sign in as an owner E2E user, then open `/dashboard`, billing, users and profile/security settings for `en` and `zh`. Verify each returns 2xx, renders a visible body, remains light-only, and emits no browser errors. |
 
 ## 4. Profile Settings
 
@@ -96,7 +153,7 @@ Verifies the signed-in profile update flow.
 
 | # | Test name | Flow |
 |---|---|---|
-| 1 | User can update display name | Sign in, open `/settings/profile`, change the name, save, verify success toast, and reload to verify persistence. |
+| 1 | User can update display name | Sign in, open `/settings/profile`, change the name, save, verify success toast, and reload to verify persistence. Listen for browser console errors and uncaught page errors throughout; a hydration mismatch must fail this test. |
 
 ## 5. Shopper Search And Isolation
 
@@ -171,15 +228,14 @@ negative cases, so no fixture files are needed.
 
 **File:** `specs/stripe-webhook.spec.ts` | **Priority:** P0
 
-The only path that grants paid entitlement, unauthenticated by necessity — the
-signature is the guard. Note the route answers 200 to processing failures on
-purpose (Stripe retries 4xx/5xx for three days), so "rejected" is read from the
-body, not the status.
+The webhook is unauthenticated by necessity; its signature is the guard.
+Invalid signatures return 400. Internal processing failures return 503 so
+Stripe can retry; only completed processing returns a successful response.
 
 | # | Test name | Flow |
 |---|---|---|
 | 1 | A request with no signature is rejected outright | POST a forged `checkout.session.completed` with no signature header; require 400. |
-| 2 | A forged signature is not processed | Shape-correct but wrong signature; require 200 with `Webhook handler failed`. |
+| 2 | A forged signature is not processed | Shape-correct but wrong signature; require 400 with `Invalid signature`. |
 
 ## 11. Store Closure
 
@@ -194,7 +250,8 @@ owners — it destroys its own tenant.
 | 2 | The exact store name deletes the store and frees its subdomain | Type the exact name, confirm twice, then require the subdomain renders store-not-found and the owner is bounced to `/onboarding/handle`. |
 
 
-The current eleven specs expand to 41 Playwright tests across the locale matrices.
+The historical root suite contained eleven specs and 41 tests. The maintained
+inventory is listed above; do not report removed specs as passing coverage.
 
 ## Deferred Coverage
 
@@ -226,3 +283,19 @@ serve store routes. Dedicated config: `playwright.wherebear.config.ts`.
 - Main-site `/admin/stores` requires a real administrator, even in demo mode.
 
 WhereBear domain migration also verifies that legacy-origin Next.js client navigation remains same-origin while staff recover queued photos.
+
+## WhereBear cost monitoring
+
+`tests/e2e/wherebear/costs.spec.ts` verifies the store cost page with synthetic usage data, unknown-cost labeling and CSV export. The server rejects access when no administrator token is configured. This uses `playwright.wherebear.config.ts`, disabled workers, and mocked data; no paid model or production database requests.
+
+## WhereBear permanent product deletion
+
+Search results expose an individual staff deletion action for both matches and
+related-product suggestions. Browser verification uses isolated synthetic data:
+cancel leaves the result intact; invalid PIN and failed requests keep the card;
+successful confirmation removes the card, stale answer and map highlight;
+deleting the final result leaves a usable search-again action. Check English and
+Chinese copy and mobile dialog layout. Server unit tests cover authentication,
+cross-origin rejection, hard deletion, retry safety, deleted scan suppression,
+stale search index filtering and primary database failure. Never delete real
+store products to test this flow.

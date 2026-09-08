@@ -44,6 +44,14 @@ export const createCheckoutAction = userActionClient
 
       // Check if plan exists
       const plan = findPlanByPlanId(planId);
+      // Store subscriptions use the durable store-billing flow. Keeping this
+      // legacy action callable must not bypass bonus, quota or currency rules.
+      if (planId === 'monthly' || plan?.disabled) {
+        return {
+          success: false,
+          error: 'Open your dashboard to subscribe to a store plan',
+        };
+      }
       if (!plan) {
         return {
           success: false,

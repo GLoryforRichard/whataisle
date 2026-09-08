@@ -1,0 +1,19 @@
+[Unit]
+Description=WhatAisle store provisioning lease worker
+After=network-online.target whataisle-platform.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/opt/whataisle-platform/node-v24.18.0-linux-x64/bin/node /opt/whataisle-provisioning/scripts/store-provisioning.mjs --watch --apply --config /etc/whataisle-provisioning/worker.json
+Restart=on-failure
+RestartSec=30
+UMask=0077
+PrivateTmp=true
+ProtectHome=true
+TimeoutStopSec=35
+
+[Install]
+WantedBy=multi-user.target

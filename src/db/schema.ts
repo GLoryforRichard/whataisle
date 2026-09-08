@@ -1,6 +1,8 @@
 import * as appSchema from './app.schema';
 import * as authSchema from './auth.schema';
 import * as storeSchema from './store.schema';
+import * as runtimeSchema from './runtime.schema';
+import * as subscriptionSchema from './subscription.schema';
 
 /**
  * Re-export all tables so drizzle-kit can discover them when reading this file.
@@ -9,9 +11,13 @@ import * as storeSchema from './store.schema';
 export * from './auth.schema';
 export * from './app.schema';
 export * from './store.schema';
+export * from './runtime.schema';
+export * from './subscription.schema';
 
 export const schema = {
   ...authSchema,
   ...appSchema,
   ...storeSchema,
+  ...runtimeSchema,
+  ...subscriptionSchema,
 } as const;

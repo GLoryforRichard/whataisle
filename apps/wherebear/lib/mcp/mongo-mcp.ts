@@ -1,3 +1,4 @@
+import { runtimeDirectory } from '@/lib/runtime-paths.mjs';
 /**
  * Singleton MCP client that talks to the official MongoDB MCP Server.
  *
@@ -41,9 +42,8 @@ function buildClient(): CachedClient {
     env: {
       ...process.env,
       MDB_MCP_CONNECTION_STRING: uri,
-      // Default the MCP server's logging to a project-local file so we
-      // don't pollute the Next.js dev server output.
-      MDB_MCP_LOG_PATH: '.mongodb-mcp-server',
+      // Managed stores write logs to their own writable data directory.
+      MDB_MCP_LOG_PATH: runtimeDirectory('MDB_MCP_LOG_PATH'),
     } as Record<string, string>,
   });
 

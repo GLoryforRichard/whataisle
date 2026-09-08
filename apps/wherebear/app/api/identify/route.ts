@@ -1,3 +1,4 @@
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 import { NextRequest, NextResponse } from 'next/server';
 import { identifyProductFromPhoto } from '@/lib/gemini';
 import { logOp } from '@/lib/ops';
@@ -11,6 +12,8 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 // for; Gemini names it so we can search the store. Distinct from /api/vision,
 // which detects ALL products on a shelf with bounding boxes.
 export async function POST(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   let reqInfo = 'image=(none)';
   try {
     const formData = await req.formData();

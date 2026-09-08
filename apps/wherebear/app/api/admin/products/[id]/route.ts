@@ -1,3 +1,4 @@
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 import { NextRequest, NextResponse } from 'next/server';
 import { ObjectId } from 'mongodb';
 import { getDb } from '@/lib/mongodb';
@@ -31,6 +32,8 @@ export async function PATCH(
   req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   const locked = adminWriteGuard();
   if (locked) return locked;
   const { id } = await ctx.params;
@@ -94,6 +97,8 @@ export async function DELETE(
   _req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
+  const storeDenied = await authorizeStoreRequest(_req);
+  if (storeDenied) return storeDenied;
   const locked = adminWriteGuard();
   if (locked) return locked;
   const { id } = await ctx.params;

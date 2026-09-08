@@ -1,0 +1,30 @@
+{
+  "geminiAuth": {
+    "mode": "api-key"
+  },
+  "platform": {
+    "STRIPE_PRICE_USD_MONTH": "price_REPLACE_USD_199_MONTH",
+    "STRIPE_PRICE_USD_YEAR": "price_REPLACE_USD_1999_YEAR",
+    "STRIPE_PRICE_CAD_MONTH": "price_REPLACE_CAD_199_MONTH",
+    "STRIPE_PRICE_CAD_YEAR": "price_REPLACE_CAD_1999_YEAR",
+    "STRIPE_PRICE_CAD_TEST_MONTH": "price_REPLACE_CAD_1_MONTH",
+    "STORE_BILLING_TEST_EMAILS": "REPLACE_WITH_DESIGNATED_TEST_EMAILS"
+  },
+  "worker": {
+    "platformUrl": "https://www.whataisle.com",
+    "workerId": "wherebear-vm-1",
+    "atlasProjectId": "REPLACE_WITH_ATLAS_PROJECT_ID",
+    "atlasClientId": "REPLACE_WITH_ATLAS_SERVICE_ACCOUNT_CLIENT_ID",
+    "atlasClientSecret": "REPLACE_WITH_ATLAS_SERVICE_ACCOUNT_CLIENT_SECRET",
+    "atlasClusterName": "REPLACE_WITH_EXISTING_APPROVED_CLUSTER_NAME",
+    "atlasHost": "REPLACE_WITH_APPROVED_CLUSTER.mongodb.net",
+    "embeddingModel": "voyage-4",
+    "maxStores": 5,
+    "commonRuntimeEnv": {
+      "GOOGLE_CLOUD_PROJECT": "wherebear-prod-20260902",
+      "GOOGLE_CLOUD_LOCATION": "global",
+      "GEMINI_API_KEY": "REPLACE_WITH_SEPARATELY_APPROVED_GEMINI_KEY",
+      "OPENROUTER_API_KEY": "REPLACE_WITH_APPROVED_OPENROUTER_KEY"
+    }
+  }
+}

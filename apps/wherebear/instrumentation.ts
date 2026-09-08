@@ -30,6 +30,8 @@ export async function register() {
       // genai client + ADK's internal one) so the first REAL search runs at
       // steady-state speed. Bypasses the API route → nothing is logged to
       // search_history.
+      // New stores do not issue a paid throwaway model call at every process restart.
+      if (process.env.STORE_ID && process.env.STORE_ID !== 'wherebear') return;
       const runMod = await import('@/lib/agents/adk/run-search');
       for await (const ev of runMod.runAgentBAdk({ query: 'warmup ping' })) {
         if (ev.type === 'done' || ev.type === 'error') break;

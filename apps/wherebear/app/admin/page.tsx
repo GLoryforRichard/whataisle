@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { C, FONT, SHADOW } from '@/lib/theme';
 import SnapScreen from '@/components/SnapScreen';
@@ -11,7 +11,6 @@ import BearFace from '@/components/BearFace';
 import Icon from '@/components/Icon';
 import LanguageToggle from '@/components/LanguageToggle';
 import { useTranslation } from '@/lib/i18n';
-import { STAFF_PASSCODE, STAFF_UNLOCK_KEY } from '@/lib/staff-gate';
 
 // Workspace-level screens. The "menu" is the staff landing page; the rest are
 // the add/manage/test flows that used to live on the public home screen.
@@ -67,6 +66,7 @@ function MenuCard({
 export default function AdminWorkspace() {
   const { t, lang } = useTranslation();
   const [screen, setScreen] = useState<AdminScreen>('menu');
+  useEffect(()=>{if(new URL(window.location.href).searchParams.get('opened')==='1')setScreen('snap');},[]);
 
   // Snap/Find call go('home') to back out. In the workspace that returns to
   // the staff menu. A legacy go('progress') (nothing emits it anymore) also
@@ -165,7 +165,7 @@ export default function AdminWorkspace() {
   })();
 
   return (
-    <PasscodeGate passcode={STAFF_PASSCODE} storageKey={STAFF_UNLOCK_KEY} cancelHref="/">
+    <PasscodeGate cancelHref="/">
       {content}
     </PasscodeGate>
   );

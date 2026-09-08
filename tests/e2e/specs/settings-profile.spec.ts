@@ -4,6 +4,7 @@ import {
   loginByForm,
   registerE2EUser,
 } from '../fixtures/auth';
+import { installPageHealthMonitor } from '../fixtures/page-health';
 
 test.describe('settings profile', () => {
   test.beforeAll(async ({ request }) => {
@@ -15,6 +16,7 @@ test.describe('settings profile', () => {
   });
 
   test('updates the signed-in user display name', async ({ page, request }) => {
+    const monitor = installPageHealthMonitor(page);
     const user = await registerE2EUser(request);
     const newName = `E2E Updated ${Date.now().toString().slice(-6)}`;
 
@@ -33,5 +35,6 @@ test.describe('settings profile', () => {
 
     await page.reload();
     await expect(page.locator('input[name="name"]')).toHaveValue(newName);
+    monitor.expectNoErrors('profile update and reload');
   });
 });

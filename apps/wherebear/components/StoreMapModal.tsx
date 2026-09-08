@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { C, FONT } from '@/lib/theme';
-import { getShelf } from '@/lib/shelves';
+import {useShelfCatalog,useStoreRuntime} from './StoreRuntimeProvider';
 import StoreMap from './StoreMap';
 import Icon from './Icon';
 
@@ -13,6 +13,8 @@ interface StoreMapModalProps {
 }
 
 export default function StoreMapModal({ current, onConfirm, onClose }: StoreMapModalProps) {
+  const {getShelf,labelFor}=useShelfCatalog();
+  const {store}=useStoreRuntime();
   const [pending, setPending] = useState(current);
 
   const handleSelect = (code: string) => {
@@ -58,7 +60,7 @@ export default function StoreMapModal({ current, onConfirm, onClose }: StoreMapM
                   borderRadius: 5, padding: '1px 7px', fontWeight: 800,
                   fontSize: 11, fontFamily: 'ui-monospace, monospace',
                   marginRight: 6, verticalAlign: 'middle',
-                }}>{pending}</span>
+                }}>{labelFor(pending)}</span>
                 {shelf.description}
               </div>
             )}

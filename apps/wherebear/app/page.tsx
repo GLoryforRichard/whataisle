@@ -7,6 +7,8 @@ import FindScreen from '@/components/FindScreen';
 import AnimatedBear from '@/components/AnimatedBear';
 import Icon from '@/components/Icon';
 import LanguageToggle from '@/components/LanguageToggle';
+import FloorMapEditor from '@/components/FloorMapEditor';
+import { useStoreRuntime } from '@/components/StoreRuntimeProvider';
 import { useTranslation } from '@/lib/i18n';
 
 // Public surface is intentionally tiny: a customer/floor-staff member lands
@@ -23,21 +25,25 @@ interface HomeSummary {
 }
 
 export default function Page() {
+  const {store}=useStoreRuntime();
   const { t, lang } = useTranslation();
   const [screen, setScreen] = useState<CustomerScreen>('home');
   const [summary, setSummary] = useState<HomeSummary | null>(null);
   const [hover, setHover] = useState(false);
 
   useEffect(() => {
+    if(store.managed && !store.map)return;
     fetch('/api/home-summary')
       .then((r) => r.json())
       .then((d) => { if (d.ok) setSummary(d as HomeSummary); })
       .catch(() => {});
-  }, []);
+  }, [store.managed,store.map]);
 
   // FindScreen only ever calls go('home') to back out. Anything that isn't
   // 'find' returns to the customer home.
   const childGo = (s: ChildScreen) => setScreen(s === 'find' ? 'find' : 'home');
+
+  if(store.managed && !store.map)return <FloorMapEditor />;
 
   if (screen === 'find') {
     return (
@@ -81,8 +87,8 @@ export default function Page() {
               fontSize: 40, fontWeight: 800, lineHeight: 1, margin: 0, letterSpacing: -1.2,
               position: 'relative', display: 'inline-block', color: C.text,
             }}>
-              Where<span style={{ color: C.primary, position: 'relative', display: 'inline-block' }}>
-                bear
+              <span style={{ color: C.primary, position: 'relative', display: 'inline-block' }}>
+                {store.displayName}
                 {/* hand-drawn marker stroke in the second brand color */}
                 <svg viewBox="0 0 100 12" aria-hidden style={{
                   position: 'absolute', left: 0, right: 0, bottom: -9, width: '100%', height: 10,
@@ -159,7 +165,7 @@ export default function Page() {
           background: C.bgMuted, border: `1px dashed ${C.border}`, borderRadius: 12,
           color: C.textMuted, fontSize: 13, fontWeight: 600, lineHeight: 1.45,
         }}>
-          {t('home_judges_hint')}
+          {store.managed ? (lang==='zh'?'直接输入或拍照，查找商品所在货架。':'Type or take a photo to find a product’s shelf.') : t('home_judges_hint')}
         </div>
 
         <div style={{ flex: 1 }} />

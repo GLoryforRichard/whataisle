@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { SHELVES } from '@/lib/shelves';
+import {useShelfCatalog} from './StoreRuntimeProvider';
 import { C, FONT, SHADOW } from '@/lib/theme';
 import Icon from './Icon';
 
@@ -23,6 +23,7 @@ const mono: React.CSSProperties = {
 };
 
 export default function ShelfAdmin({ onBack }: { onBack: () => void }) {
+  const {shelves:SHELVES,labelFor}=useShelfCatalog();
   const [counts, setCounts] = useState<Record<string, number> | null>(null);
   const [active, setActive] = useState<string | null>(null);
   const [items, setItems] = useState<AdminProduct[] | null>(null);
@@ -162,7 +163,7 @@ export default function ShelfAdmin({ onBack }: { onBack: () => void }) {
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
-                <span style={{ ...mono, fontWeight: 800, fontSize: 13.5 }}>{s.code}</span>
+                <span style={{ ...mono, fontWeight: 800, fontSize: 13.5 }}>{s.label}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{
                     ...mono, fontSize: 11, fontWeight: 700,
@@ -276,7 +277,7 @@ export default function ShelfAdmin({ onBack }: { onBack: () => void }) {
                                 <span key={a} style={{
                                   fontSize: 10, padding: '1px 7px', borderRadius: 999,
                                   background: C.bgMuted, color: C.textMuted, ...mono,
-                                }}>{a}</span>
+                                }}>{labelFor(a)}</span>
                               ))}
                           </div>
                         )}
@@ -373,6 +374,7 @@ function EditModal({
     product.aliases.filter(a => a !== product.canonical_name).join('\n')
   );
   const [category, setCategory] = useState(product.category ?? '');
+  const {shelves:SHELVES}=useShelfCatalog();
   const [aisle, setAisle] = useState(product.latest_aisle);
 
   return (
@@ -426,7 +428,7 @@ function EditModal({
           >
             {SHELVES.map(s => (
               <option key={s.code} value={s.code}>
-                {s.code} — {s.description}
+                {s.label} — {s.description}
               </option>
             ))}
           </select>

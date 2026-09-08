@@ -23,6 +23,49 @@ billing disabled. Never deploy to, re-enable billing for, or restart them.
 See [the migration record](docs/MVP-SHARED-VM.md) and [VM runbook](infra/vm/README.md).
 Cloud Run instructions below are historical source information, not production.
 
+## Customer onboarding candidate sync — 2026-09-08, not deployed
+
+For the new-customer flow, [CUSTOMER-ONBOARDING-SPEC.md](docs/CUSTOMER-ONBOARDING-SPEC.md)
+records the accepted requirements and supersedes conflicting descriptions below
+and the 2026-07-25 sync notes in `docs/REQUIREMENTS.zh.md` / `.en.md`.
+In particular, the $999 lifetime offer, create-store-before-payment funnel,
+video-first onboarding, "no floor-map editor" and separate platform scan-unlock
+step describe the earlier flow, not this release candidate. Existing customer
+data and legacy billing records remain protected; do not delete them to align
+documentation. Unrelated requirements and the approved shared-VM limit remain.
+
+The candidate implements verified-owner payment first, then display name,
+permanent handle confirmation and a six-digit store password. Provisioning
+creates an empty isolated runtime. Its public URL initially shows a tablet map
+editor with device-local drafts; server-verified password confirmation publishes
+the map and stable shelf identities, then that URL becomes public search. Staff
+use the same password-protected workspace to scan/upload. Only the owner can
+reopen a published map; password changes revoke prior sessions. The founder may
+draw and scan on site using this flow; booking/scheduling and a separate staffed
+onboarding service are not reinstated.
+
+New billing lives in `src/payment/store-billing/` with five server-only
+`STRIPE_PRICE_*` settings: USD 199 monthly / 1,999 annual, equivalent CAD amounts
+via INCAD, and allowlisted, limited CA$1 monthly 1CADTEST without a bonus. First
+eligible formal payments cover three monthly or fourteen annual calendar months;
+later renewals cover one or twelve. See the specification for tax, switches,
+grace/recovery, once-only gifts and three-month data retention followed by
+founder-confirmed cleanup. New subscriptions are not the dormant template feature.
+
+New store domains are served by isolated `apps/wherebear` processes with separate
+Mongo databases/credentials and files; the platform keeps owner, billing and
+provisioning state in PostgreSQL. The platform-only routing/AI/table descriptions
+below must not be assumed to describe these runtimes. Checkout reserves capacity
+before payment, including WhereBear, pending setups and retained stores.
+
+These are candidate-code changes, **not a production deployment assertion**.
+Consult [release evidence](docs/CUSTOMER-ONBOARDING-RELEASE.md) and the current
+test catalog for completed checks, and [bootstrap review](docs/STORE-BOOTSTRAP-REVIEW.md)
+for remaining credentials, Atlas capability/fees, migration and activation.
+Pushing main deploys the platform only; it does not install the store worker or
+runtime. Existing WhereBear, its secrets and the approved VM remain untouched
+until the corresponding reviewed production actions are authorized.
+
 ## What This Is
 
 WhatAisle — an online "find the shelf" service for multilingual grocery stores.

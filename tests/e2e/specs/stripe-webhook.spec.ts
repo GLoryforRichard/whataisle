@@ -1,23 +1,7 @@
 import { expect, test } from '@playwright/test';
 
-/**
- * Stripe webhook signature enforcement.
- *
- * This route is the only path that grants paid entitlement, and it is
- * unauthenticated by necessity — the guard is the signature. So the thing
- * worth testing is that an unsigned or forged event cannot get through.
- *
- * Scope note: the *happy* path stays out of E2E, and not for want of
- * fixtures. `constructEvent` verifies locally, but the handlers behind it
- * (onCreateSubscription, checkout completion) call the Stripe API to fetch
- * the session, so a genuinely-signed event would need either network or a
- * mocked Stripe client. Entitlement itself is covered by paywall.spec.ts,
- * which seeds the payment row directly.
- *
- * Also note the route answers 200 to processing failures on purpose — Stripe
- * treats 4xx/5xx as undelivered and retries for three days. So "rejected"
- * here means "did not process", read from the body, not from the status.
- */
+/** Signature rejection must never grant entitlement. Valid event delivery and
+ * retries are exercised by the billing service/gateway suites. */
 
 const FORGED_EVENT = JSON.stringify({
   id: 'evt_e2e_forged',
@@ -58,10 +42,10 @@ test.describe('stripe webhook signature enforcement', () => {
       data: FORGED_EVENT,
     });
 
-    // 200 by design (see the note above) — the body is what says it failed.
-    expect(res.status()).toBe(200);
+    // A rejected signature is an HTTP failure, not a successful fulfillment.
+    expect(res.status()).toBe(400);
     const body = await res.json();
-    expect(body.error).toBe('Webhook handler failed');
-    expect(body.received).toBe(true);
+    expect(body.error).toBe('Invalid signature');
+    expect(body.received).toBeUndefined();
   });
 });

@@ -1,3 +1,4 @@
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 import { NextRequest, NextResponse } from 'next/server';
 import { transcribeAudio } from '@/lib/gemini';
 import { logOp } from '@/lib/ops';
@@ -10,6 +11,8 @@ export const maxDuration = 30;
 const MAX_AUDIO_BYTES = 12 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   let reqInfo = 'audio=(none)';
   try {
     const formData = await req.formData();

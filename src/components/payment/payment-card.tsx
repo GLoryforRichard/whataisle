@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { usePaymentCompletion } from '@/hooks/use-payment-completion';
-import { LocaleLink } from '@/i18n/navigation';
+import { LocaleLink, useLocaleRouter } from '@/i18n/navigation';
 import { PAYMENT_MAX_POLL_TIME, PAYMENT_POLL_INTERVAL } from '@/lib/constants';
 import { Routes } from '@/routes';
 import { useQueryClient } from '@tanstack/react-query';
@@ -29,6 +29,7 @@ type PaymentStatus = 'processing' | 'success' | 'failed' | 'timeout';
 export function PaymentCard() {
   const t = useTranslations('Dashboard.settings.payment');
   const queryClient = useQueryClient();
+  const router = useLocaleRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<PaymentStatus>('processing');
   const pollStartTime = useRef<number | undefined>(undefined);
@@ -81,10 +82,8 @@ export function PaymentCard() {
     }
   }, [paymentCheck, status]);
 
-  // On success, refresh the cached payment/subscription state but do NOT
-  // auto-redirect: the store deployment is installed manually by the founder,
-  // so the success copy ("we'll be in touch") is the important part of this
-  // page. The user continues to billing via the button below when ready.
+  // Verified payment continues to recoverable owner setup. Never navigate to
+  // an untrusted callback query parameter supplied by a different origin.
   useEffect(() => {
     if (status === 'success') {
       const refreshCaches = async () => {
@@ -92,10 +91,12 @@ export function PaymentCard() {
           callback === Routes.SettingsCredits ? ['credits'] : ['payment'];
         await queryClient.invalidateQueries({ queryKey });
         await queryClient.refetchQueries({ queryKey });
+        await queryClient.invalidateQueries({ queryKey: ['store-billing'] });
+        router.replace(Routes.Dashboard);
       };
       refreshCaches();
     }
-  }, [status, callback, queryClient]);
+  }, [status, callback, queryClient, router]);
 
   // Cleanup on unmount, clear timeout
   useEffect(() => {
@@ -157,12 +158,14 @@ export function PaymentCard() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center py-4">
           <div className="flex justify-center mb-8">{getStatusIcon()}</div>
-          <CardTitle>{title}</CardTitle>
+          <CardTitle role="heading" aria-level={1}>
+            {title}
+          </CardTitle>
           <CardDescription>{description}</CardDescription>
           {status === 'success' && (
             <div className="mt-6 flex justify-center">
               <LocaleLink
-                href={callback ?? Routes.SettingsBilling}
+                href={Routes.Dashboard}
                 className="inline-flex items-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm hover:bg-primary/90"
               >
                 {t('success.action')}

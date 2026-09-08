@@ -1,3 +1,4 @@
+import { runtimeDirectory } from '@/lib/runtime-paths.mjs';
 /**
  * The Wherebear "find the aisle" agent, built with the Google Agent Development
  * Kit (`@google/adk`).
@@ -91,7 +92,7 @@ function buildMongoMcpToolset(): MCPToolset {
         env: {
           ...process.env,
           MDB_MCP_CONNECTION_STRING: process.env.MONGODB_URI ?? '',
-          MDB_MCP_LOG_PATH: '.mongodb-mcp-server',
+          MDB_MCP_LOG_PATH: runtimeDirectory('MDB_MCP_LOG_PATH'),
         } as Record<string, string>,
       },
     },

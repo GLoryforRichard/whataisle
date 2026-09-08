@@ -18,6 +18,7 @@ import { findPlanByPlanId, findPriceInPlan } from '@/lib/price-plan';
 import { sendPaymentNotification } from '@/notification';
 import { desc, eq } from 'drizzle-orm';
 import { Stripe } from 'stripe';
+import { handleStoreBillingEvent } from '../store-billing';
 import {
   type CheckoutResult,
   type CreateCheckoutParams,
@@ -441,6 +442,7 @@ export class StripeProvider implements PaymentProvider {
         this.webhookSecret
       );
       const eventType = event.type;
+      if (await handleStoreBillingEvent(event)) return;
       console.log(`handle webhook event, type: ${eventType}`);
 
       // Handle subscription events
@@ -480,7 +482,7 @@ export class StripeProvider implements PaymentProvider {
       }
     } catch (error) {
       console.error('handle webhook event error:', error);
-      throw new Error('Failed to handle webhook event');
+      throw error;
     }
   }
 

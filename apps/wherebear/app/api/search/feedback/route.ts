@@ -1,3 +1,4 @@
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 import { NextRequest, NextResponse } from 'next/server';
 import { setSearchFeedback, SearchFeedback } from '@/lib/ops';
 
@@ -10,6 +11,8 @@ export const runtime = 'nodejs';
  * `id` is the search_history row id sent to the client via the SSE `logged` event.
  */
 export async function POST(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   try {
     const body = (await req.json()) as { id?: string; feedback?: SearchFeedback };
     const id = (body.id || '').trim();

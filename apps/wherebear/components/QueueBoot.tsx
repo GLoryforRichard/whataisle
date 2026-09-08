@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { outboxListAll } from '@/lib/scan-queue/outbox';
-import { CANONICAL_URL, LEGACY_HOSTS } from '@/lib/store-identity.mjs';
+const LEGACY_HOSTS = ['wherebear.help', 'www.wherebear.help'];
 import { restoreFromOutbox } from '@/lib/scan-queue/pump';
 
 /**
@@ -36,7 +36,8 @@ export default function QueueBoot() {
           void restoreFromOutbox();
           return;
         }
-        const destination = new URL(CANONICAL_URL);
+        const identity = await fetch('/api/store-identity',{cache:'no-store'}).then(r=>r.json());
+        const destination = new URL(identity.canonicalUrl);
         destination.pathname = window.location.pathname;
         destination.search = window.location.search;
         destination.hash = window.location.hash;

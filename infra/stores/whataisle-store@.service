@@ -1,0 +1,39 @@
+[Unit]
+Description=WhatAisle isolated store runtime %i
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+Slice=whataisle-stores.slice
+User=wa-%i
+Group=wa-%i
+WorkingDirectory=/srv/whataisle-store/current
+EnvironmentFile=/etc/whataisle-stores/%i.env
+ExecStart=/opt/whataisle-platform/node-v24.18.0-linux-x64/bin/node node_modules/next/dist/bin/next start --hostname 127.0.0.1
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=180
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+CapabilityBoundingSet=
+InaccessiblePaths=-/etc/whataisle-platform -/etc/whataisle-provisioning -/var/lib/whataisle-provisioning
+ReadWritePaths=/var/lib/whataisle-stores/%i
+# Each mount namespace has a separate Next disk cache with one shared build.
+BindPaths=/var/lib/whataisle-stores/%i/cache:/srv/whataisle-store/current/.next/cache
+MemoryHigh=600M
+MemoryMax=850M
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

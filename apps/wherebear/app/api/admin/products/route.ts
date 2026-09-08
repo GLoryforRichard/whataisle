@@ -1,3 +1,4 @@
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { adminWriteGuard } from '@/lib/admin-guard';
@@ -11,6 +12,8 @@ function buildSearchText(canonical: string, aliases: string[]): string {
 }
 
 export async function GET(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   try {
     const aisle = req.nextUrl.searchParams.get('aisle')?.trim();
     const db = await getDb();
@@ -58,6 +61,8 @@ export async function GET(req: NextRequest) {
  * a per-aisle association. Re-scanning the SKU later inserts it fresh.
  */
 export async function DELETE(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   const locked = adminWriteGuard();
   if (locked) return locked;
   try {
@@ -89,6 +94,8 @@ export async function DELETE(req: NextRequest) {
  * auto-embed indexes it and it becomes searchable like a scanned product.
  */
 export async function POST(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   const locked = adminWriteGuard();
   if (locked) return locked;
   try {

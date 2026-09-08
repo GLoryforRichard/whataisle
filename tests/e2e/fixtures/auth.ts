@@ -64,7 +64,10 @@ export async function updateE2EUser(
     });
 
     if (response.ok()) {
-      return;
+      return (await response.json()) as {
+        user: { id: string; email: string };
+        checkoutSessionId: string | null;
+      };
     }
 
     lastResponseText = await response.text();
@@ -96,23 +99,20 @@ export function handleForUser(user: E2EUser): string {
  * storeless owner here after login (one account = one store).
  */
 export async function completeOnboarding(page: Page, handle: string) {
-  // Wait for the onboarding page to fully settle (the first hit compiles the
-  // route in dev, which can briefly double-render client components).
-  await page.waitForLoadState('networkidle');
-  const nameInput = page.locator('#store-name').first();
-  await expect(nameInput).toBeVisible({ timeout: 10_000 });
-  await nameInput.fill('E2E Store');
-  await page.locator('#store-handle').first().fill(handle);
-  await expect(page.getByText(/Available|可以使用/).first()).toBeVisible({
-    timeout: 10_000,
-  });
-  await page.locator('#terms').first().click();
-  await page.getByRole('button', { name: /^Continue$|^继续$/ }).click();
-  await page.getByRole('button', { name: /use this address|就用它/i }).click();
-  // Store creation lands on the paywall (unpaid) or /manage/video (paid).
-  await expect(page).toHaveURL(/\/(onboarding\/payment|manage\/video)\/?$/, {
-    timeout: 15_000,
-  });
+  await expect(page.locator('#store-name')).toBeVisible();
+  await page.locator('#store-name').fill('E2E Store');
+  await page.locator('#store-handle').fill(handle);
+  await page.getByRole('button', { name: /^Check$|^检查$/ }).click();
+  await expect(
+    page.getByText(/This address is available|这个网址可以使用/)
+  ).toBeVisible();
+  await page.getByRole('checkbox').check();
+  await page.locator('#store-pin').fill('654321');
+  await page.locator('#confirm-store-pin').fill('654321');
+  await page
+    .getByRole('button', { name: /Confirm and create store|确认并建立门店/ })
+    .click();
+  await expect(page.getByRole('heading', { name: 'E2E Store' })).toBeVisible();
 }
 
 export async function loginByForm(page: Page, user: E2EUser) {
@@ -128,19 +128,14 @@ export async function loginByForm(page: Page, user: E2EUser) {
   });
   await expect(signInButton).toBeEnabled();
   await signInButton.click();
-  // A fresh owner with no store lands on onboarding; complete it to reach the
-  // dashboard. Waiting on ELEMENTS (not the URL) avoids the race where the
-  // client briefly shows /dashboard before the server redirects to onboarding.
-  const onboardingField = page.locator('#store-handle');
-  const dashboardCard = page.getByText(/Your store|您的门店/).first();
-  await expect(onboardingField.or(dashboardCard).first()).toBeVisible({
-    timeout: 15_000,
+  // Wait for rendered content, not the transient dashboard URL before the
+  // server's terms redirect finishes.
+  const terms = page.getByRole('button', { name: /^I accept$|^我同意$/i });
+  const dashboard = page.getByRole('heading', {
+    name: /^My store$|^我的门店$/,
   });
-  if (await onboardingField.isVisible()) {
-    await completeOnboarding(page, handleForUser(user));
-    // The funnel parks new owners on the paywall; specs start from dashboard.
-    await page.goto('/dashboard');
-  }
-  await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15_000 });
-  await expect(dashboardCard).toBeVisible({ timeout: 15_000 });
+  await expect(terms.or(dashboard).first()).toBeVisible({ timeout: 30_000 });
+  if (await terms.isVisible()) await terms.click();
+  await expect(dashboard).toBeVisible({ timeout: 30_000 });
+  await expect(page).toHaveURL(/\/dashboard\/?$/);
 }

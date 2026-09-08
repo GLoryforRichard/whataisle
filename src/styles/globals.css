@@ -1,6 +1,11 @@
-@import "tailwindcss";
+/* Scan platform sources only. Other apps and temporary Next build caches are
+ * not platform class sources and can contain binary/corrupt class tokens. */
+@import "tailwindcss" source("../");
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+
+@source "../../content";
+@source "../../messages";
 
 @custom-variant dark (&:is(.dark *));
 

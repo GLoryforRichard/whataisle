@@ -53,6 +53,12 @@ export async function expectHealthyPage(
 ) {
   monitor.reset();
 
+  // Smoke checks deliberately wait for automatic page reads to settle. In
+  // development, navigating away during a server action can abort its request
+  // and stall the next page's script compilation. This also settles the page
+  // returned by the login fixture before the first protected-page navigation.
+  // Network-idle waits inherit the existing navigation timeout.
+  await page.waitForLoadState('networkidle');
   const response = await page.goto(path);
   expect(response?.ok(), `${path} should return 2xx`).toBeTruthy();
   await page.waitForLoadState('domcontentloaded');
@@ -68,6 +74,8 @@ export async function expectHealthyPage(
     );
   }
 
-  await page.waitForTimeout(100);
+  // Assert health after the current page's session/plan/credit reads finish;
+  // otherwise a fixed delay can miss their errors and cancel them on teardown.
+  await page.waitForLoadState('networkidle');
   monitor.expectNoErrors(path);
 }

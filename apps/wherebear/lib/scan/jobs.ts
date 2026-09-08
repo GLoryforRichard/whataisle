@@ -58,7 +58,10 @@ export interface ScanJobDoc {
   expiresAt: Date;
 }
 
-const JOBS_DIR = process.env.SCAN_JOBS_DIR || path.join(os.tmpdir(), 'wherebear-scan-jobs');
+function jobsDirectory() {
+  if (process.env.STORE_ID && process.env.STORE_ID !== 'wherebear' && !process.env.SCAN_JOBS_DIR) throw new Error('Store scan directory is not configured');
+  return process.env.SCAN_JOBS_DIR || path.join(os.tmpdir(), 'wherebear-scan-jobs');
+}
 export const SCAN_JOBS_MAX_QUEUED = Math.max(1, Number(process.env.SCAN_JOBS_MAX_QUEUED) || 20);
 const TTL_HOURS = Math.max(1, Number(process.env.SCAN_JOBS_TTL_HOURS) || 24);
 const LEASE_STALE_MS = 2 * 60_000;
@@ -84,7 +87,7 @@ export function sha1(buf: Buffer): string {
 }
 
 function jobDir(hash: string): string {
-  return path.join(JOBS_DIR, hash);
+  return path.join(jobsDirectory(), hash);
 }
 
 export async function writeJobPhoto(hash: string, buf: Buffer): Promise<void> {
@@ -263,7 +266,7 @@ export async function reclaimStale(): Promise<void> {
 export async function sweepOrphans(): Promise<void> {
   let dirs: string[];
   try {
-    dirs = await readdir(JOBS_DIR);
+    dirs = await readdir(jobsDirectory());
   } catch {
     return; // dir doesn't exist yet
   }
@@ -274,7 +277,7 @@ export async function sweepOrphans(): Promise<void> {
   );
   for (const dir of dirs) {
     if (!live.has(dir)) {
-      await rm(path.join(JOBS_DIR, dir), { recursive: true, force: true }).catch(() => {});
+      await rm(path.join(jobsDirectory(), dir), { recursive: true, force: true }).catch(() => {});
     }
   }
 }

@@ -1,3 +1,4 @@
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 import { NextRequest, NextResponse } from 'next/server';
 import { runShelfIntake } from '@/lib/scan/intake';
 import { logOp } from '@/lib/ops';
@@ -15,6 +16,8 @@ export const maxDuration = 300;
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   if (!isScanLabEnabled()) return scanLabNotFound();
   // Captured up here so the failure log in `catch` can describe the request
   // (the formData locals are out of scope down there).

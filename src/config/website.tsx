@@ -74,7 +74,8 @@ export const websiteConfig: WebsiteConfig = {
       process.env.PUBLIC_GOOGLE_LOGIN_ENABLED === 'true' ||
       process.env.NODE_ENV !== 'production',
     enableCredentialLogin: true,
-    enableDeleteUser: true,
+    // Account deletion requires a separate process that preserves billing.
+    enableDeleteUser: false,
   },
   i18n: {
     defaultLocale: 'en',
@@ -120,10 +121,8 @@ export const websiteConfig: WebsiteConfig = {
   },
   price: {
     plans: {
-      // The single live plan: USD $199/month subscription. The 3-month free
-      // pilot is NOT a Stripe trial — it is a 100%-off × 3 months promotion
-      // coupon created by hand in the Stripe dashboard and entered by the
-      // customer at checkout, hence allowPromotionCode and no trialPeriodDays.
+      // Display metadata only. Server-side store-billing resolves the five
+      // fixed prices and the once-per-store introductory service period.
       monthly: {
         id: 'monthly',
         prices: [
@@ -135,12 +134,10 @@ export const websiteConfig: WebsiteConfig = {
             interval: PlanIntervals.MONTH,
             allowPromotionCode: true,
           },
-          // Annual: 10 months' price for 12 (save $398) + the store-branding
-          // customization promo, fulfilled manually like the install itself.
           {
             type: PaymentTypes.SUBSCRIPTION,
             priceId: priceIds.yearly,
-            amount: 199000,
+            amount: 199900,
             currency: 'USD',
             interval: PlanIntervals.YEAR,
             allowPromotionCode: true,

@@ -1,5 +1,6 @@
 'use client';
 
+import {useStoreRuntime} from './StoreRuntimeProvider';
 import { C } from '@/lib/theme';
 
 interface StoreMapProps {
@@ -115,7 +116,15 @@ function isCenterZone(r: ShelfRect) {
   return r.code.startsWith('C') || r.code.startsWith('X');
 }
 
-export default function StoreMap({ selected, highlight, onSelect }: StoreMapProps) {
+export default function StoreMap(props:StoreMapProps) {
+  const {store}=useStoreRuntime();
+  if(!store.managed)return <LegacyStoreMap {...props}/>;
+  const map=store.map;if(!map)return <p>平面图尚未确认。 / No map yet.</p>;
+  return <svg viewBox={`0 0 ${map.width} ${map.height}`} role="img" aria-label="商店平面图 / Store floor map" style={{width:'100%',height:'auto',background:C.white}}>
+    {map.shelves.map(s=>{const target=props.highlight===s.id;const active=props.selected===s.id;return <g key={s.id} role={props.onSelect?'button':undefined} tabIndex={props.onSelect?0:undefined} aria-label={s.code} onClick={()=>props.onSelect?.(s.id)} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();props.onSelect?.(s.id);}}} style={{cursor:props.onSelect?'pointer':'default'}}><rect x={s.x} y={s.y} width={s.w} height={s.h} rx="5" fill={target?HI:active?C.accent:C.primarySofter} stroke={C.text} strokeWidth={target?5:2}/><text x={s.x+s.w/2} y={s.y+s.h/2} dominantBaseline="central" textAnchor="middle" fontSize="22" fill={target?'white':C.text} fontWeight="700">{s.code}</text></g>;})}
+  </svg>;
+}
+function LegacyStoreMap({ selected, highlight, onSelect }: StoreMapProps) {
   const clickable = !!onSelect;
   // For a search-target highlight (read-only result map), zoom the viewBox to
   // a tight window around that shelf instead of rendering the whole store.

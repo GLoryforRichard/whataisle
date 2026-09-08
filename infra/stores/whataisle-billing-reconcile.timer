@@ -1,0 +1,12 @@
+[Unit]
+Description=Regular WhatAisle billing and data-retention reconciliation
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+RandomizedDelaySec=30s
+Persistent=true
+Unit=whataisle-billing-reconcile.service
+
+[Install]
+WantedBy=timers.target

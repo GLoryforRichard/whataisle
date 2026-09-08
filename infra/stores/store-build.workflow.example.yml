@@ -1,0 +1,49 @@
+# Inert review template: outside .github/workflows; not installed or dispatched.
+# Build only. No GCP authentication, SSH, deployment, secrets or service changes.
+name: Build reviewed store release only
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Reviewed full 40-character store release commit
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-store:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      STORE_RELEASE_COMMIT: ${{ inputs.commit }}
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - name: Validate immutable source revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$STORE_RELEASE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.18.0'
+      - name: Build Ubuntu x86_64 glibc release without runtime credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          store_build_path="$RUNNER_TEMP/store-build-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          bash scripts/store-build-release.sh "$STORE_RELEASE_COMMIT" "$store_build_path"
+          sha256sum "$store_build_path/store-$STORE_RELEASE_COMMIT.tgz" > "$store_build_path/store-$STORE_RELEASE_COMMIT.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: store-${{ inputs.commit }}
+          retention-days: 7
+          path: |
+            ${{ runner.temp }}/store-build-${{ github.run_id }}-${{ github.run_attempt }}/store-${{ inputs.commit }}.tgz
+            ${{ runner.temp }}/store-build-${{ github.run_id }}-${{ github.run_attempt }}/store-${{ inputs.commit }}.sha256

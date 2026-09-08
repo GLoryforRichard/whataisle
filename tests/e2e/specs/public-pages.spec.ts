@@ -30,21 +30,22 @@ const smokeMatrix: Array<{ locale: LocaleMode; theme: ThemeMode }> = [
 
 test.describe('public page smoke coverage', () => {
   for (const { locale, theme } of smokeMatrix) {
-    test(`renders all public pages in ${locale}/${theme}`, async ({ page }) => {
-      await setTheme(page, theme);
-      const monitor = installPageHealthMonitor(page);
-
-      for (const publicPage of publicPages) {
-        await test.step(publicPage.name, async () => {
-          await expectHealthyPage(
-            page,
-            monitor,
-            localizedPath(publicPage.path, locale),
-            { theme }
-          );
-        });
-      }
-    });
+    for (const publicPage of publicPages) {
+      // Each route keeps the shared 45s navigation / 60s test limits. Cold
+      // compilation of another route must not consume this page's budget.
+      test(`renders ${publicPage.name} in ${locale}/${theme}`, async ({
+        page,
+      }) => {
+        await setTheme(page, theme);
+        const monitor = installPageHealthMonitor(page);
+        await expectHealthyPage(
+          page,
+          monitor,
+          localizedPath(publicPage.path, locale),
+          { theme }
+        );
+      });
+    }
   }
 
   test('opens the home page login modal', async ({ page }) => {
@@ -108,14 +109,12 @@ test.describe('locale detection', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'zh');
   });
 
-  test('the homepage links to the demo store', async ({ page }) => {
+  test('the homepage does not advertise an unconfigured demo store', async ({
+    page,
+  }) => {
     await page.goto('/');
-    const demoLink = page
-      .getByRole('link', { name: /visit the demo store/i })
-      .first();
-    await expect(demoLink).toBeVisible();
-    // websiteConfig.demoStoreHandle + getStoreUrl() → the seeded `demo`
-    // tenant on the localhost subdomain.
-    expect(await demoLink.getAttribute('href')).toContain('//demo.localhost');
+    await expect(
+      page.getByRole('link', { name: /visit the demo store/i })
+    ).toHaveCount(0);
   });
 });

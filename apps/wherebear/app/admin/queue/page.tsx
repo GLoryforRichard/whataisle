@@ -18,7 +18,6 @@ import Icon from '@/components/Icon';
 import ScanResultPreview from '@/components/ScanResultPreview';
 import { C, FONT } from '@/lib/theme';
 import { useTranslation } from '@/lib/i18n';
-import { STAFF_PASSCODE, STAFF_UNLOCK_KEY } from '@/lib/staff-gate';
 import { type QueueItem, clearSaved, useScanQueue } from '@/lib/scan-queue/store';
 import { removeItem, retryItem } from '@/lib/scan-queue/pump';
 
@@ -29,7 +28,7 @@ const MAX_ATTEMPTS_SHOWN = 3;
 
 export default function QueuePage() {
   return (
-    <PasscodeGate passcode={STAFF_PASSCODE} storageKey={STAFF_UNLOCK_KEY} cancelHref="/admin">
+    <PasscodeGate cancelHref="/admin">
       <QueueScreen />
     </PasscodeGate>
   );

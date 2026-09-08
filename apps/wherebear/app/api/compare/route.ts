@@ -1,3 +1,4 @@
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 import { createHash } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
@@ -69,6 +70,8 @@ function previewShared(jpeg: Buffer): Promise<string> {
 }
 
 export async function POST(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   if (!isScanLabEnabled()) return scanLabNotFound();
   let paradigm: CompareParadigm | 'prepare' | undefined;
   try {

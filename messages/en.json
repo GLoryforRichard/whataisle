@@ -46,8 +46,8 @@
   },
   "PricingPage": {
     "title": "Pricing",
-    "description": "$199/month — we install everything in your store. Cancel anytime.",
-    "subtitle": "$199/month — we install everything in your store. Cancel anytime.",
+    "description": "US$199/month or US$1,999/year. New stores receive two bonus months.",
+    "subtitle": "US$199/month or US$1,999/year. New stores receive two bonus months.",
     "monthly": "Monthly",
     "yearly": "Yearly",
     "PricingCard": {
@@ -77,7 +77,7 @@
       "s3t": "Your store just works",
       "s3d": "Staff snap shelves; shoppers find any product in seconds."
     },
-    "finePrint": "Cancel anytime — no long-term contract. Promotion code? Enter it at checkout.",
+    "finePrint": "Formal prices exclude tax. Enter promotion codes before checkout. Cancellation preserves paid and bonus time.",
     "tiles": {
       "t1": "We install everything",
       "d1": "Map, shelf memory, posters — done for you",
@@ -89,17 +89,17 @@
     "faq": {
       "title": "Pricing questions",
       "q1": "Is there a contract or setup fee?",
-      "a1": "No setup fee and no long-term contract — it's $199/month and you can cancel anytime from your billing page.",
+      "a1": "No setup fee. US$199 monthly or US$1,999 annually, before tax. Cancellation preserves your paid and bonus time; refunds are reviewed manually.",
       "q2": "What do we need to do on our side?",
       "a2": "Almost nothing. We visit your store, build the floor map, set up the shelf memory and hang the QR posters. Staff just snap shelf photos as they restock.",
       "q3": "How do shoppers use it?",
       "a3": "They scan the QR poster and ask in English or Chinese — typing, speaking, or snapping a photo — and get the exact shelf with a map."
     },
     "annual": {
-      "hint": "Pay yearly: 2 months free + custom store branding",
-      "save": "2 months free — save $398",
-      "promoTitle": "Annual exclusive: custom store branding",
-      "promoDesc": "We restyle the shopper app and the QR posters with your supermarket's own look — name, colors, and the shelf-sign style your customers already know."
+      "hint": "US$1,999 annually; 14 months for eligible new stores",
+      "save": "Save US$389 against 12 monthly payments",
+      "promoTitle": "Two bonus months for new stores",
+      "promoDesc": "The first monthly term lasts 3 months; the first annual term lasts 14. Once per store; switching plans does not grant another bonus."
     }
   },
   "PricePlans": {
@@ -108,7 +108,7 @@
       "description": "We install everything in your store. Cancel anytime.",
       "features": {
         "feature-1": "We install and set up everything in your store",
-        "feature-2": "Have a promotion code? Enter it at checkout",
+        "feature-2": "Two bonus months on first activation, once per store",
         "feature-3": "Shoppers type, speak, or snap a photo to find items",
         "feature-4": "Works in English and Chinese",
         "feature-5": "Search reports: what shoppers want, what's missing",
@@ -554,9 +554,9 @@
           "description": "Please wait while we confirm your payment..."
         },
         "success": {
-          "title": "Payment Success",
-          "description": "Your subscription is active. We set up each store ourselves — we'll be in touch shortly to arrange the installation in your store.",
-          "action": "Go to billing"
+          "title": "Payment successful",
+          "description": "Payment confirmed. Continue with your store name, permanent address and workspace password.",
+          "action": "Continue store setup"
         },
         "failed": {
           "title": "Payment Failed",

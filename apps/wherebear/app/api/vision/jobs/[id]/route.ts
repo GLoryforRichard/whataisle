@@ -1,3 +1,4 @@
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 /**
  * Async shelf-intake: poll / ack one scan job.
  *
@@ -21,6 +22,8 @@ export async function GET(
   _req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
+  const storeDenied = await authorizeStoreRequest(_req);
+  if (storeDenied) return storeDenied;
   try {
     const { id } = await ctx.params;
     const job = await getJob(id);
@@ -69,6 +72,8 @@ export async function DELETE(
   _req: NextRequest,
   ctx: { params: Promise<{ id: string }> }
 ) {
+  const storeDenied = await authorizeStoreRequest(_req);
+  if (storeDenied) return storeDenied;
   try {
     const { id } = await ctx.params;
     const job = await getJob(id);

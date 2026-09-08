@@ -26,7 +26,7 @@ import { getDb } from '@/lib/mongodb';
 import { DetectedProduct } from '@/lib/gemini';
 import { AgentEvent } from '@/lib/agents/types';
 import { execExpandAliasesBatch } from '@/lib/agents/tools-a';
-import { buildShelfContext } from '@/lib/shelves';
+import { buildStoreShelfContext } from '@/lib/store-map';
 import { nameKey } from '@/lib/name-key';
 import { UsageTotals, EMPTY_USAGE } from '@/lib/cost';
 
@@ -279,7 +279,7 @@ export async function enhanceShelfBackground(input: ShelfSaveInput): Promise<voi
     const items = normalizeShelfProducts(input.products);
     if (items.length === 0) return;
 
-    const shelfContext = buildShelfContext(input.aisle);
+    const shelfContext = await buildStoreShelfContext(input.aisle);
     const { aliases_by_name } = await execExpandAliasesBatch({
       canonical_names: items.map(p => p.canonical_name),
       shelf_context: shelfContext,

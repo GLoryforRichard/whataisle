@@ -16,6 +16,7 @@ let clientPromise: Promise<MongoClient> | undefined;
  * and search indexes; other stores must have their own database credentials.
  */
 function getClient(): Promise<MongoClient> {
+  if (process.env.STORE_ID && process.env.STORE_ID !== 'wherebear' && !process.env.MONGODB_DB) throw new Error('Store database is not configured');
   if (!uri) throw new Error('MONGODB_URI is not configured');
   if (process.env.NODE_ENV === 'development') {
     global._mongoClientPromise ??= new MongoClient(uri).connect();

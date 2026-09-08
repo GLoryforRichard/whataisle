@@ -1,3 +1,4 @@
+import { authorizeStoreRequest } from '@/lib/store-runtime';
 /**
  * Cost-lab API.
  *
@@ -51,6 +52,8 @@ function authorized(req: NextRequest): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   if (!isScanLabEnabled()) return scanLabNotFound();
   if (!authorized(req)) {
     return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
@@ -129,6 +132,8 @@ async function loadArtifact(dir: string, file: string): Promise<LabRunArtifact |
 }
 
 export async function GET(req: NextRequest) {
+  const storeDenied = await authorizeStoreRequest(req);
+  if (storeDenied) return storeDenied;
   if (!isScanLabEnabled()) return scanLabNotFound();
   if (!authorized(req)) {
     return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });

@@ -18,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useMounted } from '@/hooks/use-mounted';
 import { useLocaleRouter } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
@@ -32,6 +33,7 @@ import { toast } from 'sonner';
  * It includes a confirmation dialog to prevent accidental deletions.
  */
 export function DeleteAccountCard() {
+  const mounted = useMounted();
   const t = useTranslations('Dashboard.settings.security.deleteAccount');
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -39,9 +41,9 @@ export function DeleteAccountCard() {
   const { data: session, refetch } = authClient.useSession();
   const router = useLocaleRouter();
 
-  // Check if user exists
+  // A cached browser session must not add a card absent from the server HTML.
   const user = session?.user;
-  if (!user) {
+  if (!mounted || !user) {
     return null;
   }
 

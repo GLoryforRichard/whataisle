@@ -119,6 +119,28 @@ export const auth = betterAuth({
       enabled: websiteConfig.auth.enableDeleteUser ?? false,
     },
   },
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (
+        ctx.path === '/delete-user' ||
+        ctx.path === '/delete-user/callback' ||
+        ctx.path === '/admin/remove-user'
+      ) {
+        // Better Auth 1.6.23 deletes sessions/accounts before the user without
+        // a transaction. A billing FK can reject only the final user delete,
+        // leaving a paying owner unable to sign in. Block every entry before
+        // any deletion, including admins and owners with no ledger yet: a
+        // checkout can concurrently create their permanent commercial record.
+        throw new APIError('FORBIDDEN', {
+          code: 'ACCOUNT_DELETION_UNAVAILABLE',
+          message:
+            getLocaleFromRequest(ctx.request) === 'zh'
+              ? '暂不支持在此删除账号。取消续费请到账单页，账号删除请联系支持。'
+              : 'Account deletion is unavailable here. Cancel renewal on the billing page; contact support to request account deletion.',
+        });
+      }
+    }),
+  },
   databaseHooks: {
     // https://www.better-auth.com/docs/concepts/database#database-hooks
     user: {
