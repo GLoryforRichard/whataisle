@@ -120,14 +120,22 @@ used to register customer accounts.
    a new store needs two. Flex is the prepared minimum-capacity upgrade and
    requires separate recurring-cost and existing-store downtime approval. The
    User Managed service-account list is empty. Organization resource policies
-   showed an empty state, and Billing Overview explicitly showed no payment
-   method. The database IP list includes active `0.0.0.0/0`; authentication is
+   showed an empty state. A later, fully loaded Billing Overview recheck on
+   2026-09-08 corrected the earlier misreading: Payment Method has an existing
+   linked card; “Not added yet” belongs to Billing Email Address. No card was
+   added or changed during these checks, and no card details were retained.
+   September month-to-date amount/usage and August last-invoice amount due/total
+   usage all displayed US$0.00. The organization-shared `voyage-4-large` free
+   allocation showed `609,073 / 200,000,000` tokens used (`0.3%`), still free at
+   this check; these snapshots are not future spending caps.
+   The database IP list includes active `0.0.0.0/0`; authentication is
    still required, but network reachability should be narrowed to verified VM
    egress and required operator addresses under the reviewed deployment scope.
    Finish configuring restricted worker API access and the remaining billing
    details.
-   The paid cluster upgrade requires a payment method; restricted worker access
-   remains separately unconfigured.
+   The existing payment method does not authorize Flex charges, downtime or
+   deployment; those approvals remain pending. Restricted worker access remains
+   separately unconfigured.
    The existing WhereBear runtime currently authenticates with `atlasAdmin`.
    Before adding any store, prepare and authorize replacement with a new
    `readWrite` user restricted to the existing `wherebear` database; do not
