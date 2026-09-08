@@ -3,64 +3,101 @@ import 'server-only';
 import { getDb } from '@/db';
 import { storeRuntime } from '@/db/runtime.schema';
 import { auditLog, store } from '@/db/store.schema';
+import { storeSubscription } from '@/db/subscription.schema';
 import { newSecret, secretDigest } from '@/lib/store-secrets';
 import { getStoreUrl } from '@/lib/urls';
+import {
+  billingAccess,
+  type OwnerBilling,
+} from '@/payment/store-billing/model';
 import { and, asc, eq, gt, lte, or, sql } from 'drizzle-orm';
 
 /** Only worker-guarded callers may use this cross-store provisioning queue. */
 export async function claimStoreJob(workerId: string, leaseSeconds: number) {
   const db = await getDb();
   return db.transaction(async (tx) => {
+    // Match billing/cleanup lock order before taking a runtime row lock. This
+    // transaction performs DB operations only, never remote preparation.
+    await tx.execute(sql`select pg_advisory_xact_lock(619914199)`);
     const now = new Date();
-    const [job] = await tx
-      .select()
-      .from(storeRuntime)
-      .where(
-        or(
-          and(
-            or(
-              eq(storeRuntime.status, 'queued'),
-              eq(storeRuntime.status, 'retry')
+    while (true) {
+      const [job] = await tx
+        .select()
+        .from(storeRuntime)
+        .where(
+          or(
+            and(
+              or(
+                eq(storeRuntime.status, 'queued'),
+                eq(storeRuntime.status, 'retry')
+              ),
+              lte(storeRuntime.nextAttemptAt, now)
             ),
-            lte(storeRuntime.nextAttemptAt, now)
-          ),
-          and(
-            eq(storeRuntime.status, 'provisioning'),
-            lte(storeRuntime.leaseExpiresAt, now)
+            and(
+              eq(storeRuntime.status, 'provisioning'),
+              lte(storeRuntime.leaseExpiresAt, now)
+            )
           )
         )
-      )
-      .orderBy(asc(storeRuntime.nextAttemptAt))
-      .limit(1)
-      .for('update', { skipLocked: true });
-    if (!job) return null;
-    const [tenant] = await tx
-      .select()
-      .from(store)
-      .where(eq(store.id, job.storeId));
-    if (!tenant) throw new Error('Provisioning store is missing');
-    const leaseToken = newSecret();
-    const leaseExpiresAt = new Date(now.getTime() + leaseSeconds * 1000);
-    await tx
-      .update(storeRuntime)
-      .set({
-        status: 'provisioning',
-        workerId,
-        leaseTokenHash: secretDigest(leaseToken),
-        leaseExpiresAt,
-        attempts: sql`${storeRuntime.attempts} + 1`,
-        updatedAt: now,
-      })
-      .where(eq(storeRuntime.storeId, job.storeId));
-    return {
-      jobId: job.jobId,
-      kind: job.kind,
-      storeId: job.storeId,
-      handle: tenant.handle,
-      displayName: tenant.displayName,
-      leaseToken,
-      leaseExpiresAt: leaseExpiresAt.toISOString(),
-    };
+        .orderBy(asc(storeRuntime.nextAttemptAt))
+        .limit(1)
+        .for('update', { skipLocked: true });
+      if (!job) return null;
+      const [tenant] = await tx
+        .select()
+        .from(store)
+        .where(eq(store.id, job.storeId));
+      if (!tenant) throw new Error('Provisioning store is missing');
+      if (job.kind === 'activate') {
+        const [billing] = await tx
+          .select()
+          .from(storeSubscription)
+          .where(eq(storeSubscription.storeId, job.storeId));
+        if (
+          !job.readyAt ||
+          job.cleanupRequestedAt ||
+          ['closing', 'closed'].includes(tenant.status) ||
+          !billingAccess((billing as OwnerBilling) ?? null, now).accessAllowed
+        ) {
+          await tx
+            .update(storeRuntime)
+            .set({
+              status: 'failed',
+              lastError: 'ACTIVATION_ACCESS_REQUIRED',
+              leaseTokenHash: null,
+              leaseExpiresAt: null,
+              workerId: null,
+              updatedAt: now,
+            })
+            .where(eq(storeRuntime.storeId, job.storeId));
+          // A paused activation must not hold the head of the queue forever.
+          // Founder retry rechecks payment before reusing this same job.
+          continue;
+        }
+      }
+      const leaseToken = newSecret();
+      const leaseExpiresAt = new Date(now.getTime() + leaseSeconds * 1000);
+      await tx
+        .update(storeRuntime)
+        .set({
+          status: 'provisioning',
+          workerId,
+          leaseTokenHash: secretDigest(leaseToken),
+          leaseExpiresAt,
+          attempts: sql`${storeRuntime.attempts} + 1`,
+          updatedAt: now,
+        })
+        .where(eq(storeRuntime.storeId, job.storeId));
+      return {
+        jobId: job.jobId,
+        kind: job.kind,
+        storeId: job.storeId,
+        handle: tenant.handle,
+        displayName: tenant.displayName,
+        leaseToken,
+        leaseExpiresAt: leaseExpiresAt.toISOString(),
+      };
+    }
   });
 }
 
@@ -111,7 +148,7 @@ export async function registerRuntimeCredentials(input: {
 export async function finishStoreJob(input: {
   jobId: string;
   leaseToken: string;
-  kind?: 'provision' | 'archive';
+  kind?: 'provision' | 'activate' | 'archive';
   runtimeTokenHash?: string;
   port?: number;
   runtimeVersion?: string;
@@ -157,6 +194,7 @@ export async function finishStoreJob(input: {
         .where(eq(store.id, job.storeId));
       const expectedUrl = getStoreUrl(tenant.handle);
       if (
+        (job.kind === 'activate' && !job.readyAt) ||
         input.canonicalUrl !== expectedUrl ||
         !input.runtimeTokenHash ||
         input.runtimeTokenHash !== job.runtimeTokenHash ||
@@ -168,8 +206,14 @@ export async function finishStoreJob(input: {
         .update(storeRuntime)
         .set({
           status: 'ready',
-          readyAt: now,
-          runtimeVersion: input.runtimeVersion,
+          // Activation only attests that the worker verified Search indexes.
+          // It must not rewrite the running process identity or map-ready date.
+          ...(job.kind === 'provision'
+            ? {
+                readyAt: job.readyAt ?? now,
+                runtimeVersion: input.runtimeVersion,
+              }
+            : {}),
           leaseTokenHash: null,
           leaseExpiresAt: null,
           lastError: null,

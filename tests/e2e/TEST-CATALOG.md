@@ -5,13 +5,29 @@
 `docs/CUSTOMER-ONBOARDING-SPEC.md` supersedes the historical paywall, manual
 installation, video-first and immediate-closure journeys below. New coverage
 must exercise payment before setup; fixed domain and six-digit password;
-recoverable provisioning; device-local map draft; authenticated map confirmation;
-immediate public search; isolated staff upload; owner map/name/PIN changes;
+recoverable provisioning without Search indexes; device-local map draft;
+authenticated durable map confirmation; waiting-for-activation pages; explicit
+founder search activation; isolated staff upload; owner map/name/PIN changes;
 revoked sessions; USD/CAD monthly/annual and limited test pricing; first-period
 bonus; scheduled plan changes; cancel override; seven-day grace; suspended-time
 no-billing; three-month retention and founder-confirmed cleanup. Browser tests
 use isolated synthetic stores. Hosted Stripe and real mailbox verification are
 separate final checks after all feature implementation and local gates pass.
+
+The 2026-09-08 map-first revision requires a real browser journey that saves the
+map and shelves before search activation, reopens them from a separate context,
+and verifies that direct photo/search APIs reject before accepting work. After
+the worker-confirmed activation state changes, the same page and staff session
+must expose search/upload without recreating the map or shelf identities. Test
+activation authorization, duplicate clicks, failed-task retry, and cleanup of
+an activation-failed store with real local PostgreSQL. Atlas Search index
+readiness is independently covered in worker tests and final Atlas acceptance;
+a plain local mongod must not be reported as exercising Atlas Search.
+
+The previous 49 platform-browser checks remain baseline coverage. Revised-flow
+checks passed separately: 21 store HTTP/Mongo checks, 12 actual platform/store
+integration checks and nine tablet-browser checks. Atlas activation is still
+external acceptance; the fixtures never claim real Search index creation.
 
 ### Maintained checks for the current architecture
 
@@ -25,9 +41,11 @@ the platform; store behavior is exercised in the separate WhereBear runtime.
 | Missing/forged Stripe signatures return 400 without granting access | `specs/stripe-webhook.spec.ts` |
 | Account deletion rejects before deleting credentials or billing records; eight deletion cases plus login/cleanup verification, ten checks passed 2026-09-08 | `scripts/auth-deletion-integration.mts` (separate real local HTTP/PostgreSQL check) |
 | Billing calendar periods, bonus once, quota concurrency, failures, plan switches, callback compatibility and real PostgreSQL read/write isolation | `tests/unit/store-billing-*.test.ts` |
-| Durable provisioning leases, retries, restricted Mongo users/indexes and cleanup | `scripts/store-provisioning.test.mjs`, `scripts/store-onboarding-integration.mts` |
+| Map-only provisioning, separate founder-requested search activation, durable leases/retries, restricted Mongo users/indexes and cleanup | `scripts/store-provisioning.test.mjs`, `scripts/store-onboarding-integration.mts` |
+| Real owner dashboard map links during activation; founder `/admin/stores` activation and retry clicks against actual local PostgreSQL/actions | `scripts/store-activation-browser-integration.mts` |
+| Founder activation authorization, duplicate requests, leased completion, retry and cleanup races, paused subscriptions at worker claim | `tests/unit/store-activation-postgres.test.ts` (explicit local PostgreSQL opt-in) |
 | Actual two-store HTTP/Mongo map, PIN, staff upload and isolation | `apps/wherebear/tests/runtime-integration.mjs` |
-| Tablet browser drawing/moving/resizing, local draft recovery, PIN publication, public search entry, staff photo queue and owner edit continuity; seven checks passed 2026-09-08 | `scripts/store-browser-integration.mts`, `docs/STORE-BROWSER-ACCEPTANCE.md` |
+| Tablet drawing/moving/resizing, local draft recovery, PIN confirmation before activation, cross-context persistence, waiting pages, upload unlock and owner edit continuity | `scripts/store-browser-integration.mts`, `docs/STORE-BROWSER-ACCEPTANCE.md` |
 
 The historical sections below describe an earlier root-hosted store app.
 In particular, sections 5–9 and 11 do not represent active root specs; their

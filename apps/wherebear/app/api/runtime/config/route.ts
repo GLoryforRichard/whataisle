@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
         managed: config.managed,
         accessAllowed: config.accessAllowed,
         setupAllowed: config.setupAllowed,
+        searchReady: config.searchReady,
         recoveryUrl: config.recoveryUrl,
         pinLength: 6,
         staffAuthorized: hasStoreSession(req, config),

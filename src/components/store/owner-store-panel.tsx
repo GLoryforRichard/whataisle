@@ -39,9 +39,17 @@ export function OwnerStorePanel() {
       return result.data;
     },
     refetchInterval: (query) => {
-      const status = query.state.data?.store?.runtimeStatus;
-      return status && ['queued', 'retry', 'provisioning'].includes(status)
-        ? 5000
+      const store = query.state.data?.store;
+      if (
+        store?.runtimeStatus &&
+        ['queued', 'retry', 'provisioning'].includes(store.runtimeStatus)
+      )
+        return 5000;
+      // The founder can start activation from another device after map setup.
+      return store?.readyAt &&
+        !store.cleanupRequestedAt &&
+        !(store.runtimeKind === 'activate' && store.runtimeStatus === 'ready')
+        ? 30_000
         : false;
     },
   });
@@ -282,7 +290,7 @@ export function OwnerStorePanel() {
             </p>
           ) : (
             <>
-              {tenant.runtimeStatus !== 'ready' ? (
+              {!tenant.readyAt ? (
                 <p aria-live="polite">
                   {tenant.runtimeStatus === 'failed'
                     ? zh
@@ -293,30 +301,40 @@ export function OwnerStorePanel() {
                       : 'Preparing your store address. You can leave and return to continue.'}
                 </p>
               ) : (
-                <div className="flex flex-wrap gap-3">
-                  <Button asChild>
-                    <a href={tenant.url}>{zh ? '打开门店' : 'Open store'}</a>
-                  </Button>
-                  <Button asChild variant="outline">
-                    <a href={`${tenant.url}/admin`}>
-                      {zh ? '店员工作台' : 'Staff workspace'}
-                    </a>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    disabled={busy || !hasAccess}
-                    onClick={() =>
-                      run(async () => {
-                        const result = await openOwnerMapAction({});
-                        if (!result?.data?.success || !result.data.url)
-                          return false;
-                        window.location.assign(result.data.url);
-                        return true;
-                      })
-                    }
-                  >
-                    {zh ? '编辑平面图' : 'Edit floor map'}
-                  </Button>
+                <div className="space-y-3">
+                  {(tenant.runtimeKind !== 'activate' ||
+                    tenant.runtimeStatus !== 'ready') && (
+                    <p aria-live="polite">
+                      {zh
+                        ? '地图可保存，照片上传准备中。'
+                        : 'Your map can be saved. Photo uploads are being prepared.'}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-3">
+                    <Button asChild>
+                      <a href={tenant.url}>{zh ? '打开门店' : 'Open store'}</a>
+                    </Button>
+                    <Button asChild variant="outline">
+                      <a href={`${tenant.url}/admin`}>
+                        {zh ? '店员工作台' : 'Staff workspace'}
+                      </a>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      disabled={busy || !hasAccess}
+                      onClick={() =>
+                        run(async () => {
+                          const result = await openOwnerMapAction({});
+                          if (!result?.data?.success || !result.data.url)
+                            return false;
+                          window.location.assign(result.data.url);
+                          return true;
+                        })
+                      }
+                    >
+                      {zh ? '编辑平面图' : 'Edit floor map'}
+                    </Button>
+                  </div>
                 </div>
               )}
               <form

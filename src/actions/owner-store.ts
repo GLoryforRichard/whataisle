@@ -1,6 +1,7 @@
 'use server';
 
 import {
+  activateStoreSearch,
   createOwnerMapEntry,
   createOwnerStore,
   getOwnerStore,
@@ -74,6 +75,13 @@ export const openOwnerMapAction = userActionClient
 export const getStoreCleanupAction = adminActionClient
   .inputSchema(z.object({}))
   .action(async () => ({ success: true, stores: await listStoreCleanup() }));
+
+export const activateStoreSearchAction = adminActionClient
+  .inputSchema(z.object({ storeId: z.string().uuid() }))
+  .action(async ({ ctx, parsedInput }) => ({
+    success: true,
+    ...(await activateStoreSearch(ctx.user.id, parsedInput.storeId)),
+  }));
 
 export const requestStoreCleanupAction = adminActionClient
   .inputSchema(

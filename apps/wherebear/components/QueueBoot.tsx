@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { outboxListAll } from '@/lib/scan-queue/outbox';
 const LEGACY_HOSTS = ['wherebear.help', 'www.wherebear.help'];
-import { restoreFromOutbox } from '@/lib/scan-queue/pump';
+import { restoreFromOutbox, setScanQueueEnabled } from '@/lib/scan-queue/pump';
+import { useStoreRuntime } from './StoreRuntimeProvider';
 
 /**
  * Restores the global scan queue from IndexedDB once per app load, so a
@@ -12,8 +13,13 @@ import { restoreFromOutbox } from '@/lib/scan-queue/pump';
  * lesson: a reload kills in-flight uploads) — it resumes where things stood.
  */
 export default function QueueBoot() {
+  const { store } = useStoreRuntime();
   const [pendingMove, setPendingMove] = useState(false);
   const [storageError, setStorageError] = useState(false);
+  useEffect(() => {
+    setScanQueueEnabled(!store.managed || Boolean(store.searchReady && store.map && store.staffAuthorized));
+    return () => setScanQueueEnabled(false);
+  }, [store.managed, store.searchReady, Boolean(store.map), store.staffAuthorized]);
   useEffect(() => {
     if (!LEGACY_HOSTS.includes(window.location.hostname)) {
       void restoreFromOutbox();

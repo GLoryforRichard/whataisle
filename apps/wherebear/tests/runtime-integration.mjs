@@ -128,6 +128,7 @@ try {
         pinVersion: 1,
         accessAllowed: true,
         setupAllowed: true,
+        searchReady: false,
         serviceEndsAt: null,
         recoveryUrl: `${platformUrl}/owner`,
       },
@@ -192,6 +193,10 @@ try {
   let response = await get(a, '/api/runtime/config');
   let config = await response.json();
   assert.equal(config.map, null);
+  assert.equal(config.searchReady, false);
+  const health = await (await get(a, '/api/runtime/health')).json();
+  assert.equal(health.status, 'ready');
+  assert.equal(health.searchReady, false);
   assert.equal(config.displayName, 'Test runtimea');
   assert.equal('pinHash' in config, false);
   assert.equal(JSON.stringify(config).includes(a.token), false);
@@ -251,6 +256,20 @@ try {
   );
   assert.equal(response.status, 403);
   passed('a staff PIN/session cannot edit an already opened map');
+  for (const endpoint of ['/api/search','/api/voice','/api/identify','/api/vision/jobs','/api/shelf-evidence','/api/admin/products']) {
+    const denied = await request(a, endpoint, {}, {cookie: staff});
+    assert.equal(denied.status, 409);
+    assert.equal((await denied.json()).code, 'store_preparing');
+  }
+  assert.equal(await a.db.collection('scan_jobs').countDocuments(), 0);
+  assert.equal(await a.db.collection('products').countDocuments(), 0);
+  assert.equal((await (await get(a, '/api/runtime/config')).json()).map.shelves[0].id, map.shelves[0].id);
+  passed('confirmed maps survive preparation while every photo and shopper AI entry remains closed');
+  // This local platform fixture models the lease-validated activation result.
+  // Search index creation/readiness itself belongs to the provisioning worker.
+  a.config.searchReady = true;
+  assert.equal((await (await get(a, '/api/runtime/health')).json()).searchReady, true);
+  passed('platform activation enables operations without recreating the map or shelf IDs');
   const photo = new FormData();
   photo.set('aisle', map.shelves[0].id);
   photo.set(

@@ -13,6 +13,7 @@ export interface StoreRuntimeConfig {
   pinVersion: number;
   accessAllowed: boolean;
   setupAllowed: boolean;
+  searchReady: boolean;
   serviceEndsAt: string | null;
   recoveryUrl: string;
   managed: boolean;
@@ -57,6 +58,7 @@ export async function getStoreRuntime(): Promise<StoreRuntimeConfig> {
       managed: false,
       accessAllowed: true,
       setupAllowed: false,
+      searchReady: true,
       serviceEndsAt: null,
       recoveryUrl: 'https://www.whataisle.com/settings/billing',
     };
@@ -82,7 +84,9 @@ export async function getStoreRuntime(): Promise<StoreRuntimeConfig> {
     new URL(CANONICAL_URL).hostname !== `${data.handle}.whataisle.com`
   )
     throw new Error('Store configuration mismatch');
-  return { ...data, managed: true };
+  // Only the platform's lease-validated activation can enable operations.
+  // An older platform response may still open the map, but cannot accept photos.
+  return { ...data, managed: true, searchReady: data.searchReady === true };
 }
 export function sessionSecret() {
   return (
@@ -192,6 +196,17 @@ const CONFIG_APIS = new Set([
   '/api/domain-migration',
   '/api/runtime/owner-entry',
 ]);
+export async function storeOperationsReady(config: StoreRuntimeConfig) {
+  if (!config.managed) return true;
+  if (!config.searchReady) return false;
+  const { getStoreMap } = await import('./store-map');
+  return Boolean(await getStoreMap());
+}
+function preparationRequired() {
+  return runtimeDenied(409, 'The store is being prepared. Photo upload and product search are not open yet.', {
+    code: 'store_preparing',
+  });
+}
 /** Called inside every route before reading data or accepting a photo. */
 export async function authorizeStoreRequest(req: NextRequest): Promise<NextResponse | null> {
   if (classifyStoreHost(req.headers.get('host')) === 'foreign')
@@ -213,6 +228,7 @@ export async function authorizeStoreRequest(req: NextRequest): Promise<NextRespo
           return runtimeDenied(409, 'Confirm the shelf layout before using the store.', {
             code: 'store_setup_required',
           });
+        if (!config.searchReady) return preparationRequired();
       }
       return null;
     }
@@ -220,6 +236,7 @@ export async function authorizeStoreRequest(req: NextRequest): Promise<NextRespo
       return runtimeDenied(401, 'Enter the store workspace password.', {
         code: 'staff_auth_required',
       });
+    if (!(await storeOperationsReady(config))) return preparationRequired();
     return null;
   } catch {
     return runtimeDenied(503, 'Store temporarily unavailable. Please try again.');

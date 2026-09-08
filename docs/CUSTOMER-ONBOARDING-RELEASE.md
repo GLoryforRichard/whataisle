@@ -3,6 +3,10 @@
 Prepared locally on 2026-09-08 UTC. **Not deployed; no production migration,
 Atlas permission change, live payment or external AI scan has been performed.**
 
+The 2026-09-08 map-first/search-later revision is implemented locally. Its
+verification is recorded separately below. The retained Linux artifact covers
+the earlier candidate and must be rebuilt before deploying this revision.
+
 ## Source and scope
 
 - Base commit: `4271722`.
@@ -10,8 +14,8 @@ Atlas permission change, live payment or external AI scan has been performed.**
 - The read-only remote-main check on 2026-09-08 still returned `4271722`.
   The known serving-platform commit `511a4f7` is its ancestor; both are ancestors
   of this candidate. No upstream application change is missing. The accepted
-  store artifact's `8ae15a2` source remains identical to the candidate store tree;
-  subsequent changes only record release evidence and deployment prerequisites.
+  store artifact's `8ae15a2` source matched the earlier candidate. It predates
+  the map-first/search-later revision and must not be used to deploy that flow.
 - Candidate working directory: `/Users/mystery/Desktop/dev/whataisle-onboarding-release-20260908`.
 - The original `/Users/mystery/Desktop/dev/whataisle` working tree retains the
   owner's pre-existing uncommitted work. This candidate excludes the earlier AI
@@ -42,7 +46,49 @@ the self-service delete control is hidden. Subscription cancellation remains
 available; account deletion goes through support. This avoids both partial
 credential deletion on billing foreign-key failure and a deletion/checkout race.
 
-## Verification evidence
+## Map-first revision verification
+
+- Store unit tests: 25 passed; store typecheck and production build passed.
+- Two-store HTTP/Mongo integration: 21 passed, including map confirmation with
+  operations closed and activation preserving shelf identities.
+- Actual platform + store + local PostgreSQL/Mongo integration: 12 passed;
+  activation, PIN revocation, suspension, recovery and cleanup retained their
+  expected access boundaries.
+- Tablet browser flow: nine passed, including cross-browser map persistence,
+  direct API denial before activation, automatic opening of existing tabs and
+  upload into the real per-store queue/disk. AI stayed disabled.
+- Root unit suite: 60 passed; four integration/external opt-ins skipped in this
+  default run. Separately executed PG activation coverage is recorded below.
+- Real PostgreSQL activation: nine subcases plus the parent test passed,
+  including a paused activation yielding to the next provision job.
+- Real owner/admin browser flow: six checks passed through `/admin/stores`,
+  actual server actions and the authenticated worker failure endpoint. Queued
+  and failed activation retained the owner's map entry; retry reused its job.
+- Platform production build, typecheck and lint passed. The previous 49-test
+  platform browser run remains baseline evidence; the changed activation UI
+  was exercised separately by the six-check browser journey.
+- Worker helper checks: 55 passed, one platform-conditional GNU tar check
+  skipped; provisioning-specific checks: 37 passed.
+
+These local Mongo fixtures do not implement Atlas Search. Worker tests verify
+index reconciliation with controlled responses; local platform/store tests
+verify the trusted activation signal. The real Atlas-to-worker-to-store chain
+remains external acceptance. No cloud upgrade, production write or real AI
+recognition was performed for this revision.
+
+Current logs: `/tmp/whataisle-map-first-store-build.log`,
+`/tmp/whataisle-map-first-runtime.log`,
+`/tmp/whataisle-map-first-combined.log`,
+`/tmp/whataisle-map-first-tablet.log`, and
+`/tmp/whataisle-map-first-root-unit.log`, and
+`/tmp/whataisle-map-first-root-build.log`.
+Latest browser reports: `output/playwright/store-tablet-3h2ZCD/report.json`
+and `/tmp/whataisle-activation-browser-cIYpP8/result.json` (both private local
+artifacts). Original-workspace store tests also passed all 65 checks, preserving
+its pre-existing cost accounting and product deletion behavior while applying
+the preparation gate to that separate deletion authorization path as well.
+
+## Baseline verification evidence before the map-first revision
 
 | Check | Result |
 | --- | --- |
@@ -90,7 +136,7 @@ Local report locations (not part of a release artifact):
 - `/tmp/whataisle-release-linux-build-final.log` (successful final Linux build)
 - `/tmp/whataisle-release-linux-archive-final.json` (actual installer pre-extraction guard, accepted)
 
-The prepared store runtime is built from commit
+The retained baseline store runtime was built from commit
 `8ae15a26e6a0915809a98322fbe65d880db13bd6`. Its archive is
 `/Users/mystery/Desktop/dev/whataisle-store-linux-8ae15a26e6a0915809a98322fbe65d880db13bd6/build/store-8ae15a26e6a0915809a98322fbe65d880db13bd6.tgz`
 (406,026,355 bytes), SHA-256
@@ -117,8 +163,11 @@ used to register customer accounts.
 
 1. Atlas login, the intended project, Free tier and both READY/queryable indexes
    have been verified read-only. Free has only one unused Search/vector index;
-   a new store needs two. Flex is the prepared minimum-capacity upgrade and
-   requires separate recurring-cost and existing-store downtime approval. The
+   a search-enabled new store needs two. Map-only provisioning can use ordinary
+   structures in the existing free cluster, subject to its remaining capacity;
+   Flex can wait until after the onsite map is confirmed. It remains the
+   prepared minimum-capacity upgrade for search activation and requires separate
+   recurring-cost and existing-store downtime approval. The
    User Managed service-account list is empty. Organization resource policies
    showed an empty state. A later, fully loaded Billing Overview recheck on
    2026-09-08 corrected the earlier misreading: Payment Method has an existing

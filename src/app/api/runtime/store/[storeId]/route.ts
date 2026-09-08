@@ -22,6 +22,13 @@ export async function GET(
       ...access,
       accessAllowed: access.accessAllowed && !cleanup,
       setupAllowed: access.setupAllowed && !cleanup,
+      // Only a leased worker can attest that both search indexes are ready.
+      // Map access is independent and remains available during activation.
+      searchReady:
+        access.accessAllowed &&
+        !cleanup &&
+        context.runtime.kind === 'activate' &&
+        context.runtime.status === 'ready',
       recoveryUrl: `${getBaseUrl()}/dashboard`,
     },
     { headers: { 'Cache-Control': 'no-store, private' } }

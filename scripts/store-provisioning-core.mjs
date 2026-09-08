@@ -45,7 +45,9 @@ export function validateJob(input) {
   ) {
     throw new ProvisioningError('INVALID_STORE_HANDLE', false);
   }
-  if (!['provision', 'archive'].includes(input.kind ?? 'provision')) {
+  if (
+    !['provision', 'activate', 'archive'].includes(input.kind ?? 'provision')
+  ) {
     throw new ProvisioningError('INVALID_JOB_KIND', false);
   }
   return { ...input, kind: input.kind ?? 'provision' };
@@ -75,6 +77,8 @@ export function storePlan(input, port = 3101) {
 }
 
 export function newState(job, port) {
+  if (validateJob(job).kind !== 'provision')
+    throw new ProvisioningError('STORE_STATE_CREATION_NOT_ALLOWED', false);
   return {
     version: 1,
     ...storePlan(job, port),
@@ -266,6 +270,39 @@ export async function provision(job, state, adapters) {
     canonicalUrl: state.canonicalUrl,
     runtimeVersion: adapters.runtimeVersion,
     kind: 'provision',
+  });
+}
+
+/** Activation only reconciles search indexes for an existing, published store.
+ * Never recreate credentials, directories, maps, routes or the serving process.
+ * Local stage markers are not evidence: every retry reads the live state again.
+ */
+export async function activate(job, state, adapters) {
+  if (validateJob(job).kind !== 'activate')
+    throw new ProvisioningError('INVALID_JOB_KIND', false);
+  validateState(state, job);
+  if (state.archivedAt || state.databaseClearedAt)
+    throw new ProvisioningError('STORE_ALREADY_ARCHIVED', false);
+  await adapters.assertLease();
+  await adapters.existingIdentity(state);
+  await adapters.assertLease();
+  await adapters.health(state);
+  await adapters.assertLease();
+  await adapters.publishedMap(state);
+  await adapters.assertLease();
+  await adapters.search(state);
+  await adapters.assertLease();
+  await adapters.health(state);
+  await adapters.assertLease();
+  await adapters.publicHealth(state);
+  await adapters.assertLease();
+  // Platform searchReady remains false until this leased acknowledgement.
+  // Waiting for health.searchReady here would create a circular dependency.
+  await adapters.complete({
+    kind: 'activate',
+    runtimeTokenHash: sha256(state.runtimeToken),
+    port: state.port,
+    canonicalUrl: state.canonicalUrl,
   });
 }
 

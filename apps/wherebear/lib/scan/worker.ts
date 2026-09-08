@@ -1,4 +1,4 @@
-import { getStoreRuntime, isManagedStore } from '@/lib/store-runtime';
+import { getStoreRuntime, isManagedStore, storeOperationsReady } from '@/lib/store-runtime';
 /**
  * In-process scan-job worker: drains the `scan_jobs` queue with photo-level
  * concurrency. Started once from instrumentation.ts (pm2 runs a single fork
@@ -80,7 +80,10 @@ async function tick(): Promise<void> {
   try {
     // A suspended store cannot start fresh paid recognition work. Existing leases may finish.
     if (isManagedStore()) {
-      try { if (!(await getStoreRuntime()).accessAllowed) return; } catch { return; }
+      try {
+        const config = await getStoreRuntime();
+        if (!config.accessAllowed || !(await storeOperationsReady(config))) return;
+      } catch { return; }
     }
     while (inFlight < PHOTO_CONCURRENCY) {
       let job: ScanJobDoc | null;

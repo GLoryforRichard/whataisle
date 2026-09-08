@@ -110,6 +110,7 @@ async function run() {
   let platform: ReturnType<typeof createServer> | undefined;
   let cleanupPromise: Promise<void> | undefined;
   let ownerGrantUses = 0;
+  let searchReady = false;
   let failure: unknown;
   const mongoPort = await freePort();
   const runtimePort = await freePort();
@@ -309,6 +310,7 @@ async function run() {
           pinVersion: 1,
           accessAllowed: true,
           setupAllowed: true,
+          searchReady,
           serviceEndsAt: null,
           recoveryUrl: `${platformBase}/owner`,
         });
@@ -568,8 +570,12 @@ async function run() {
     assert.equal((await saved).status(), 200);
     await expect(page).toHaveURL(`${base}/admin?opened=1`);
     await expect(
-      page.getByRole('button', { name: 'Tap to choose a shelf', exact: true })
+      page.getByRole('heading', { name: /Store preparation in progress/ })
     ).toBeVisible();
+    await expect(page.getByText(/Your map is saved/)).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Upload photos', exact: true })
+    ).toHaveCount(0);
     const published = await db
       .collection<FloorMap & { _id: string }>('store_floor_map')
       .findOne({ _id: 'published' });
@@ -585,23 +591,50 @@ async function run() {
       page.getByRole('heading', { name: 'Tablet Fixture Grocery', exact: true })
     ).toBeVisible();
     await expect(
-      page.getByRole('link', { name: 'Staff workspace', exact: true })
+      page.getByRole('link', { name: /Staff workspace/ })
     ).toBeVisible();
-    await screenshot(page, '05-public-store');
-    await page.getByRole('button', { name: /^Find item/ }).click();
     await expect(
-      page.getByPlaceholder('e.g. 年糕 or black paper for sushi')
+      page.getByRole('heading', { name: /Store preparation in progress/ })
     ).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Find item/ })).toHaveCount(
+      0
+    );
+    for (const route of ['/api/search', '/api/vision/jobs']) {
+      const denied = await drawingContext.request.post(`${base}${route}`, {
+        headers: { Origin: base },
+        data: {},
+      });
+      assert.equal(denied.status(), 409);
+      assert.equal((await denied.json()).code, 'store_preparing');
+    }
+    assert.equal(await db.collection('scan_jobs').countDocuments(), 0);
+    assert.deepEqual(await readdir(scanDirectory), []);
+    await screenshot(page, '05-map-saved-before-activation');
     pass(
-      'correct PIN publishes stable shelves, opens staff scan and switches the public URL to search'
+      'correct PIN durably saves stable shelves while direct search and upload reject without queued work'
     );
 
     const staffContext = await context();
     const staff = await staffContext.newPage();
     await staff.goto(base);
-    await staff
-      .getByRole('link', { name: 'Staff workspace', exact: true })
-      .click();
+    await expect(
+      staff.getByRole('heading', { name: /Store preparation in progress/ })
+    ).toBeVisible();
+    const persisted = await staffContext.request.get(
+      `${base}/api/runtime/config`
+    );
+    assert.equal(persisted.status(), 200);
+    const persistedStore = await persisted.json();
+    assert.equal(persistedStore.searchReady, false);
+    assert.deepEqual(persistedStore.map.shelves, expectedDraft.shelves);
+    assert.equal(
+      await staff.evaluate((key) => localStorage.getItem(key), draftKey),
+      null
+    );
+    pass(
+      'another browser reads the confirmed map from the server without a local draft'
+    );
+    await staff.getByRole('link', { name: /Staff workspace/ }).click();
     await expect(
       staff.getByLabel('Store password', { exact: true })
     ).toBeVisible();
@@ -634,6 +667,30 @@ async function run() {
       })
       .click();
     assert.equal((await staffResponse).status(), 200);
+    await expect(staff.getByText(/Your map is saved/)).toBeVisible();
+    await expect(
+      staff.getByRole('button', { name: /^Snap shelf/ })
+    ).toHaveCount(0);
+    // Model only the trusted platform's successful worker acknowledgement.
+    // This ordinary local mongod has no Atlas Search; no index readiness claim.
+    searchReady = true;
+    await expect(page.getByRole('button', { name: /^Find item/ })).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(
+      staff.getByRole('button', { name: /^Snap shelf/ })
+    ).toBeVisible({ timeout: 20_000 });
+    const afterActivation = await db
+      .collection<FloorMap & { _id: string }>('store_floor_map')
+      .findOne({ _id: 'published' });
+    assert.deepEqual(afterActivation, published);
+    await page.getByRole('button', { name: /^Find item/ }).click();
+    await expect(
+      page.getByPlaceholder('e.g. 年糕 or black paper for sushi')
+    ).toBeVisible();
+    pass(
+      'activation opens existing shopper and staff tabs without reloading or replacing map data'
+    );
     await staff.getByRole('button', { name: /^Snap shelf/ }).click();
     await staff
       .getByRole('button', { name: 'Tap to choose a shelf', exact: true })

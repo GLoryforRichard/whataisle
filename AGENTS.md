@@ -37,9 +37,13 @@ documentation. Unrelated requirements and the approved shared-VM limit remain.
 The candidate implements verified-owner payment first, then display name,
 permanent handle confirmation and a six-digit store password. Provisioning
 creates an empty isolated runtime. Its public URL initially shows a tablet map
-editor with device-local drafts; server-verified password confirmation publishes
-the map and stable shelf identities, then that URL becomes public search. Staff
-use the same password-protected workspace to scan/upload. Only the owner can
+editor with device-local drafts; server-verified password confirmation durably
+saves the map and stable shelf identities before search is available. The
+2026-09-08 revision separates a map-only runtime from founder-requested Search
+activation, so Atlas capacity can be upgraded after onsite mapping. The worker
+must confirm search readiness before public search and photo upload open; it
+must never upgrade a paid cloud tier automatically. Staff use the same
+password-protected workspace to scan/upload. Only the owner can
 reopen a published map; password changes revoke prior sessions. The founder may
 draw and scan on site using this flow; booking/scheduling and a separate staffed
 onboarding service are not reinstated.

@@ -202,9 +202,15 @@ legacy runtime credential. Retain the old administrative user for operations
 until its other consumers are understood.
 [Next.js environment precedence](https://nextjs.org/docs/pages/guides/environment-variables#environment-variable-load-order)
 
-Each new store needs **two** Search/vector indexes, in addition to its ordinary
+Each search-enabled new store needs **two** Search/vector indexes, in addition to its ordinary
 unique product index. Free permits only three Search/vector indexes in total
-per cluster; the observed two leave insufficient room for even the next store.
+per cluster; the observed two leave insufficient room to activate search for
+the next store. Under the 2026-09-08 map-first revision, initial provisioning
+creates only isolated credentials, ordinary collections/indexes and the runtime.
+The free cluster can persist a confirmed map/shelf document without Search
+indexes. Therefore the paid upgrade can happen after onsite mapping; it must
+finish before the founder requests search activation and photos can be uploaded.
+Ordinary database storage, connection and per-store access limits still apply.
 Flex permits ten: the existing two plus four new stores times two equals ten,
 so **Flex is the minimum tier with sufficient index allowance for five stores,
 including WhereBear**, with no spare search index or extra test-store allowance.
@@ -294,6 +300,18 @@ needed for this proposed destination; preserve its privacy and existing lifecycl
 [backup runbook](../infra/vm/README.md)
 
 The upgrade still needs these concrete backup preparations/execution steps:
+
+**Map-first revision:** by the time the founder upgrades, newly provisioned
+stores may already hold confirmed maps. Inventory every non-archived store from
+the platform and worker registry and include each of its isolated Mongo
+databases in the pre-upgrade backup/restore check, including map-only stores.
+The fixed `wherebear` commands below demonstrate the existing store's export;
+they are no longer sufficient on their own after another store has been mapped.
+Prepare a separately reviewed namespace/connection file and archive per store,
+using that store's own restricted credentials; never reuse the legacy store
+credential across tenants. Preserve map/shelf IDs and prove their restore as
+well as product counts. Pause all affected runtimes during the final consistent
+dump and upgrade, even if their search activation has not started.
 
 1. Stage verified official Linux x86_64 MongoDB Database Tools compatible with
    MongoDB 8.0 in a dedicated tools directory, without changing the WhereBear
@@ -755,7 +773,9 @@ printing `platform.env.*` or `worker.json.candidate`.
    ```
 
 7. Run the explicitly approved disposable-account/store acceptance through
-   payment → setup → job → restricted DB/indexes → domain → PIN/map → scan/search,
+   payment → setup → restricted DB without Search → domain → PIN/map saved →
+   separately authorized Atlas capacity upgrade → founder activation job → both
+   search indexes ready/queryable → scan/search, preserving the original map IDs,
    then Stripe renewal/cancel/plan-switch cases. Verify store identity on public
    `/api/runtime/health` and that no WhereBear process/data/route was replaced.
    See `AUTOMATED-STORES.md` for failure/retry/archive acceptance. Do not treat a

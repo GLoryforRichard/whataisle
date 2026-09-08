@@ -15,6 +15,11 @@ export async function register() {
 
   setTimeout(async () => {
     try {
+      const runtime = await import('@/lib/store-runtime');
+      if (runtime.isManagedStore()) {
+        const config = await runtime.getStoreRuntime();
+        if (!config.accessAllowed || !(await runtime.storeOperationsReady(config))) return;
+      }
       const [agentMod, mcpMod, dbMod] = await Promise.all([
         import('@/lib/agents/adk/search-agent'),
         import('@/lib/mcp/mongo-mcp'),

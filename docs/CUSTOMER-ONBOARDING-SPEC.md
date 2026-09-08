@@ -1,4 +1,4 @@
-# Customer onboarding and subscriptions — accepted 2026-09-07
+# Customer onboarding and subscriptions — accepted 2026-09-07, revised 2026-09-08
 
 This specification records the owner's confirmed conversation decisions and
 supersedes the historical manual-install, video-first and lifetime-payment
@@ -13,7 +13,9 @@ assert that features are deployed. Existing customer data must be preserved.
 3. Submission durably creates the empty store and queues provisioning. Retries,
    duplicate webhooks and repeated clicks cannot charge twice or create twice.
 4. Provision one process per store on the approved shared VM, with restricted
-   Mongo credentials/database and distinct files/queue. Never copy WhereBear
+   Mongo credentials/database and distinct files/queue. This first stage creates
+   only ordinary database structures; Search/vector index creation must not
+   block the public drawing URL or trigger embedding usage. Never copy WhereBear
    products, photos, map or secrets. WhereBear remains customer 1.
    Reserve capacity before opening Checkout: five stores total, including
    WhereBear, paid owners awaiting setup, retained stores and pending checkouts.
@@ -21,15 +23,34 @@ assert that features are deployed. Existing customer data must be preserved.
    reuses its place; confirmed checkout expiry or completed archive releases it.
 5. The public store URL initially opens a full-screen tablet map editor. Drafts
    remain on the current device, never anonymously written to a server.
-6. Final confirmation checks the store password on the server, saves the map and
-   creates stable shelf identities. The same URL immediately becomes the store's
-   public product search; scanning completion is not a separate publish gate.
-7. Founder and staff use the same password-protected workspace to select shelves
-   and take/upload photos. Every protected API enforces authorization itself.
+6. Final confirmation checks the store password on the server and atomically
+   saves the map and stable shelf identities in the store's isolated database.
+   This confirmation is durable across browser closure and devices; it is not
+   only a local draft. The same URL then shows that the store is being prepared
+   until search activation completes. No map or shelf recreation is required.
+7. After the founder leaves the site, an explicitly authorized Atlas upgrade can
+   provide Search/vector capacity. Upgrade costs are not triggered by payment,
+   map confirmation or a provisioning retry. The founder separately requests
+   search activation in the platform back office. The worker uses the existing
+   store identity, verifies its confirmed map and both ready/queryable search
+   indexes, and completes activation without rotating credentials or restarting
+   the store. Only then do public product search and staff photo upload open.
+   Founder and staff use the same password-protected workspace to select shelves
+   and take/upload photos. Every protected API enforces authorization itself;
+   hiding buttons alone is insufficient. Scanning all shelves is not a further
+   publish gate. A failed activation leaves the saved map intact and retryable.
 8. Owner dashboard changes display name/password and opens map editing. Handle
    cannot change. Moving/renaming a shelf retains its product associations.
    Staff cannot edit an already-published map. Changing password invalidates all
    previously issued sessions. Rate-limit failed password attempts.
+
+The 2026-09-08 revision deliberately separates mapping from search activation
+so the first new customer can pay and finish onsite mapping before the founder
+starts paying for a larger Atlas cluster. Saving the small map/shelf document in
+the existing free cluster avoids a second temporary store or a later map import.
+Every store still has its own database credentials and files. This revision does
+not change payment-date entitlement, the five-store capacity ceiling, or require
+the founder's presence for subsequent staff uploads.
 
 ## Prices and entitlement
 
@@ -93,8 +114,11 @@ Any future account-deletion process needs an explicit separate design.
 - Root: `pnpm typecheck`, `pnpm lint`, `pnpm build`, relevant unit and E2E tests.
 - Store: `pnpm store:typecheck`, `pnpm store:test`, `pnpm store:build`.
 - Exercise actual UI signup, checkout return, recoverable setup, map drawing,
-  password failure/success, public search, staff uploads, owner edits and PIN
-  revocation. Two fresh stores must prove data and cookie isolation.
+  password failure/success, map persistence before search activation, explicit
+  founder activation, public search, staff uploads, owner edits and PIN
+  revocation. Before activation, direct search/upload calls must reject without
+  AI or queued-photo side effects; the same map/shelf IDs survive activation and
+  retries. Two fresh stores must prove data and cookie isolation.
 - Exercise billing first periods, renewals, both plan switches, cancel override,
   grace/suspend/recovery, quota concurrency and webhook retries/ordering with
   deterministic service tests, then Stripe sandbox/time-clock verification.

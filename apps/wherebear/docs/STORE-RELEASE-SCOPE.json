@@ -58,7 +58,10 @@
     "tests/runtime-integration.mjs",
     "tests/store-runtime.test.mjs",
     "tests/worker-tick.test.mjs",
-    "docs/STORE-RUNTIME.md"
+    "docs/STORE-RUNTIME.md",
+    "components/StorePreparing.tsx",
+    "tests/activation-guards.test.mjs",
+    "tests/queue-preparation.test.mjs"
   ],
   "extracted_mixed": [
     "app/api/admin/products/[id]/route.ts",
@@ -72,7 +75,8 @@
     "lib/agents/tools-b.ts",
     "lib/i18n.ts",
     "lib/scan/worker.ts",
-    "lib/shelf-save.ts"
+    "lib/shelf-save.ts",
+    "lib/scan-queue/pump.ts"
   ],
   "left_prior_changes_untouched": [
     ".gitignore",
@@ -84,7 +88,6 @@
     "lib/gemini.ts",
     "lib/products.ts",
     "lib/scan-queue/outbox.ts",
-    "lib/scan-queue/pump.ts",
     "lib/scan-queue/store.ts",
     "lib/scan/transport-flex.ts"
   ],
@@ -133,6 +136,39 @@
     },
     "prior_only_files_equal_base": 12,
     "original_working_tree_written": false,
-    "staged_committed_or_pushed": false
+    "staged_committed_or_pushed": false,
+    "scope": "Initial extraction before the map-first activation revision; these 19-unit and 19-integration results are historical, not the current revision."
+  },
+  "activation_revision": {
+    "base": "aa584c42cfd6ad44d42457b7f0ea95fa5dfcd30b",
+    "scope": "Persist maps and stable shelves before activation; gate operational APIs, staff UI, workers and the local photo queue on platform-confirmed readiness.",
+    "extraction_note": "pump.ts now has task changes, while the original workspace costOperationId forwarding and worker withCostOperation wrapper remain excluded from this candidate. Reverse synchronization must apply only task hunks and preserve those original additions.",
+    "validation": {
+      "store_typecheck": "passed after activation and confirmation-copy updates",
+      "store_test": {
+        "passed": 25,
+        "failed": 0
+      },
+      "store_build": "passed after final preparation-page and confirmation changes",
+      "runtime_integration": {
+        "passed": 21,
+        "failed": 0,
+        "artifact": "/var/folders/_6/x8g9p9ys5hj_8_0vj02pjbyh0000gn/T/whataisle-runtime-test-uZMp6J/result.json"
+      },
+      "tablet_browser": {
+        "passed": 9,
+        "failed": 0,
+        "artifact": "output/playwright/store-tablet-3h2ZCD/report.json"
+      },
+      "combined_runtime": {
+        "passed": 12,
+        "failed": 0
+      },
+      "original_store_unit": {
+        "passed": 65,
+        "failed": 0
+      }
+    },
+    "original_sync": "17 paths merged with backups; original cost and deletion changes preserved. Original deletion-only fresh-PIN branch also enforces preparation, with a separate regression test."
   }
 }

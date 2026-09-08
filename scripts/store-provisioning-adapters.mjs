@@ -5,6 +5,7 @@ import { promisify } from 'node:util';
 import { constants } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import net from 'node:net';
 import { setTimeout as delay } from 'node:timers/promises';
 import {
@@ -345,6 +346,34 @@ export async function ensureAtlasUser(
   assertAtlasIsolation(user, state, config.atlasClusterName);
 }
 
+export async function verifyExistingAtlasUser(state, config, atlas) {
+  let user;
+  try {
+    user = await atlas('GET', `databaseUsers/admin/${state.dbUser}`);
+  } catch (error) {
+    if (error.code === 'HTTP_404')
+      throw new ProvisioningError('STORE_DATABASE_USER_MISSING', false);
+    throw error;
+  }
+  assertAtlasIsolation(user, state, config.atlasClusterName);
+}
+
+export async function verifyPublishedMap(db, validateFloorMap) {
+  const record = await db
+    .collection('store_floor_map')
+    .findOne({ _id: 'published' });
+  if (!record) throw new ProvisioningError('STORE_MAP_NOT_PUBLISHED', false);
+  try {
+    if (!Number.isInteger(record.revision) || record.revision < 1)
+      throw new Error('Invalid published revision');
+    // Reuse the installed runtime's pure validator, including stable shelf IDs,
+    // bounds and duplicate checks. Never normalize/write the stored document.
+    validateFloorMap(record);
+  } catch {
+    throw new ProvisioningError('STORE_PUBLISHED_MAP_INVALID', false);
+  }
+}
+
 export async function ensureProductIdentityIndex(
   products,
   assertLease = async () => {}
@@ -377,13 +406,7 @@ export async function ensureProductIdentityIndex(
   );
 }
 
-export async function ensureSearchIndexes(
-  db,
-  model,
-  assertLease,
-  pause = delay,
-  now = Date.now
-) {
+export async function ensureDatabaseBase(db, assertLease) {
   const names = await db
     .listCollections({ name: 'products' }, { nameOnly: true })
     .toArray();
@@ -393,69 +416,104 @@ export async function ensureSearchIndexes(
   }
   const products = db.collection('products');
   await ensureProductIdentityIndex(products, assertLease);
-  const existing = await products.listSearchIndexes().toArray();
+}
+
+async function searchOperation(action) {
+  try {
+    return await action();
+  } catch (error) {
+    // Atlas command errors may include request details. Expose a stable code
+    // only; known quota/permission failures need founder action, not a loop.
+    const message = typeof error.message === 'string' ? error.message : '';
+    if (
+      /quota|(?:limit|maximum|exceed)[\s\S]*index|index[\s\S]*(?:limit|maximum|exceed)/i.test(
+        message
+      )
+    )
+      throw new ProvisioningError('SEARCH_INDEX_CAPACITY_REQUIRED', false);
+    if (
+      [13, 18].includes(error.code) ||
+      /permission|unauthori[sz]ed|not (?:authori[sz]ed|allowed)/i.test(message)
+    )
+      throw new ProvisioningError('SEARCH_INDEX_PERMISSION_REQUIRED', false);
+    throw error;
+  }
+}
+
+function assertSearchDefinition(current, desired, model) {
+  if (current.type !== desired.type)
+    throw new ProvisioningError('SEARCH_INDEX_TYPE_MISMATCH', false);
+  if (
+    JSON.stringify(current.latestDefinition) ===
+    JSON.stringify(desired.definition)
+  )
+    return;
+  // API serialization may reorder keys or add default options.
+  if (desired.name === 'vector_index') {
+    const fields = current.latestDefinition?.fields;
+    const field = fields?.[0];
+    if (
+      fields?.length !== 1 ||
+      field.type !== 'autoEmbed' ||
+      field.path !== 'search_text' ||
+      field.modality !== 'text' ||
+      field.model !== (model ?? 'voyage-4')
+    )
+      throw new ProvisioningError('SEARCH_INDEX_DEFINITION_MISMATCH', false);
+  } else {
+    const fields = current.latestDefinition?.mappings?.fields;
+    if (
+      current.latestDefinition?.mappings?.dynamic !== false ||
+      !['canonical_name', 'aliases', 'search_text'].every(
+        (key) =>
+          fields?.[key]?.type === 'string' &&
+          fields[key].analyzer === 'lucene.standard'
+      )
+    )
+      throw new ProvisioningError('SEARCH_INDEX_DEFINITION_MISMATCH', false);
+  }
+}
+
+export async function ensureSearchIndexes(db, model, assertLease) {
+  // Activation must not recreate a missing collection or change ordinary
+  // indexes. Provisioning already prepared these; a mismatch needs inspection.
+  const names = await db
+    .listCollections({ name: 'products' }, { nameOnly: true })
+    .toArray();
+  if (!names.length)
+    throw new ProvisioningError('STORE_PRODUCTS_COLLECTION_MISSING', false);
+  const products = db.collection('products');
+  const existing = await searchOperation(() =>
+    products.listSearchIndexes().toArray()
+  );
+  // Inspect all existing definitions before any write. A mismatched second
+  // index must not cause the first, previously absent index to be created.
+  for (const desired of searchIndexDefinitions(model)) {
+    const current = existing.find((index) => index.name === desired.name);
+    if (current) assertSearchDefinition(current, desired, model);
+  }
   for (const desired of searchIndexDefinitions(model)) {
     const current = existing.find((index) => index.name === desired.name);
     if (!current) {
       await assertLease();
-      await products.createSearchIndex(desired);
-    } else if (current.type !== desired.type) {
-      throw new ProvisioningError('SEARCH_INDEX_TYPE_MISMATCH', false);
-    } else if (
-      current.type !== desired.type ||
-      JSON.stringify(current.latestDefinition) !==
-        JSON.stringify(desired.definition)
-    ) {
-      // API serialization can reorder object keys. Compare the required
-      // vector field / lexical mappings rather than accepting arbitrary indexes.
-      if (desired.name === 'vector_index') {
-        const fields = current.latestDefinition?.fields;
-        const field = fields?.[0];
-        if (
-          fields?.length !== 1 ||
-          field.type !== 'autoEmbed' ||
-          field.path !== 'search_text' ||
-          field.model !== (model ?? 'voyage-4')
-        )
-          throw new ProvisioningError(
-            'SEARCH_INDEX_DEFINITION_MISMATCH',
-            false
-          );
-      } else {
-        const fields = current.latestDefinition?.mappings?.fields;
-        if (
-          current.latestDefinition?.mappings?.dynamic !== false ||
-          !['canonical_name', 'aliases', 'search_text'].every(
-            (key) => fields?.[key]?.type === 'string'
-          )
-        )
-          throw new ProvisioningError(
-            'SEARCH_INDEX_DEFINITION_MISMATCH',
-            false
-          );
-      }
+      await searchOperation(() => products.createSearchIndex(desired));
     }
   }
-  const deadline = now() + 12 * 60_000;
-  while (now() < deadline) {
-    await assertLease();
-    const indexes = await products.listSearchIndexes().toArray();
-    if (
-      ['vector_index', 'text_index'].every((name) =>
-        indexes.some(
-          (index) =>
-            index.name === name &&
-            index.queryable === true &&
-            index.status === 'READY'
-        )
-      )
-    )
-      return;
-    if (indexes.some((index) => ['FAILED', 'ERROR'].includes(index.status)))
-      throw new ProvisioningError('SEARCH_INDEX_BUILD_FAILED');
-    await pause(10_000);
+  await assertLease();
+  const indexes = await searchOperation(() =>
+    products.listSearchIndexes().toArray()
+  );
+  for (const desired of searchIndexDefinitions(model)) {
+    const current = indexes.find((index) => index.name === desired.name);
+    if (!current) throw new ProvisioningError('SEARCH_INDEX_NOT_READY');
+    assertSearchDefinition(current, desired, model);
+    if (['FAILED', 'ERROR'].includes(current.status))
+      throw new ProvisioningError('SEARCH_INDEX_BUILD_FAILED', false);
+    if (current.queryable !== true || current.status !== 'READY')
+      // Yield the lease through normal retry (60 seconds), allowing new map-only
+      // provisioning jobs to proceed while Atlas builds this store's indexes.
+      throw new ProvisioningError('SEARCH_INDEX_NOT_READY');
   }
-  throw new ProvisioningError('SEARCH_INDEX_NOT_READY');
 }
 
 async function ensureIndexes(state, config, assertLease) {
@@ -608,8 +666,20 @@ export function vmAdapters(config, job, runtimeVersion, assertLease) {
       }),
     database: async (state) => {
       await ensureAtlasUser(state, config, atlas, assertLease);
-      await ensureIndexes(state, config, assertLease);
+      await withMongo(state, config, (db) =>
+        ensureDatabaseBase(db, assertLease)
+      );
     },
+    existingIdentity: (state) => verifyExistingAtlasUser(state, config, atlas),
+    publishedMap: async (state) => {
+      const { validateFloorMap } = await import(
+        pathToFileURL(path.join(ROOTS.runtime, 'lib/floor-map-model.mjs')).href
+      );
+      await withMongo(state, config, (db) =>
+        verifyPublishedMap(db, validateFloorMap)
+      );
+    },
+    search: (state) => ensureIndexes(state, config, assertLease),
     filesystem: async (state) => {
       await ensureDirectory(ROOTS.data, 0o755);
       await fs.chmod(ROOTS.data, 0o755);

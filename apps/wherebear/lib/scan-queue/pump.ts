@@ -66,6 +66,27 @@ const blobs = new Map<string, Blob>();
 let pumping = false;
 let backoffTimer: ReturnType<typeof setTimeout> | null = null;
 let pollTimer: ReturnType<typeof setTimeout> | null = null;
+// QueueBoot enables this only after the current store's capabilities and staff
+// session arrive. Restoring IndexedDB while preparation is pending is read-only.
+let queueEnabled = false;
+const confirmedWhilePaused = new Set<string>();
+export function setScanQueueEnabled(enabled: boolean): void {
+  queueEnabled = enabled;
+  if (!enabled) {
+    if (backoffTimer) clearTimeout(backoffTimer);
+    if (pollTimer) clearTimeout(pollTimer);
+    backoffTimer = null;
+    pollTimer = null;
+    return;
+  }
+  for (const id of confirmedWhilePaused) {
+    blobs.delete(id);
+    void outboxDelete(id);
+    confirmedWhilePaused.delete(id);
+  }
+  if (getItems().some((item) => item.status === 'detecting' && item.jobId)) ensurePolling();
+  void pump();
+}
 
 function newId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -182,6 +203,7 @@ export async function restoreFromOutbox(): Promise<void> {
       : [];
     const blob = reviveBlob(r.blob);
     blobs.set(r.id, blob);
+    if (status === 'saved') confirmedWhilePaused.add(r.id);
     addItem({
       id: r.id,
       aisle: r.aisle,
@@ -199,7 +221,7 @@ export async function restoreFromOutbox(): Promise<void> {
     });
   }
   if (getItems().some((i) => i.status === 'detecting' && i.jobId)) ensurePolling();
-  void pump();
+  setScanQueueEnabled(queueEnabled);
 }
 
 // ── worker loop ────────────────────────────────────────────────────────────
@@ -210,10 +232,11 @@ function eligible(i: { nextAttemptAt?: number }): boolean {
 }
 
 async function pump(): Promise<void> {
-  if (pumping) return;
+  if (pumping || !queueEnabled) return;
   pumping = true;
   try {
     for (;;) {
+      if (!queueEnabled) break;
       const items = getItems();
       // Saves are quick — run them before starting more detections.
       const toSave = items.find((i) => i.status === 'detected' && eligible(i));
@@ -244,6 +267,7 @@ function armBackoffTimer(): void {
     clearTimeout(backoffTimer);
     backoffTimer = null;
   }
+  if (!queueEnabled) return;
   const now = Date.now();
   const waits = getItems()
     .filter((i) => (i.status === 'queued' || i.status === 'detected') && i.nextAttemptAt && i.nextAttemptAt > now)
@@ -318,6 +342,11 @@ async function submitOne(id: string): Promise<void> {
     const fd = new FormData();
     fd.append('image', blob, 'photo.jpg');
     fd.append('aisle', item.aisle);
+    if (!queueEnabled) {
+      updateItem(id, { status: 'queued' });
+      await outboxUpdate(id, { status: 'queued' });
+      return;
+    }
     let res: Response;
     try {
       res = await fetch('/api/vision/jobs', { method: 'POST', body: fd });
@@ -337,8 +366,15 @@ async function submitOne(id: string): Promise<void> {
       status?: string;
       error?: string;
       retryAfterMs?: number;
+      code?: string;
     } | null;
     if (!getItem(id)) return;
+    if (res.status === 409 && data?.code === 'store_preparing') {
+      setScanQueueEnabled(false);
+      updateItem(id, { status: 'queued' });
+      await outboxUpdate(id, { status: 'queued' });
+      return;
+    }
     if (res.status === 429) {
       // Server queue full — backpressure, not a failure. Wait it out
       // WITHOUT consuming an attempt; the outbox is the deep buffer.
@@ -366,7 +402,7 @@ async function submitOne(id: string): Promise<void> {
 // ── job polling ────────────────────────────────────────────────────────────
 
 function ensurePolling(): void {
-  if (pollTimer) return;
+  if (pollTimer || !queueEnabled) return;
   pollTimer = setTimeout(() => {
     pollTimer = null;
     void pollJobs();
@@ -374,6 +410,7 @@ function ensurePolling(): void {
 }
 
 async function pollJobs(): Promise<void> {
+  if (!queueEnabled) return;
   const inFlight = getItems().filter((i) => i.status === 'detecting' && i.jobId);
   for (const item of inFlight) {
     await pollOne(item.id).catch(() => {});
@@ -382,6 +419,7 @@ async function pollJobs(): Promise<void> {
 }
 
 async function pollOne(id: string): Promise<void> {
+  if (!queueEnabled) return;
   const item = getItem(id);
   if (!item || item.status !== 'detecting' || !item.jobId) return;
   let res: Response;
@@ -405,14 +443,14 @@ async function pollOne(id: string): Promise<void> {
     products?: DetectedProduct[];
     error?: string;
   } | null;
-  if (!getItem(id) || !data?.ok) return;
+  if (!getItem(id) || !data?.ok || !queueEnabled) return;
 
   if (data.status === 'done') {
     const jobId = item.jobId;
     const blob = blobs.get(id);
     const raw = data.products ?? [];
     const products = blob ? await cropThumbnails(blob, raw).catch(() => raw) : raw;
-    if (!getItem(id)) return;
+    if (!getItem(id) || !queueEnabled) return;
     updateItem(id, {
       status: 'detected',
       products,
@@ -432,7 +470,7 @@ async function pollOne(id: string): Promise<void> {
     });
     // Ack AFTER the products are safely in IndexedDB — the server frees the
     // job dir early; a crash between poll and ack just means TTL cleanup.
-    void fetch(`/api/vision/jobs/${jobId}`, { method: 'DELETE' }).catch(() => {});
+    if (queueEnabled) void fetch(`/api/vision/jobs/${jobId}`, { method: 'DELETE' }).catch(() => {});
     void pump(); // chain the save
     return;
   }
@@ -453,6 +491,7 @@ async function pollOne(id: string): Promise<void> {
 
 /** Auto-save one detected photo's products (per-photo save, no cross-photo merge). */
 async function saveOne(id: string): Promise<void> {
+  if (!queueEnabled) return;
   const item = getItem(id);
   if (!item || item.status !== 'detected') return;
   if (item.products.length === 0) {
@@ -466,6 +505,15 @@ async function saveOne(id: string): Promise<void> {
   void outboxUpdate(id, { status: 'saving' });
   const ok = await postSave(item.aisle, item.products);
   if (!getItem(id)) return;
+  if (!queueEnabled) {
+    // A completed save is never submitted again just because readiness was
+    // withdrawn in flight. Keep its local bytes until operations reopen.
+    const status = ok ? 'saved' : 'detected';
+    updateItem(id, { status });
+    await outboxUpdate(id, { status });
+    if (ok) confirmedWhilePaused.add(id);
+    return;
+  }
   if (ok) {
     updateItem(id, { status: 'saved', error: undefined, errorCode: undefined });
     blobs.delete(id);
@@ -492,6 +540,13 @@ async function postSave(aisle: string, products: DetectedProduct[]): Promise<boo
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ aisle, products }),
     });
+    if (res.status === 409) {
+      const denied = await res.json().catch(() => null);
+      if (denied?.code === 'store_preparing') {
+        setScanQueueEnabled(false);
+        return false;
+      }
+    }
     if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
@@ -520,6 +575,7 @@ async function postSave(aisle: string, products: DetectedProduct[]): Promise<boo
     if (sawDone) return true;
     throw new Error('stream ended without done event');
   } catch (err) {
+    if (!queueEnabled) return false;
     console.warn('[queue] save stream failed, verifying server-side:', err);
     return verifyServerSideSave(aisle, runStart);
   }
@@ -529,6 +585,7 @@ async function postSave(aisle: string, products: DetectedProduct[]): Promise<boo
 async function verifyServerSideSave(aisle: string, runStartTime: number): Promise<boolean> {
   // Give the server a moment to finish the write the stream abandoned.
   await new Promise((r) => setTimeout(r, 2500));
+  if (!queueEnabled) return false;
   try {
     const res = await fetch(`/api/admin/products?aisle=${encodeURIComponent(aisle)}`);
     if (!res.ok) return false;

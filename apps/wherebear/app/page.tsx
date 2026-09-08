@@ -8,6 +8,7 @@ import AnimatedBear from '@/components/AnimatedBear';
 import Icon from '@/components/Icon';
 import LanguageToggle from '@/components/LanguageToggle';
 import FloorMapEditor from '@/components/FloorMapEditor';
+import StorePreparing from '@/components/StorePreparing';
 import { useStoreRuntime } from '@/components/StoreRuntimeProvider';
 import { useTranslation } from '@/lib/i18n';
 
@@ -32,18 +33,19 @@ export default function Page() {
   const [hover, setHover] = useState(false);
 
   useEffect(() => {
-    if(store.managed && !store.map)return;
+    if(store.managed && (!store.map || !store.searchReady))return;
     fetch('/api/home-summary')
       .then((r) => r.json())
       .then((d) => { if (d.ok) setSummary(d as HomeSummary); })
       .catch(() => {});
-  }, [store.managed,store.map]);
+  }, [store.managed,store.map,store.searchReady]);
 
   // FindScreen only ever calls go('home') to back out. Anything that isn't
   // 'find' returns to the customer home.
   const childGo = (s: ChildScreen) => setScreen(s === 'find' ? 'find' : 'home');
 
   if(store.managed && !store.map)return <FloorMapEditor />;
+  if(store.managed && !store.searchReady)return <StorePreparing />;
 
   if (screen === 'find') {
     return (

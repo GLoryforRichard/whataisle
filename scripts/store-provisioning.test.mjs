@@ -18,6 +18,7 @@ import {
   assertAtlasIsolation,
   mongoUri,
   provision,
+  activate,
   archive,
   searchIndexDefinitions,
 } from './store-provisioning-core.mjs';
@@ -27,12 +28,18 @@ import {
   requestJson,
   atlasClient,
   ensureAtlasUser,
+  verifyExistingAtlasUser,
+  verifyPublishedMap,
+  ensureDatabaseBase,
   ensureProductIdentityIndex,
   ensureSearchIndexes,
   atomicWrite,
   readRestrictedJson,
   validateConfig,
+  vmAdapters,
 } from './store-provisioning-adapters.mjs';
+import { loadOrCreateState } from './store-provisioning.mjs';
+import { validateFloorMap } from '../apps/wherebear/lib/floor-map-model.mjs';
 
 const job = {
   jobId: 'job-test-1',
@@ -59,6 +66,9 @@ function adapterFixture(options = {}) {
   const methods = [
     'credentials',
     'database',
+    'existingIdentity',
+    'publishedMap',
+    'search',
     'filesystem',
     'runtime',
     'health',
@@ -246,6 +256,212 @@ test('provisioning waits for Mongo and identity checks before publishing or ackn
     Object.values(adapters.payload).includes(state.runtimeToken),
     false
   );
+});
+
+test('activation only reconciles existing search and preserves all state and credentials', async () => {
+  const state = newState(job, 3101);
+  state.completedStages = ['database', 'health', 'search'];
+  const before = structuredClone(state);
+  const f = adapterFixture();
+  f.adapters.save = () => assert.fail('activation must not rewrite state');
+  await activate({ ...job, kind: 'activate' }, state, f.adapters);
+  assert.deepEqual(f.calls, [
+    'existingIdentity',
+    'health',
+    'publishedMap',
+    'search',
+    'health',
+    'publicHealth',
+    'complete',
+  ]);
+  assert.deepEqual(state, before);
+  assert.deepEqual(f.adapters.payload, {
+    kind: 'activate',
+    runtimeTokenHash: sha256(state.runtimeToken),
+    port: state.port,
+    canonicalUrl: state.canonicalUrl,
+  });
+});
+
+test('runtime health permits searchReady false before the leased activation completion', async (t) => {
+  const state = newState(job, 3101);
+  const requests = [];
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    requests.push(url);
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        storeId: state.storeId,
+        status: 'ready',
+        searchReady: false,
+      }),
+      { status: 200 }
+    );
+  });
+  const adapters = vmAdapters(
+    config,
+    { ...job, kind: 'activate' },
+    'a'.repeat(40),
+    async () => {}
+  );
+  await adapters.health(state);
+  await adapters.publicHealth(state);
+  assert.deepEqual(requests, [
+    'http://127.0.0.1:3101/api/runtime/health',
+    'https://teststore1.whataisle.com/api/runtime/health',
+  ]);
+});
+
+test('activation failure never acknowledges, starts a process, or trusts completed markers on retry', async () => {
+  const state = newState(job, 3101);
+  const before = structuredClone(state);
+  for (const failure of [
+    'existingIdentity',
+    'publishedMap',
+    'search',
+    'health',
+    'publicHealth',
+  ]) {
+    const f = adapterFixture({ fail: failure });
+    await assert.rejects(
+      activate({ ...job, kind: 'activate' }, state, f.adapters)
+    );
+    assert.equal(f.calls.includes('complete'), false);
+    assert.equal(f.calls.includes('runtime'), false);
+    assert.equal(f.calls.includes('filesystem'), false);
+    if (failure === 'publishedMap' || failure === 'existingIdentity')
+      assert.equal(f.calls.includes('search'), false);
+    assert.deepEqual(state, before);
+  }
+  const retry = adapterFixture();
+  await activate({ ...job, kind: 'activate' }, state, retry.adapters);
+  assert.equal(retry.calls[0], 'existingIdentity');
+  assert.deepEqual(state, before);
+});
+
+test('activation rejects archived or cleared stores and losing the lease before index writes', async () => {
+  for (const field of ['archivedAt', 'databaseClearedAt']) {
+    const state = { ...newState(job, 3101), [field]: new Date().toISOString() };
+    const f = adapterFixture();
+    await assert.rejects(
+      activate({ ...job, kind: 'activate' }, state, f.adapters),
+      { code: 'STORE_ALREADY_ARCHIVED' }
+    );
+    assert.deepEqual(f.calls, []);
+  }
+  const f = adapterFixture();
+  let checks = 0;
+  f.adapters.assertLease = async () => {
+    if (++checks === 4) throw new ProvisioningError('LEASE_LOST');
+  };
+  await assert.rejects(
+    activate({ ...job, kind: 'activate' }, newState(job, 3101), f.adapters),
+    { code: 'LEASE_LOST' }
+  );
+  assert.deepEqual(f.calls, ['existingIdentity', 'health', 'publishedMap']);
+});
+
+test('activation state loading refuses missing state before any directory or secret creation', async () => {
+  for (const kind of ['activate', 'archive']) {
+    assert.throws(() => newState({ ...job, kind }, 3101), {
+      code: 'STORE_STATE_CREATION_NOT_ALLOWED',
+    });
+    const expected = newState(job, 3101);
+    let reads = 0;
+    await assert.rejects(
+      loadOrCreateState({ ...job, kind }, config, async (file) => {
+        reads++;
+        assert.equal(file, expected.stateFile);
+        throw Object.assign(new Error('fixture missing'), { code: 'ENOENT' });
+      }),
+      { code: 'STORE_STATE_MISSING', retryable: false }
+    );
+    assert.equal(reads, 1);
+    const state = await loadOrCreateState(
+      { ...job, kind },
+      config,
+      async () => expected
+    );
+    assert.equal(state, expected);
+  }
+});
+
+test('activation reads the existing Atlas user without recreating a missing or broad user', async () => {
+  const state = newState(job, 3101);
+  for (const failure of ['missing', 'broad', 'ok']) {
+    const calls = [];
+    const read = async (method, route) => {
+      calls.push(method);
+      assert.equal(route, `databaseUsers/admin/${state.dbUser}`);
+      if (failure === 'missing') throw new ProvisioningError('HTTP_404');
+      const user = atlasUserBody(state, config.atlasClusterName);
+      if (failure === 'broad')
+        user.roles = [{ roleName: 'atlasAdmin', databaseName: 'admin' }];
+      return user;
+    };
+    if (failure === 'ok') await verifyExistingAtlasUser(state, config, read);
+    else
+      await assert.rejects(verifyExistingAtlasUser(state, config, read), {
+        code:
+          failure === 'missing'
+            ? 'STORE_DATABASE_USER_MISSING'
+            : 'ATLAS_USER_ISOLATION_MISMATCH',
+        retryable: false,
+      });
+    assert.deepEqual(calls, ['GET']);
+  }
+});
+
+test('activation reads only the PIN-published map and validates persisted shelf IDs without rewriting data', async () => {
+  const valid = {
+    _id: 'published',
+    revision: 1,
+    width: 1000,
+    height: 700,
+    shelves: [
+      {
+        id: 's_0123456789abcdef',
+        code: '冷柜1',
+        description: '',
+        x: 40,
+        y: 50,
+        w: 60,
+        h: 80,
+      },
+    ],
+  };
+  const cases = [
+    null,
+    { ...valid, revision: 0 },
+    { ...valid, shelves: [] },
+    { ...valid, shelves: [{ ...valid.shelves[0], id: 'label1' }] },
+    { ...valid, shelves: [...valid.shelves, ...valid.shelves] },
+    { ...valid, shelves: [{ ...valid.shelves[0], x: 1000 }] },
+    valid,
+  ];
+  for (const record of cases) {
+    const before = structuredClone(record);
+    const db = {
+      collection: (name) => {
+        assert.equal(name, 'store_floor_map');
+        return {
+          findOne: async (query) => {
+            assert.deepEqual(query, { _id: 'published' });
+            return record;
+          },
+        };
+      },
+    };
+    if (record === valid) await verifyPublishedMap(db, validateFloorMap);
+    else
+      await assert.rejects(verifyPublishedMap(db, validateFloorMap), {
+        code: record
+          ? 'STORE_PUBLISHED_MAP_INVALID'
+          : 'STORE_MAP_NOT_PUBLISHED',
+        retryable: false,
+      });
+    assert.deepEqual(record, before);
+  }
 });
 
 test('failed stages retain stable secrets and retry reconciliation instead of trusting old markers', async () => {
@@ -459,28 +675,39 @@ function indexFixture({
   existing = [],
   failCreate = false,
   terminal = 'READY',
+  productsExist = true,
 } = {}) {
   const indexes = structuredClone(existing);
-  let tick = 0;
+  let status = terminal;
+  let exists = productsExist;
+  let identity = false;
   const mutations = [];
   const collection = {
-    listIndexes: () => ({ toArray: async () => [] }),
+    listIndexes: () => ({
+      toArray: async () =>
+        identity ? [{ key: { name_key: 1 }, unique: true }] : [],
+    }),
     createIndex: async (keys, options) => {
       assert.deepEqual(keys, { name_key: 1 });
       assert.equal(options.unique, true);
+      identity = true;
       mutations.push(options.name);
     },
     listSearchIndexes: () => ({
       toArray: async () =>
         indexes.map((index) => ({
           ...index,
-          status: tick > 0 ? terminal : 'BUILDING',
-          queryable: tick > 0 && terminal === 'READY',
+          status,
+          queryable: status === 'READY',
         })),
     }),
     createSearchIndex: async (desired) => {
-      mutations.push(desired.name);
       if (failCreate) throw new Error('permission denied');
+      assert.equal(
+        indexes.some((index) => index.name === desired.name),
+        false
+      );
+      mutations.push(desired.name);
       indexes.push({
         name: desired.name,
         type: desired.type,
@@ -489,8 +716,11 @@ function indexFixture({
     },
   };
   const db = {
-    listCollections: () => ({ toArray: async () => [] }),
+    listCollections: () => ({
+      toArray: async () => (exists ? [{ name: 'products' }] : []),
+    }),
     createCollection: async (name) => {
+      exists = true;
       mutations.push(`collection:${name}`);
     },
     collection: (name) => {
@@ -500,23 +730,38 @@ function indexFixture({
   };
   return {
     db,
+    collection,
+    indexes,
     mutations,
-    pause: async () => {
-      tick++;
+    setStatus: (value) => {
+      status = value;
     },
-    now: () => tick * 500_000,
   };
 }
 
-test('actual index adapter creates empty collection, waits for READY and leaves data unseeded', async () => {
+test('map-only database adapter creates ordinary identity constraints with no Search or model requests', async () => {
+  const f = indexFixture({ productsExist: false });
+  f.collection.listSearchIndexes = () =>
+    assert.fail('phase A must not inspect Search');
+  f.collection.createSearchIndex = () =>
+    assert.fail('phase A must not create Search');
+  await ensureDatabaseBase(f.db, async () => {});
+  await ensureDatabaseBase(f.db, async () => {});
+  assert.deepEqual(f.mutations, ['collection:products', 'name_key_unique']);
+});
+
+test('search adapter creates only missing search indexes without creating collections or ordinary indexes', async () => {
   const f = indexFixture();
-  await ensureSearchIndexes(f.db, undefined, async () => {}, f.pause, f.now);
-  assert.deepEqual(f.mutations, [
-    'collection:products',
-    'name_key_unique',
-    'vector_index',
-    'text_index',
-  ]);
+  await ensureSearchIndexes(f.db, undefined, async () => {});
+  assert.deepEqual(f.mutations, ['vector_index', 'text_index']);
+  await ensureSearchIndexes(f.db, undefined, async () => {});
+  assert.deepEqual(f.mutations, ['vector_index', 'text_index']);
+  const missing = indexFixture({ productsExist: false });
+  await assert.rejects(
+    ensureSearchIndexes(missing.db, undefined, async () => {}),
+    { code: 'STORE_PRODUCTS_COLLECTION_MISSING', retryable: false }
+  );
+  assert.deepEqual(missing.mutations, []);
 });
 
 test('product identity index rejects weaker existing constraints without rewriting customer data', async () => {
@@ -544,17 +789,14 @@ test('product identity index rejects weaker existing constraints without rewriti
   });
 });
 
-test('actual index adapter rejects denied permission, wrong model/type, failed build and timeout', async () => {
+test('search adapter sanitizes denied permission and rejects wrong model/type or failed build', async () => {
   const denied = indexFixture({ failCreate: true });
   await assert.rejects(
-    ensureSearchIndexes(
-      denied.db,
-      undefined,
-      async () => {},
-      denied.pause,
-      denied.now
-    ),
-    /permission denied/
+    ensureSearchIndexes(denied.db, undefined, async () => {}),
+    {
+      code: 'SEARCH_INDEX_PERMISSION_REQUIRED',
+      retryable: false,
+    }
   );
   for (const change of [
     { type: 'search' },
@@ -578,31 +820,89 @@ test('actual index adapter rejects denied permission, wrong model/type, failed b
       ],
     });
     await assert.rejects(
-      ensureSearchIndexes(f.db, undefined, async () => {}, f.pause, f.now),
+      ensureSearchIndexes(f.db, undefined, async () => {}),
       /SEARCH_INDEX_(TYPE|DEFINITION)_MISMATCH/
     );
   }
-  for (const terminal of ['FAILED', 'BUILDING']) {
-    const f = indexFixture({ terminal });
-    await assert.rejects(
-      ensureSearchIndexes(f.db, undefined, async () => {}, f.pause, f.now),
-      /SEARCH_INDEX_(BUILD_FAILED|NOT_READY)/
-    );
-  }
+  const failed = indexFixture({ terminal: 'FAILED' });
+  await assert.rejects(
+    ensureSearchIndexes(failed.db, undefined, async () => {}),
+    { code: 'SEARCH_INDEX_BUILD_FAILED', retryable: false }
+  );
 });
 
-test('actual index adapter performs no mutation after losing its lease', async () => {
+test('search checks all existing definitions before writing and revalidates the final READY observation', async () => {
+  const definitions = searchIndexDefinitions().map((desired) => ({
+    name: desired.name,
+    type: desired.type,
+    latestDefinition: desired.definition,
+  }));
+  const wrongText = {
+    ...definitions[1],
+    latestDefinition: { mappings: { dynamic: true } },
+  };
+  const existingWrong = indexFixture({ existing: [wrongText] });
+  await assert.rejects(
+    ensureSearchIndexes(existingWrong.db, undefined, async () => {}),
+    { code: 'SEARCH_INDEX_DEFINITION_MISMATCH' }
+  );
+  assert.deepEqual(existingWrong.mutations, []);
+  const changed = indexFixture({ existing: definitions });
+  const read = changed.collection.listSearchIndexes;
+  let reads = 0;
+  changed.collection.listSearchIndexes = () => {
+    if (++reads === 2) changed.indexes[1] = wrongText;
+    return read();
+  };
+  await assert.rejects(
+    ensureSearchIndexes(changed.db, undefined, async () => {}),
+    { code: 'SEARCH_INDEX_DEFINITION_MISMATCH' }
+  );
+  assert.deepEqual(changed.mutations, []);
+});
+
+test('building search indexes yield for other stores and are rechecked on the next attempt', async () => {
+  const f = indexFixture({ terminal: 'BUILDING' });
+  await assert.rejects(
+    ensureSearchIndexes(f.db, undefined, async () => {}),
+    { code: 'SEARCH_INDEX_NOT_READY', retryable: true }
+  );
+  assert.deepEqual(f.mutations, ['vector_index', 'text_index']);
+  f.setStatus('READY');
+  await ensureSearchIndexes(f.db, undefined, async () => {});
+  assert.deepEqual(f.mutations, ['vector_index', 'text_index']);
+  // A previous READY result never substitutes for a fresh provider observation.
+  f.setStatus('BUILDING');
+  await assert.rejects(
+    ensureSearchIndexes(f.db, undefined, async () => {}),
+    { code: 'SEARCH_INDEX_NOT_READY' }
+  );
+});
+
+test('quota failure preserves a partial index and retries only the missing one after capacity is available', async () => {
+  const f = indexFixture();
+  const create = f.collection.createSearchIndex;
+  f.collection.createSearchIndex = async (desired) => {
+    if (desired.name === 'text_index')
+      throw new Error('Maximum number of search indexes exceeded');
+    return create(desired);
+  };
+  await assert.rejects(
+    ensureSearchIndexes(f.db, undefined, async () => {}),
+    { code: 'SEARCH_INDEX_CAPACITY_REQUIRED', retryable: false }
+  );
+  assert.deepEqual(f.mutations, ['vector_index']);
+  f.collection.createSearchIndex = create;
+  await ensureSearchIndexes(f.db, undefined, async () => {});
+  assert.deepEqual(f.mutations, ['vector_index', 'text_index']);
+});
+
+test('search adapter performs no mutation after losing its lease', async () => {
   const f = indexFixture();
   await assert.rejects(
-    ensureSearchIndexes(
-      f.db,
-      undefined,
-      async () => {
-        throw new Error('lease lost');
-      },
-      f.pause,
-      f.now
-    ),
+    ensureSearchIndexes(f.db, undefined, async () => {
+      throw new Error('lease lost');
+    }),
     /lease lost/
   );
   assert.deepEqual(f.mutations, []);

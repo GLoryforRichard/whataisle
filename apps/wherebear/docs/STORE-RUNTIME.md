@@ -35,7 +35,7 @@ and the deployment's fixed store ID. The platform supplies:
 `GET /api/runtime/store/<storeId>`
 
 ```
-{storeId,handle,displayName,pinHash,pinVersion,accessAllowed,setupAllowed,
+{storeId,handle,displayName,pinHash,pinVersion,accessAllowed,setupAllowed,searchReady,
  serviceEndsAt,recoveryUrl}
 ```
 
@@ -51,17 +51,29 @@ The client removes the token from the address before exchanging it; documents
 use a `no-referrer` policy. The exchange creates a 30-minute HttpOnly map session.
 
 `GET /api/runtime/health` checks the configuration and Mongo connection and returns
-only `{ok,storeId,status:'ready'}`. It does not return database names/counts or
+only `{ok,storeId,status:'ready',searchReady}`. It does not return database names/counts or
 credentials. Provisioning should check this before installing the public route.
+`searchReady: false` does not make this infrastructure check fail: drawing and
+map persistence must work before the founder activates photo/search services.
 
 ## Opening and maps
 
 Before confirmation, the root URL shows the full-screen tablet editor. Drafts
 live only in that origin's browser local storage. The first confirmation submits
-the map and a fresh PIN; an atomic insert opens the store and issues a staff
-session. It redirects to `/admin?opened=1`, selecting shelf photo upload. Future
-root visits show public product search immediately, including when there are no
-photos yet. No scan-completion/publication step is required.
+the map and a fresh PIN; an atomic insert saves the map and issues a staff
+session. Until activation, the root URL shows preparation status and the
+authenticated workspace says the map is saved but photo upload is not open.
+The owner can still edit through a one-time owner entry. If already activated,
+confirmation redirects to `/admin?opened=1` as before.
+
+The platform returns `searchReady: true` only after the restricted provisioning
+worker verifies both Search indexes and completes its activation lease. Missing
+or non-boolean readiness is treated as false for managed stores; legacy
+WhereBear keeps its existing behavior. Billing access is a separate condition.
+Configuration refreshes every ten seconds, so a waiting page opens operations
+without recreating maps or shelf IDs. Runtime startup, PIN verification and map
+writes never wait for Search. A later externally removed index is not detected
+by this activation flag; withdrawal/reactivation must be recorded by the platform.
 
 The `store_floor_map` collection has a single `published` document with a
 monotonic revision and embedded shelf objects `{id,code,description,x,y,w,h}`.
@@ -74,7 +86,12 @@ alone cannot edit a published map. Revision checks reject concurrent stale saves
 Every operational API route calls `authorizeStoreRequest` before work. Upload,
 scan result, save, operational data, and admin mutation APIs require staff
 sessions. Browser writes also require the store's own origin. Public search,
-voice, and photo identification require active service and a confirmed map.
+voice, and photo identification require active service, a confirmed map, and
+completed activation. All other operational routes require the same activation
+after verifying a staff session. This includes synchronous/async photo intake,
+job reads/acknowledgements, product writes and scan-result saves. The scan worker
+does not claim jobs while preparation is pending, and the browser queue retains
+local photos without automatic submission/deletion until activation and login.
 The map endpoint has its dedicated initial-PIN/owner-session guard. Existing
 legacy admin product mutations retain their separate `ADMIN_WRITES` lock in
 addition to the staff session. Failed PIN guesses have a persistent store-wide
@@ -91,8 +108,10 @@ platform controls retention and founder-confirmed cleanup.
 `npm run test:runtime-integration` starts two copies of the built app, a fresh
 loopback Mongo process using an installed `mongod`, and a fixture platform API.
 Use `MONGOD_BINARY` when the binary differs from `/opt/homebrew/bin/mongod`.
-It verifies separate hosts/databases/cookies, empty onboarding, PIN confirmation,
-scan acceptance, stable shelf IDs, owner grants, map revision conflicts, PIN
+It verifies separate hosts/databases/cookies, empty onboarding, PIN confirmation
+while activation is pending, denied photo/search requests before activation,
+scan acceptance after the fixture platform enables operations, stable shelf IDs,
+owner grants, map revision conflicts, PIN
 revocation, suspension, unavailable configuration, and guessing limits. AI workers
 are explicitly disabled, so this does not claim recognition/provider coverage.
 The fixture uses a unique temporary directory; it stops only its own processes.
@@ -107,10 +126,13 @@ restoration. Subscription state is a synthetic local fixture, not a Stripe
 provider call. Only the generated fixture owner/store records are removed.
 
 The worker tick tests defer both the platform check and job claiming to verify
-overlapping timer callbacks cannot exceed the configured scan concurrency.
+overlapping timer callbacks cannot exceed the configured scan concurrency or
+claim photos before activation. Activation guard tests execute the real guard
+against platform responses; queue tests preserve offline bytes through a pause
+and resume without resubmitting an already confirmed save.
 
 Mongo search still requires the same `$vectorSearch`/`$search` capabilities and
-indexes as WhereBear. Provisioning must verify those capabilities separately;
+indexes as WhereBear. The separate activation job must verify those capabilities;
 a Mongo ping alone is readiness for setup, not proof of working product search.
 
 Legacy cost/vision/compare labs and their shared public experiment/sample assets

@@ -233,6 +233,7 @@ try {
     GOOGLE_CLIENT_ID: '',
     GOOGLE_CLIENT_SECRET: '',
     GEMINI_API_KEY: '',
+    GOOGLE_CLOUD_PROJECT: 'local-fixture-no-network',
     OPENROUTER_API_KEY: '',
     GOOGLE_APPLICATION_CREDENTIALS: path.join(
       artifactDirectory,
@@ -270,6 +271,7 @@ try {
   assert.equal(actual.storeId, storeId);
   assert.equal(actual.pinVersion, 1);
   assert.equal(actual.accessAllowed, true);
+  assert.equal(actual.searchReady, false);
   pass(
     'real platform authenticates only the hashed runtime token and returns active service'
   );
@@ -329,7 +331,60 @@ try {
   assert.equal(response.status, 200);
   const oldStaff = cookie(response);
   pass(
-    'platform-created scrypt PIN opens the new runtime map and staff workspace'
+    'platform-created scrypt PIN saves the runtime map before search activation'
+  );
+  actual = await config();
+  assert.equal(actual.searchReady, false);
+  assert.equal(actual.map.shelves[0].id, map.shelves[0].id);
+  for (const route of [
+    '/api/search',
+    '/api/identify',
+    '/api/voice',
+    '/api/vision/jobs',
+  ]) {
+    response = await request(`${runtimeBase}${route}`, {}, oldStaff);
+    assert.equal(
+      response.status,
+      409,
+      `${route} must remain closed before activation`
+    );
+    assert.equal((await response.json()).code, 'store_preparing');
+  }
+  assert.equal(
+    await mongo.db('combined_store').collection('scan_jobs').countDocuments(),
+    0
+  );
+  pass(
+    'actual platform map-only state blocks search and upload without accepting jobs'
+  );
+
+  // Atlas is outside this local fixture. Represent an authenticated worker's
+  // successful completion in PostgreSQL; the real platform derives searchReady.
+  const storedMap = await mongo
+    .db('combined_store')
+    .collection<{ _id: string }>('store_floor_map')
+    .findOne({ _id: 'published' });
+  await db
+    .update(storeRuntime)
+    .set({ kind: 'activate', status: 'ready' })
+    .where(eq(storeRuntime.storeId, storeId));
+  actual = await config();
+  assert.equal(actual.searchReady, true);
+  assert.deepEqual(
+    await mongo
+      .db('combined_store')
+      .collection<{ _id: string }>('store_floor_map')
+      .findOne({ _id: 'published' }),
+    storedMap
+  );
+  response = await request(
+    `${runtimeBase}/api/admin/products`,
+    undefined,
+    oldStaff
+  );
+  assert.equal(response.status, 200);
+  pass(
+    'real platform activation opens the existing staff session and preserves the map document'
   );
   const ownerUrl = await createOwnerMapEntry(ownerId);
   const ownerToken = new URL(ownerUrl).searchParams.get('owner_token');

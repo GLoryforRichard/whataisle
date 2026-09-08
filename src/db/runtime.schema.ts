@@ -7,7 +7,7 @@ export type RuntimeStatus = 'queued' | 'provisioning' | 'retry' | 'ready' | 'fai
 export const storeRuntime = pgTable('store_runtime', {
   storeId: text('store_id').primaryKey().references(() => store.id),
   jobId: text('job_id').notNull(),
-  kind: text('kind').notNull().default('provision').$type<'provision' | 'archive'>(),
+  kind: text('kind').notNull().default('provision').$type<'provision' | 'activate' | 'archive'>(),
   status: text('status').notNull().default('queued').$type<RuntimeStatus>(),
   attempts: integer('attempts').notNull().default(0),
   leaseTokenHash: text('lease_token_hash'),

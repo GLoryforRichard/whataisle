@@ -10,6 +10,7 @@ export interface PublicStoreRuntime {
   managed: boolean;
   accessAllowed: boolean;
   setupAllowed: boolean;
+  searchReady: boolean;
   recoveryUrl: string;
   pinLength: number;
   staffAuthorized: boolean;
@@ -62,6 +63,13 @@ export default function StoreRuntimeProvider({ children }: { children: React.Rea
     window.addEventListener('focus', focus);
     return () => window.removeEventListener('focus', focus);
   }, [refresh]);
+  useEffect(() => {
+    if (!store?.managed) return;
+    // Opening upload never needs a reload or loses the device-local map draft.
+    // The same refresh also pauses an old tab if activation access is withdrawn.
+    const timer = setInterval(() => void refresh(), 10_000);
+    return () => clearInterval(timer);
+  }, [store?.managed, refresh]);
   if (error || !store)
     return (
       <main

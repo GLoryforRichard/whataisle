@@ -22,6 +22,10 @@ const complete = z.union([
     runtimeVersion: z.string().min(1).max(100),
     canonicalUrl: z.url(),
   }),
+  credentials.extend({
+    kind: z.literal('activate'),
+    canonicalUrl: z.url(),
+  }),
   lease.extend({
     kind: z.literal('archive'),
     archivedAt: z.string().optional(),

@@ -47,6 +47,8 @@ export async function getOwnerStore(ownerUserId: string) {
       displayName: store.displayName,
       status: store.status,
       runtimeStatus: storeRuntime.status,
+      runtimeKind: storeRuntime.kind,
+      readyAt: storeRuntime.readyAt,
       cleanupRequestedAt: storeRuntime.cleanupRequestedAt,
     })
     .from(store)
@@ -210,14 +212,97 @@ export async function listStoreCleanup() {
       displayName: store.displayName,
       status: store.status,
       runtimeStatus: storeRuntime.status,
+      runtimeKind: storeRuntime.kind,
+      readyAt: storeRuntime.readyAt,
       retentionUntil: storeSubscription.retentionUntil,
       suspendedAt: storeSubscription.suspendedAt,
       cleanupRequestedAt: storeRuntime.cleanupRequestedAt,
+      billing: storeSubscription,
     })
     .from(store)
     .innerJoin(storeSubscription, eq(storeSubscription.storeId, store.id))
     .leftJoin(storeRuntime, eq(storeRuntime.storeId, store.id));
-  return rows;
+  return rows.map(({ billing, ...row }) => ({
+    ...row,
+    accessAllowed: billingAccess(billing as OwnerBilling, new Date())
+      .accessAllowed,
+  }));
+}
+
+/** Founder-approved Search activation is separate from opening the map URL.
+ * The shared billing lock fences cleanup/payment races; the row lock fences
+ * worker claims and duplicate clicks without changing the existing runtime. */
+export async function activateStoreSearch(actorId: string, storeId: string) {
+  const db = await getDb();
+  return db.transaction(async (tx) => {
+    const [actor] = await tx
+      .select({ role: user.role })
+      .from(user)
+      .where(eq(user.id, actorId));
+    if (actor?.role !== 'admin') throw new Error('Administrator required');
+    await tx.execute(sql`select pg_advisory_xact_lock(619914199)`);
+    const [tenant] = await tx
+      .select()
+      .from(store)
+      .where(eq(store.id, storeId))
+      .for('update');
+    const [billing] = await tx
+      .select()
+      .from(storeSubscription)
+      .where(eq(storeSubscription.storeId, storeId));
+    const [runtime] = await tx
+      .select()
+      .from(storeRuntime)
+      .where(eq(storeRuntime.storeId, storeId))
+      .for('update');
+    if (
+      !tenant ||
+      ['closing', 'closed'].includes(tenant.status) ||
+      !billingAccess((billing as OwnerBilling) ?? null, new Date())
+        .accessAllowed ||
+      !runtime?.readyAt ||
+      runtime.cleanupRequestedAt ||
+      !runtime.port ||
+      !runtime.runtimeTokenHash
+    )
+      throw new Error('A paid, open store with a working map is required');
+    if (runtime.kind === 'activate') {
+      if (runtime.status === 'failed')
+        throw new Error('Retry the failed activation job');
+      return { jobId: runtime.jobId };
+    }
+    if (
+      runtime.kind !== 'provision' ||
+      runtime.status !== 'ready' ||
+      (runtime.leaseExpiresAt && runtime.leaseExpiresAt > new Date())
+    )
+      throw new Error('Store setup must finish before activation');
+    const jobId = crypto.randomUUID();
+    await tx
+      .update(storeRuntime)
+      .set({
+        kind: 'activate',
+        status: 'queued',
+        jobId,
+        attempts: 0,
+        nextAttemptAt: new Date(),
+        leaseTokenHash: null,
+        leaseExpiresAt: null,
+        workerId: null,
+        lastError: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(storeRuntime.storeId, storeId));
+    await tx.insert(auditLog).values({
+      id: crypto.randomUUID(),
+      actorUserId: actorId,
+      storeId,
+      action: 'runtime.activation_requested',
+      targetType: 'store',
+      targetId: storeId,
+    });
+    return { jobId };
+  });
 }
 
 export async function requestStoreCleanup(
@@ -269,6 +354,20 @@ export async function requestStoreCleanup(
       throw new Error(
         'A recovery payment is still pending. Wait for payment reconciliation before cleaning up this store / 恢复付款仍待确认，请等待付款结果后再清理店铺'
       );
+    const [runtime] = await tx
+      .select()
+      .from(storeRuntime)
+      .where(eq(storeRuntime.storeId, storeId))
+      .for('update');
+    if (
+      !runtime?.readyAt ||
+      runtime.kind === 'archive' ||
+      runtime.cleanupRequestedAt ||
+      (runtime.leaseExpiresAt && runtime.leaseExpiresAt > new Date())
+    )
+      throw new Error(
+        'Cleanup is already queued or a store job still holds its lease'
+      );
     const rows = await tx
       .update(storeRuntime)
       .set({
@@ -279,11 +378,13 @@ export async function requestStoreCleanup(
         nextAttemptAt: new Date(),
         cleanupRequestedAt: new Date(),
         cleanupRequestedBy: actorId,
+        leaseTokenHash: null,
+        leaseExpiresAt: null,
+        workerId: null,
+        lastError: null,
         updatedAt: new Date(),
       })
-      .where(
-        and(eq(storeRuntime.storeId, storeId), eq(storeRuntime.status, 'ready'))
-      )
+      .where(eq(storeRuntime.storeId, storeId))
       .returning({ id: storeRuntime.storeId });
     if (!rows.length)
       throw new Error(
@@ -312,12 +413,48 @@ export async function retryStoreProvisioning(actorId: string, storeId: string) {
       .from(user)
       .where(eq(user.id, actorId));
     if (actor?.role !== 'admin') throw new Error('Administrator required');
+    await tx.execute(sql`select pg_advisory_xact_lock(619914199)`);
+    const [runtime] = await tx
+      .select()
+      .from(storeRuntime)
+      .where(eq(storeRuntime.storeId, storeId))
+      .for('update');
+    if (
+      !runtime ||
+      runtime.status !== 'failed' ||
+      (runtime.leaseExpiresAt && runtime.leaseExpiresAt > new Date())
+    )
+      throw new Error(
+        'Only a failed job without an active lease can be retried'
+      );
+    if (runtime.kind === 'activate') {
+      const [tenant] = await tx
+        .select()
+        .from(store)
+        .where(eq(store.id, storeId));
+      const [billing] = await tx
+        .select()
+        .from(storeSubscription)
+        .where(eq(storeSubscription.storeId, storeId));
+      if (
+        !runtime.readyAt ||
+        runtime.cleanupRequestedAt ||
+        !tenant ||
+        ['closing', 'closed'].includes(tenant.status) ||
+        !billingAccess((billing as OwnerBilling) ?? null, new Date())
+          .accessAllowed
+      )
+        throw new Error('An active store is required to retry activation');
+    }
     const rows = await tx
       .update(storeRuntime)
       .set({
         status: 'queued',
         nextAttemptAt: new Date(),
         lastError: null,
+        leaseTokenHash: null,
+        leaseExpiresAt: null,
+        workerId: null,
         updatedAt: new Date(),
       })
       .where(

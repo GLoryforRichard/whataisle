@@ -7,12 +7,12 @@ const source = await readFile(new URL('../lib/scan/worker.ts', import.meta.url),
 const compiled = ts.transpileModule(source, {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
 const deferred = () => {let resolve;const promise=new Promise(r=>{resolve=r;});return {promise,resolve};};
 const drain = () => new Promise(resolve=>setImmediate(resolve));
-async function fixture({allowed=true,permissionError=false}={}) {
+async function fixture({allowed=true,permissionError=false,ready=true}={}) {
   const platform=deferred(),claim=deferred(),recognition=deferred();
   const timers=[];const calls={permission:0,claim:0,recognition:0,complete:0};
   const noop=async()=>{};const exports={};
   const dependencies={
-    '@/lib/store-runtime':{isManagedStore:()=>true,getStoreRuntime:async()=>{calls.permission++;await platform.promise;if(permissionError)throw new Error('offline');return {accessAllowed:allowed};}},
+    '@/lib/store-runtime':{isManagedStore:()=>true,storeOperationsReady:async()=>ready,getStoreRuntime:async()=>{calls.permission++;await platform.promise;if(permissionError)throw new Error('offline');return {accessAllowed:allowed};}},
     '@/lib/ops':{logOp:noop},
     './detect':{ScanFailedError:class extends Error{}},'./intake':{SCAN_MODEL:'fixture',usageFromOutcomes:()=>({})},
     './cost':{sumCost:()=>0},'./transport':{callModelVertex:()=>assert.fail('No model calls allowed')},
@@ -39,7 +39,7 @@ test('overlapping timers cannot overclaim while the platform or Mongo claim is s
   f.tick();await drain();assert.equal(f.calls.claim,2,'scheduler resumes after the previous photo finishes');
 });
 test('permission denial or failure releases the tick lock without claiming a photo',async()=>{
-  for(const options of [{allowed:false},{permissionError:true}]){
+  for(const options of [{allowed:false},{permissionError:true},{ready:false}]){
     const f=await fixture(options);f.platform.resolve();f.tick();await drain();f.tick();await drain();
     assert.equal(f.calls.permission,2);assert.equal(f.calls.claim,0);
   }

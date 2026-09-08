@@ -8,12 +8,12 @@ import { STORE_ID } from '@/lib/store-identity.mjs';
 export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
-    await getStoreRuntime();
+    const config = await getStoreRuntime();
     if (isManagedStore()) await Promise.all(['SCAN_JOBS_DIR','MDB_MCP_LOG_PATH'].map(variable=>access(runtimeDirectory(variable as 'SCAN_JOBS_DIR'|'MDB_MCP_LOG_PATH'),constants.W_OK)));
 
     await (await getDb()).command({ ping: 1 });
     return Response.json(
-      { ok: true, storeId: STORE_ID, status: 'ready' },
+      { ok: true, storeId: STORE_ID, status: 'ready', searchReady: config.searchReady },
       { headers: { 'Cache-Control': 'no-store' } }
     );
   } catch {

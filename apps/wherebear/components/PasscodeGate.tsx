@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { C, FONT } from '@/lib/theme';
 import { useStoreRuntime } from './StoreRuntimeProvider';
+import StorePreparing from './StorePreparing';
 
 /** Only the server can issue a workspace session; browser flags never authorize a request. */
 export default function PasscodeGate({
@@ -43,7 +44,10 @@ export default function PasscodeGate({
       setBusy(false);
     }
   };
-  if (unlocked) return <>{children}</>;
+  if (unlocked) {
+    if (store.managed && (!store.map || !store.searchReady)) return <StorePreparing staff />;
+    return <>{children}</>;
+  }
   return (
     <main
       style={{

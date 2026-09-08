@@ -12,6 +12,7 @@ import {
   newState,
   validateState,
   provision,
+  activate,
   archive,
 } from './store-provisioning-core.mjs';
 import {
@@ -26,14 +27,19 @@ import {
   vmAdapters,
 } from './store-provisioning-adapters.mjs';
 
-async function loadOrCreateState(job, config) {
+export async function loadOrCreateState(
+  job,
+  config,
+  readState = readRestrictedJson
+) {
+  job = validateJob(job);
   const plan = storePlan(job);
   try {
-    return validateState(await readRestrictedJson(plan.stateFile), job);
+    return validateState(await readState(plan.stateFile), job);
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }
-  if (job.kind === 'archive')
+  if (job.kind !== 'provision')
     throw new ProvisioningError('STORE_STATE_MISSING', false);
   await ensureDirectory(path.join(ROOTS.state, 'stores'));
   const states = [];
@@ -112,6 +118,7 @@ export async function runOnce(config, runtimeVersion) {
     const state = await loadOrCreateState(job, config);
     const adapters = vmAdapters(config, job, runtimeVersion, assertLease);
     if (job.kind === 'archive') await archive(job, state, adapters);
+    else if (job.kind === 'activate') await activate(job, state, adapters);
     else await provision(job, state, adapters);
     console.log(
       JSON.stringify({
@@ -172,7 +179,9 @@ export async function main(args = process.argv.slice(2)) {
             'approved VM identity',
             'root-only worker/Atlas credentials',
             'reviewed runtime release',
-            'isolated MongoDB user and ready indexes',
+            job.kind === 'activate'
+              ? 'existing isolated user/state and PIN-confirmed published map; search indexes will be reconciled'
+              : 'isolated MongoDB user and ordinary product identity index; no search indexes during provisioning',
             'Caddy import',
             'platform lease API',
           ],

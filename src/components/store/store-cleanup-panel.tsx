@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  activateStoreSearchAction,
   getStoreCleanupAction,
   requestStoreCleanupAction,
   retryStoreProvisioningAction,
@@ -21,6 +22,7 @@ export function StoreCleanupPanel() {
   const [error, setError] = useState('');
   const { data, isPending, isError } = useQuery({
     queryKey: ['store-cleanup'],
+    refetchInterval: 5000,
     queryFn: async () => {
       const result = await getStoreCleanupAction({});
       if (!result?.data?.success) throw new Error('Store list unavailable');
@@ -61,14 +63,59 @@ export function StoreCleanupPanel() {
                   ? zh
                     ? '数据保留期已满 · 待清理'
                     : 'Retention ended · pending cleanup'
-                  : tenant.runtimeStatus === 'ready'
+                  : tenant.readyAt
                     ? zh
-                      ? '门店已开通'
-                      : 'Store ready'
+                      ? tenant.runtimeKind === 'activate' &&
+                        tenant.runtimeStatus === 'ready'
+                        ? '地图、搜索和照片上传已开放'
+                        : '地图可保存，照片上传准备中'
+                      : tenant.runtimeKind === 'activate' &&
+                          tenant.runtimeStatus === 'ready'
+                        ? 'Map, search and photo uploads available'
+                        : 'Map available; photo uploads are being prepared'
                     : zh
                       ? '门店正在准备或需要处理'
                       : 'Store preparing or needs attention'}
             </p>
+            {tenant.readyAt &&
+              tenant.accessAllowed &&
+              !tenant.cleanupRequestedAt &&
+              !['closing', 'closed'].includes(tenant.status) &&
+              tenant.runtimeKind === 'provision' &&
+              tenant.runtimeStatus === 'ready' && (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    {zh
+                      ? '完成现场地图后手动开启。此操作只准备搜索和照片上传，不会自动升级套餐或付款。'
+                      : 'Enable after finishing the on-site map. This prepares search and photo uploads without upgrading a plan or making a payment.'}
+                  </p>
+                  <Button
+                    disabled={busy}
+                    onClick={async () => {
+                      setBusy(true);
+                      setError('');
+                      try {
+                        const result = await activateStoreSearchAction({
+                          storeId: tenant.id,
+                        });
+                        if (!result?.data?.success)
+                          throw new Error('Activation failed');
+                        await client.invalidateQueries({
+                          queryKey: ['store-cleanup'],
+                        });
+                      } catch {
+                        setError('failed');
+                      } finally {
+                        setBusy(false);
+                      }
+                    }}
+                  >
+                    {zh
+                      ? '开放搜索和照片上传'
+                      : 'Enable search and photo uploads'}
+                  </Button>
+                </div>
+              )}
             {tenant.retentionUntil && (
               <p>
                 {zh ? '保留至：' : 'Retain until: '}
@@ -77,34 +124,38 @@ export function StoreCleanupPanel() {
                 )}
               </p>
             )}
-            {tenant.runtimeStatus === 'failed' && (
-              <Button
-                variant="outline"
-                disabled={busy}
-                onClick={async () => {
-                  setBusy(true);
-                  setError('');
-                  try {
-                    const result = await retryStoreProvisioningAction({
-                      storeId: tenant.id,
-                    });
-                    if (!result?.data?.success) throw new Error('Retry failed');
-                    await client.invalidateQueries({
-                      queryKey: ['store-cleanup'],
-                    });
-                  } catch {
-                    setError('failed');
-                  } finally {
-                    setBusy(false);
-                  }
-                }}
-              >
-                {zh ? '重试门店任务' : 'Retry store job'}
-              </Button>
-            )}
+            {tenant.runtimeStatus === 'failed' &&
+              (tenant.runtimeKind !== 'activate' || tenant.accessAllowed) && (
+                <Button
+                  variant="outline"
+                  disabled={busy}
+                  onClick={async () => {
+                    setBusy(true);
+                    setError('');
+                    try {
+                      const result = await retryStoreProvisioningAction({
+                        storeId: tenant.id,
+                      });
+                      if (!result?.data?.success)
+                        throw new Error('Retry failed');
+                      await client.invalidateQueries({
+                        queryKey: ['store-cleanup'],
+                      });
+                    } catch {
+                      setError('failed');
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                >
+                  {zh ? '重试门店任务' : 'Retry store job'}
+                </Button>
+              )}
             {due &&
               !tenant.cleanupRequestedAt &&
-              tenant.runtimeStatus === 'ready' && (
+              tenant.readyAt &&
+              tenant.runtimeKind !== 'archive' &&
+              tenant.runtimeStatus !== 'provisioning' && (
                 <Button
                   variant="outline"
                   onClick={() => {

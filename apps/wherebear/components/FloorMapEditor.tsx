@@ -422,7 +422,9 @@ export default function FloorMapEditor({ owner = false }: { owner?: boolean }) {
             <p>
               {owner
                 ? '保存后，商品仍关联原货架。 / Product locations stay attached to their shelves.'
-                : '确认后立即开店，可以进入员工工作台拍照。 / Your store opens immediately; staff can start uploading photos.'}
+                : store.searchReady
+                  ? '保存地图和货架后，即可进入员工工作台上传照片。 / Save the map and shelves, then upload photos in the staff workspace.'
+                  : '确认后保存地图和货架，准备完成后开放照片上传。 / Confirm to save the map and shelves. Photo upload opens when preparation is complete.'}
             </p>
             {!owner && (
               <label>
