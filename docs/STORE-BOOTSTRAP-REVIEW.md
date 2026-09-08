@@ -152,7 +152,9 @@ index, billing setting or credential was created or changed.
 | Free Usage snapshot | Organization-wide one-time model balances, not monthly: `voyage-4-large` used `609,073 / 200,000,000` tokens (`0.3%`); `voyage-4` used `0 / 200,000,000` tokens |
 | Signed-in human role | `Project Owner`; this does not establish the worker service account's access |
 | User-managed service accounts | The project's Applications → Service Accounts → User Managed page displayed “No service accounts yet”. No account was created. This does not inventory System Managed accounts or legacy API keys. |
-| Still unverified / to configure | Worker permissions/credentials, restricted DB-user access, API/data IP access, organization resource policies, billing/payment settings, and the existing Vector Search index's complete model/field definition. |
+| Organization resource policies | The organization's Resource Policies page showed the empty state and Create Policy action on 2026-09-08. No organization resource policy was configured at this read-only check. |
+| Payment method | The organization's Billing Overview displayed “Payment Method Not added yet.” No payment information was entered or saved. A paid upgrade therefore also requires a payment method. |
+| Still unverified / to configure | Worker permissions/credentials, restricted DB-user access, API/data IP access, remaining billing details, and the existing Vector Search index's complete model/field definition. |
 
 **Confirmed isolation prerequisite, later 2026-09-08 UTC check:** the actual
 WhereBear process on port `3002` authenticated with role `atlasAdmin` on `admin`.
