@@ -43,6 +43,9 @@ fs.writeFileSync('store-runtime-manifest.json', JSON.stringify({
 NODE
 # There are no production credentials or customer files in this git-only
 # source tree. Exclude compiler cache; it is mounted per process at runtime.
-tar --exclude='./.next/cache/*' --exclude='./.git' -czf "$store_build_dir/store-${store_commit}.tgz" .
+# Native build outputs can share an inode (for example ssh2's sshcrypto.node).
+# Store each hard-linked path as a regular file for the installer's archive
+# safety contract; preserve internal npm symlinks rather than dereferencing them.
+tar --hard-dereference --exclude='./.next/cache/*' --exclude='./.git' -czf "$store_build_dir/store-${store_commit}.tgz" .
 sha256sum "$store_build_dir/store-${store_commit}.tgz"
 echo 'Build/checks complete. Artifact is prepared only; no runtime was activated.'
